@@ -7,13 +7,18 @@ import { useMundo } from '../../hooks/useMundo.js';
 import { aoTocarEntidade } from './clique.js';
 import { ALTURA, alturaDoChao, idDe, paraCena } from './coords.js';
 import { MODELOS } from './modelos/Construcoes.jsx';
-import Peca from './Peca.jsx';
+import * as THREE from 'three';
+
+// Marola fina e translúcida em volta do barco
+const geoMarola = new THREE.RingGeometry(0.93, 1, 40).rotateX(-Math.PI / 2);
+const matMarola = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.55, depthWrite: false });
 
 // Construção pronta. A jangada se move (empurrada para a água, navegando) e balança no mar.
 // memo: o modelo só é refeito quando o nível muda (o resto anima no useFrame).
 const Estrutura = memo(function Estrutura({ s }) {
   const ref = useRef();
   const ondinha = useRef();
+  const anterior = useRef({ x: s.x, y: s.y });
   const c = CONSTRUCOES[s.tipo];
   const Modelo = MODELOS[s.tipo];
   useFrame(({ clock }) => {
@@ -21,11 +26,25 @@ const Estrutura = memo(function Estrutura({ s }) {
     const noMar = estaNoMar(s);
     const h = noMar ? ALTURA.agua + Math.sin(t * 2) * 1.2 : alturaDoChao(s.x, s.y);
     ref.current.position.set(s.x - ILHA.x, h, s.y - ILHA.y);
-    ref.current.rotation.z = noMar ? Math.sin(t * 1.6) * 0.03 : 0;
+    if (s.tipo === 'jangada') {
+      // o barco vira (suave) para o rumo em que navega; a tripulação usa s.rumoVisual
+      const dx = s.x - anterior.current.x, dy = s.y - anterior.current.y;
+      anterior.current = { x: s.x, y: s.y };
+      if (s.rumoVisual === undefined) s.rumoVisual = 0;
+      if (Math.hypot(dx, dy) > 0.05) {
+        const alvo = -Math.atan2(dy, dx);
+        s.rumoVisual += Math.atan2(Math.sin(alvo - s.rumoVisual), Math.cos(alvo - s.rumoVisual)) * 0.08;
+      }
+      ref.current.rotation.order = 'YXZ'; // gira no rumo e depois balança de lado
+      ref.current.rotation.y = s.rumoVisual;
+    }
+    // balança no mar (de lado, em relação ao barco)
+    ref.current.rotation.x = noMar ? Math.sin(t * 1.6) * 0.03 : 0;
     if (ondinha.current) {
       ondinha.current.visible = noMar;
-      const r = 34 + (t * 8) % 10;
+      const r = 34 + (s.nivel - 1) * 9 + (t * 8) % 10;
       ondinha.current.scale.set(r, 1, r * 0.6);
+      ondinha.current.rotation.y = s.rumoVisual ?? 0; // a marola acompanha o comprimento do barco
       ondinha.current.position.set(s.x - ILHA.x, 0.5, s.y - ILHA.y);
     }
   });
@@ -34,7 +53,7 @@ const Estrutura = memo(function Estrutura({ s }) {
       <group ref={ref} onPointerDown={c.area ? undefined : e => aoTocarEntidade(e, s.x, s.y)}>
         <Modelo est={s} />
       </group>
-      {s.tipo === 'jangada' && <Peca ref={ondinha} geo="anel" cor="#ffffff" sombra={false} />}
+      {s.tipo === 'jangada' && <mesh ref={ondinha} geometry={geoMarola} material={matMarola} />}
     </>
   );
 });

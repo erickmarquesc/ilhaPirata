@@ -37,6 +37,15 @@ const NIVEIS_MOINHO = [
   { custo: { madeira: 400, pedra: 150, tijolo: 130, trigo: 60 }, tempo: 90, filhos: 3 },
 ];
 
+// Jangada → barco pirata no nível 5
+const NIVEIS_JANGADA = [
+  { custo: { madeira: 600 }, tempo: 60, filhos: 1 },
+  { custo: { madeira: 400, pedra: 40, tijolo: 40, peixe: 30 }, tempo: 75, filhos: 1 },
+  { custo: { madeira: 450, pedra: 80, tijolo: 60, carne: 40 }, tempo: 90, filhos: 1 },
+  { custo: { madeira: 500, pedra: 100, tijolo: 100, trigo: 40 }, tempo: 105, filhos: 2 },
+  { custo: { madeira: 600, pedra: 120, tijolo: 150, trigo: 60, peixe: 50 }, tempo: 120, filhos: 2 },
+];
+
 const NIVEIS_CABANA = [
   { custo: { madeira: 300 } },
   { custo: { madeira: 370, tijolo: 20 } },
@@ -65,13 +74,13 @@ export const CONSTRUCOES = {
   },
   jangada: {
     nome: 'Jangada', icone: '🛶',
-    custo: { madeira: 600 },
-    tempo: 60, raio: 22,
+    niveis: NIVEIS_JANGADA,
+    custo: NIVEIS_JANGADA[0].custo,
+    tempo: NIVEIS_JANGADA[0].tempo, raio: 22,
     largura: 60, altura: 62,
     concluido: 'Jangada construída!',
-    descricao: 'Uma jangada de troncos na beira do mar.',
+    descricao: 'Leva a família para pescar. Evolui até virar um barco pirata no nível 5.',
     dica: 'A jangada só pode ser construída na areia, perto do mar. Esc para cancelar.',
-    precisaAdolescente: true,   // um filho adolescente ajuda o pai na obra
     vaiParaAgua: true,          // depois de pronta é empurrada para o mar
     // só na faixa de areia, colada na água
     local: p => dentroDaIlha(p.x, p.y, 4) && !dentroDaIlha(p.x, p.y, 48),

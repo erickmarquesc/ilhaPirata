@@ -7,6 +7,7 @@ import { ALTURA, alturaDoChao, idDe } from './coords.js';
 import { animalAdulto } from '../../game/animais.js';
 import AnimaisSimples from './AnimaisSimples.jsx';
 import AnimalAnimado from './AnimalAnimado.jsx';
+import { alturaDoConves } from './modelos/Embarcacoes.jsx';
 import { Pessoa } from './modelos/Seres.jsx';
 
 // Atualiza posição e direção de um grupo a partir do objeto do mundo, a cada quadro
@@ -18,10 +19,13 @@ function useSegue(obj, opcoes = {}) {
     if (!g) return;
     let { x, y } = obj, h;
     if (obj.embarcado) {
-      // em pé no convés da jangada
+      // em pé no convés, girando junto com o barco
       const est = obj.embarcado, i = est.tripulacao.indexOf(obj);
-      x = est.x - 12 + i * 22; y = est.y + 2;
-      h = ALTURA.agua + 5 + Math.sin(clock.elapsedTime * 2) * 1.5;
+      const ang = est.rumoVisual ?? 0;
+      const ox = i === 0 ? -10 : 10, oz = 3;          // posição no convés (proa para +X)
+      x = est.x + ox * Math.cos(ang) + oz * Math.sin(ang);
+      y = est.y - ox * Math.sin(ang) + oz * Math.cos(ang);
+      h = ALTURA.agua + alturaDoConves(est.nivel) + Math.sin(clock.elapsedTime * 2) * 1.2;
     } else {
       h = alturaDoChao(x, y);
     }
