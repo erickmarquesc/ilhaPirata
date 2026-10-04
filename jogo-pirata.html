@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ilha do Náufrago</title>
+<style>
+  :root {
+    --mar: #1f6fa8;
+    --texto: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--mar);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+    touch-action: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+  .painel { background: rgba(0,0,0,0.65); padding: 8px 12px; border-radius: 6px; }
+  .painel h2 { font-size: 13px; margin: 0 0 4px; font-weight: 600; opacity: 0.8; }
+  #hud {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+    width: 190px;
+  }
+  .item { display: flex; justify-content: space-between; gap: 16px; margin: 2px 0; }
+  .separador { border-top: 1px solid rgba(255,255,255,0.2); margin: 6px 0; }
+  .ganho { color: #ffe27a; }
+  .botao {
+    margin-top: 6px; width: 100%; padding: 6px 8px;
+    font: inherit; font-size: 14px;
+    border: 2px solid var(--cor, #8fd16a); border-radius: 6px;
+    background: transparent; color: #fff; cursor: pointer; text-align: left;
+  }
+  .botao.ativo { background: var(--cor, #8fd16a); color: #1b1b1b; font-weight: 600; }
+  .botao:disabled { opacity: 0.4; cursor: not-allowed; }
+  .botao:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #btnPlantar { --cor: #8fd16a; }
+  #btnConstruir, .construcao { --cor: #e0a95a; }
+  [hidden] { display: none !important; }
+  #menuConstrucoes { max-height: calc(100vh - 330px); min-height: 120px; overflow-y: auto; }
+  .construcao { display: block; }
+  .construcao .nome { font-weight: 600; display: block; }
+  .construcao .custo { font-size: 13px; opacity: 0.9; }
+  .falta { color: #ffb0a0; }
+  #painel {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: 12px;
+    width: min(260px, calc(100% - 226px));
+    min-width: 170px;
+  }
+  #painel h2 { font-size: 16px; opacity: 1; display: flex; justify-content: space-between; align-items: center; }
+  #painel p { margin: 4px 0; font-size: 14px; line-height: 1.4; }
+  #painel .botao { --cor: #f08bbd; }
+  #btnFechar { background: none; border: 0; color: #fff; font-size: 18px; cursor: pointer; padding: 0 4px; }
+  #dica {
+    position: fixed; left: 50%;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.45);
+    padding: 6px 12px; border-radius: 6px; font-size: 14px;
+    pointer-events: none; max-width: calc(100% - 24px); text-align: center;
+  }
+</style>
+</head>
+<body>
+<canvas id="tela"></canvas>
+<div id="hud">
+  <div class="painel">
+    <h2>Inventário</h2>
+    <div class="item"><span>🪵 Madeira</span><strong id="qtdMadeira">0</strong></div>
+    <div class="item"><span>🌱 Sementes</span><strong id="qtdSementes">0</strong></div>
+    <div class="item"><span>🍖 Carne</span><strong id="qtdCarne">0</strong></div>
+    <div class="item"><span>🐟 Peixe</span><strong id="qtdPeixe">0</strong></div>
+    <div class="item"><span>🌾 Trigo</span><strong id="qtdTrigo">0</strong></div>
+    <div class="item"><span>🌾 Sementes de trigo</span><strong id="qtdSemTrigo">0</strong></div>
+    <div class="separador"></div>
+    <div class="item"><span>👩 Esposa</span><strong id="qtdEsposa">—</strong></div>
+    <div class="item"><span>🧒 Filhos</span><strong id="qtdFilhos">0</strong></div>
+    <div class="item"><span>🐾 Animais</span><strong id="qtdAnimais">0</strong></div>
+    <button id="btnPlantar" class="botao" disabled>🌱 Plantar (P)</button>
+    <button id="btnConstruir" class="botao">🔨 Construções (C)</button>
+  </div>
+  <div id="menuConstrucoes" class="painel" hidden>
+    <h2>Construções</h2>
+    <div id="listaConstrucoes"></div>
+  </div>
+</div>
+<div id="painel" class="painel" hidden>
+  <h2><span id="painelTitulo"></span><button id="btnFechar" aria-label="Fechar">×</button></h2>
+  <div id="painelTexto"></div>
+  <div id="painelBotoes"></div>
+</div>
+<div id="dica"></div>
+
+<script>
+// ===================== Configuração =====================
+const MUNDO = { w: 1000, h: 1000 };
+const ILHA = { x: 500, y: 500, raio: 330 };
+const VELOCIDADE = 180;
+const TEMPO_SERRAR = 5;
+const TEMPO_PLANTAR = 2;
+const TEMPO_PLANTAR_CRIANCA = 3;
+const TEMPO_CRESCER = 60;
+const TEMPO_NAMORAR = 3;
+const TEMPO_GRAVIDEZ = 30;     // segundos até o bebê nascer
+const TEMPO_CUIDAR_BEBE = 60;  // segundos até o bebê virar criança
+const TEMPO_DESCANSO = 60;     // espera depois que o bebê vira criança para poder namorar de novo
+const MADEIRA_POR_ARVORE = 20;
+const SEMENTES_POR_ARVORE = 2;
+const DISTANCIA_MIN_ARVORES = 45;
+const RESERVA_SEMENTES = 4;
+const TEMPO_CACAR = 3;
+const TEMPO_EMPURRAR = 3;
+const VELOCIDADE_JANGADA = 120;    // velocidade navegando no mar
+const CARDUMES_MAX = 4;            // cardumes ao mesmo tempo no mar
+const PEIXES_POR_CARDUME = 5;      // quantas pescas cada cardume aguenta
+const TEMPO_PESCAR = 4;            // segundos por pesca
+const PEIXES_POR_PESCA = 2;        // um peixe para cada adulto na jangada
+const TEMPO_NOVO_CARDUME = 20;     // segundos para surgir um cardume novo
+const PESCAS_POR_VIAGEM = 3;       // filhos voltam depois de pescar isso
+const DESCANSO_VIAGEM = 30;        // segundos entre viagens dos filhos          // segundos empurrando a jangada para a água
+const TEMPO_CRIA_ANIMAL = 45;     // segundos entre filhotes de um casal
+const TEMPO_CRESCER_ANIMAL = 60;  // segundos para o filhote virar adulto
+const MAX_POR_ESPECIE = 6;        // limite de animais de cada espécie na ilha
+const MAX_COM_ABRIGO = 10;        // limite com galinheiro / curral / pasto
+const TEMPO_TRIGO_CRESCER = 45;   // segundos para o trigo amadurecer
+const TEMPO_PLANTAR_TRIGO = 1.5;
+const TEMPO_COLHER_TRIGO = 2;
+const TRIGO_POR_COLHEITA = 5;
+const SEMENTES_TRIGO_INICIAIS = 1;      // ganha ao construir o campo
+const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 2 sementes
+
+// Espécies: f = fêmea, m = macho
+const ESPECIES = {
+  ovelha:  { nome: { f: 'Ovelha', m: 'Carneiro' }, icone: { f: '🐑', m: '🐏' }, raio: 9,  carne: 15, velocidade: 40 },
+  vaca:    { nome: { f: 'Vaca', m: 'Touro' },      icone: { f: '🐄', m: '🐂' }, raio: 13, carne: 30, velocidade: 30 },
+  galinha: { nome: { f: 'Galinha', m: 'Galo' },    icone: { f: '🐔', m: '🐓' }, raio: 5,  carne: 5,  velocidade: 55 },
+};    // a família não planta se isso deixar você com menos que isso
+
+const CONSTRUCOES = {
+  totem: {
+    nome: 'Totem da Vida', icone: '🗿',
+    custo: { madeira: 60, sementes: 4 },
+    tempo: 8, raio: 16,
+    largura: 36, altura: 75,      // área clicável / altura do desenho
+    concluido: 'Totem da Vida construído!',
+    desenhar: desenharTotem,
+  },
+  cabana: {
+    nome: 'Cabana', icone: '🛖',
+    custo: { madeira: 300 },
+    tempo: 15, raio: 30,
+    largura: 76, altura: 70,
+    concluido: 'Cabana construída!',
+    descricao: 'O primeiro lar da família na ilha.',
+    desenhar: desenharCabana,
+  },
+  jangada: {
+    nome: 'Jangada', icone: '🛶',
+    custo: { madeira: 600 },
+    tempo: 60, raio: 22,
+    largura: 60, altura: 62,
+    concluido: 'Jangada construída!',
+    descricao: 'Uma jangada de troncos na beira do mar.',
+    dica: 'A jangada só pode ser construída na areia, perto do mar. Esc para cancelar.',
+    precisaAdolescente: true,   // um filho adolescente ajuda o pai na obra
+    vaiParaAgua: true,          // depois de pronta é empurrada para o mar
+    // só na faixa de areia, colada na água
+    local: p => dentroDaIlha(p.x, p.y, 4) && !dentroDaIlha(p.x, p.y, 48),
+    desenhar: desenharJangada,
+  },
+  // Abrigos de animais: área cercada (não bloqueia a passagem das pessoas)
+  galinheiro: {
+    nome: 'Galinheiro', icone: '🐔',
+    custo: { madeira: 150 },
+    tempo: 12, raio: 34, area: true, largura: 68, altura: 34, abrigo: 'galinha',
+    concluido: 'Galinheiro construído!',
+    descricao: 'Protege as galinhas e o galo. Limite de 10 galinhas e o dobro de carne por animal.',
+    desenhar: (x, y, p, a) => desenharCercado(x, y, 34, '#b89a62', 'casinha', p, a),
+  },
+  curral: {
+    nome: 'Curral', icone: '🐑',
+    custo: { madeira: 250 },
+    tempo: 15, raio: 44, area: true, largura: 88, altura: 44, abrigo: 'ovelha',
+    concluido: 'Curral construído!',
+    descricao: 'Protege as ovelhas e o carneiro. Limite de 10 ovelhas e o dobro de carne por animal.',
+    desenhar: (x, y, p, a) => desenharCercado(x, y, 44, '#a88a55', 'cocho', p, a),
+  },
+  pasto: {
+    nome: 'Pasto', icone: '🐄',
+    custo: { madeira: 350 },
+    tempo: 20, raio: 56, area: true, largura: 112, altura: 56, abrigo: 'vaca',
+    concluido: 'Pasto construído!',
+    descricao: 'Protege as vacas e o touro. Limite de 10 vacas e o dobro de carne por animal.',
+    desenhar: (x, y, p, a) => desenharCercado(x, y, 56, '#7fbf55', 'cocho', p, a),
+  },
+  campoTrigo: {
+    nome: 'Campo de trigo', icone: '🌾',
+    custo: { madeira: 100 },
+    tempo: 10, raio: 46, area: true, largura: 92, altura: 46,
+    concluido: 'Campo de trigo pronto!',
+    descricao: 'Área demarcada: o trigo só pode ser plantado aqui dentro.',
+    desenhar: desenharCampoTrigo,
+  },
+};
+
+// Pedidos que podem ser feitos aos deuses no Totem da Vida
+const PEDIDOS = {
+  esposa: {
+    nome: 'Uma esposa', icone: '💍',
+    custo: { madeira: 40, sementes: 4 },
+    disponivel: () => !esposa,
+    motivo: 'Você já tem uma esposa',
+    realizar: pedirEsposa,
+  },
+  animal: {
+    nome: 'Um animal', icone: '🐾',
+    custo: { madeira: 30, sementes: 2 },
+    disponivel: () => especiesIncompletas().length > 0,
+    motivo: 'Todos os casais já estão completos',
+    realizar: pedirAnimal,
+  },
+};
+
+const canvas = document.getElementById('tela');
+const ctx = canvas.getContext('2d');
+const elDica = document.getElementById('dica');
+const DICAS = {
+  normal: 'Ande com setas / WASD ou tocando. Toque em árvores, construções, família ou animais.',
+  plantar: 'Toque num lugar da grama para plantar. P ou Esc para sair.',
+  construir: 'Toque num lugar da ilha para construir. Esc para cancelar.',
+  navegando: 'Navegando: setas / WASD ou toque no mar. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
+};
+
+// ===================== Inventário =====================
+const inventario = { madeira: 0, sementes: 0, carne: 0, peixe: 0, trigo: 0, sementesTrigo: 0 };
+const el = id => document.getElementById(id);
+const elMadeira = el('qtdMadeira'), elSementes = el('qtdSementes');
+const elEsposa = el('qtdEsposa'), elFilhos = el('qtdFilhos');
+const elCarne = el('qtdCarne'), elAnimais = el('qtdAnimais'), elPeixe = el('qtdPeixe'), elTrigo = el('qtdTrigo'), elSemTrigo = el('qtdSemTrigo');
+const btnPlantar = el('btnPlantar'), btnConstruir = el('btnConstruir');
+const menuConstrucoes = el('menuConstrucoes'), listaConstrucoes = el('listaConstrucoes');
+const ICONES = { madeira: '🪵', sementes: '🌱', carne: '🍖', peixe: '🐟', trigo: '🌾', sementesTrigo: '🌾 sem.' };
+
+function piscar(e) { e.classList.add('ganho'); setTimeout(() => e.classList.remove('ganho'), 600); }
+function temRecursos(custo) { return Object.entries(custo).every(([r, q]) => inventario[r] >= q); }
+function gastarRecursos(custo) { for (const [r, q] of Object.entries(custo)) inventario[r] -= q; }
+function textoCusto(custo) {
+  return Object.entries(custo).map(([r, q]) =>
+    `<span class="${inventario[r] < q ? 'falta' : ''}">${q} ${ICONES[r]}</span>`).join(' + ');
+}
+
+function atualizarInventario() {
+  elMadeira.textContent = inventario.madeira;
+  elSementes.textContent = inventario.sementes;
+  elCarne.textContent = inventario.carne;
+  elPeixe.textContent = inventario.peixe;
+  elTrigo.textContent = inventario.trigo;
+  elSemTrigo.textContent = inventario.sementesTrigo;
+  elAnimais.textContent = animais.length;
+  elEsposa.textContent = esposa ? 'sim' : '—';
+  const adul = agentes.filter(a => a.tipo === 'adulto').length;
+  const adol = agentes.filter(a => a.tipo === 'adolescente').length;
+  const cri = agentes.filter(a => a.tipo === 'crianca').length;
+  const partes = [];
+  if (adul) partes.push(adul + ' 🧔');
+  if (adol) partes.push(adol + ' 🧑');
+  if (cri) partes.push(cri + ' 🧒');
+  if (esposa && esposa.cuidado > 0) partes.push('1 👶');
+  elFilhos.textContent = partes.length ? partes.join(' ') : '0';
+  btnPlantar.disabled = inventario.sementes <= 0;
+  if (modo.tipo === 'plantar' && inventario.sementes <= 0) definirModo(null);
+  if (modo.tipo === 'construir' && !temRecursos(CONSTRUCOES[modo.construcao].custo)) definirModo(null);
+  montarMenuConstrucoes();
+  atualizarPainel();
+}
+
+// ===================== Níveis das construções =====================
+// Cada evolução custa o dobro do nível anterior: nível 2 = 2x, nível 3 = 4x, nível 4 = 8x...
+function estruturaDoTipo(id) { return estruturas.find(s => s.tipo === id); }
+function custoEvolucao(s) {
+  const base = CONSTRUCOES[s.tipo].custo, fator = Math.pow(2, s.nivel);
+  return Object.fromEntries(Object.entries(base).map(([r, q]) => [r, q * fator]));
+}
+function emObra(id) {
+  const t = jogador.tarefa;
+  return t && (t.tipo === 'construir' || t.tipo === 'evoluir') && t.construcao === id;
+}
+function evoluir(id) {
+  const s = estruturaDoTipo(id);
+  if (!s || !temRecursos(custoEvolucao(s)) || !requisitosOk(id)) return;
+  definirModo(null);
+  abrirMenu(false);
+  cancelar(jogador);
+  if (jogador.embarcado) return;
+  if (s.tipo === 'jangada') { prepararJangada(s); if (s.reservadaPor || s.tripulacao.length) return; }
+  const noMar = !dentroDaIlha(s.x, s.y, 0);
+  const pos = noMar ? pontoTerraPerto(s.x, s.y) : s;   // jangada no mar: trabalha a partir da praia
+  iniciarTarefa(jogador, { tipo: 'evoluir', construcao: id, estrutura: s, x: pos.x, y: pos.y, raio: noMar ? 6 : s.raio });
+}
+
+function podeAjudarObra(a) { return (a.tipo === 'adolescente' || a.tipo === 'adulto') && !a.embarcado; }
+function temAdolescente() { return agentes.some(podeAjudarObra); }
+function requisitosOk(id) { return !CONSTRUCOES[id].precisaAdolescente || temAdolescente(); }
+function textoRequisito(id) {
+  if (!CONSTRUCOES[id].precisaAdolescente) return '';
+  return `<br><span class="custo ${temAdolescente() ? '' : 'falta'}">Precisa de 1 filho adolescente ou adulto para ajudar</span>`;
+}
+
+function montarMenuConstrucoes() {
+  listaConstrucoes.innerHTML = '';
+  for (const [id, c] of Object.entries(CONSTRUCOES)) {
+    const btn = document.createElement('button');
+    btn.className = 'botao construcao';
+    const existente = estruturaDoTipo(id);
+    if (existente) {
+      // Já construída: mostra a evolução para o próximo nível
+      const custo = custoEvolucao(existente);
+      const prox = existente.nivel + 1;
+      btn.innerHTML = `<span class="nome">${c.icone} ${c.nome} · nível ${existente.nivel}</span>` +
+        `<span class="custo">${emObra(id) ? 'Evoluindo...' : `Evoluir para nível ${prox}: ${textoCusto(custo)}`}</span>`;
+      if (emObra(id)) btn.classList.add('ativo');
+      btn.innerHTML += textoRequisito(id);
+      btn.disabled = emObra(id) || !temRecursos(custo) || !requisitosOk(id);
+      btn.addEventListener('click', () => evoluir(id));
+    } else {
+      if (modo.tipo === 'construir' && modo.construcao === id) btn.classList.add('ativo');
+      btn.innerHTML = `<span class="nome">${c.icone} ${c.nome}</span>` +
+        `<span class="custo">${emObra(id) ? 'Em construção...' : textoCusto(c.custo)}</span>`;
+      btn.innerHTML += textoRequisito(id);
+      btn.disabled = emObra(id) || !temRecursos(c.custo) || !requisitosOk(id);
+      btn.addEventListener('click', () => definirModo('construir', id));
+    }
+    listaConstrucoes.appendChild(btn);
+  }
+}
+
+// ===================== Modos =====================
+const modo = { tipo: null, construcao: null };
+function definirModo(tipo, construcao = null) {
+  if (tipo && jogador.embarcado) return; // navegando não planta nem constrói
+  if (tipo === 'plantar' && inventario.sementes <= 0) return;
+  if (tipo === 'construir' && (!temRecursos(CONSTRUCOES[construcao].custo) || !requisitosOk(construcao))) return;
+  modo.tipo = tipo; modo.construcao = construcao;
+  btnPlantar.classList.toggle('ativo', tipo === 'plantar');
+  btnPlantar.textContent = tipo === 'plantar' ? '🌱 Plantando... (P)' : '🌱 Plantar (P)';
+  if (tipo) { abrirMenu(false); fecharPainel(); }
+  elDica.textContent = (tipo === 'construir' && CONSTRUCOES[construcao].dica) || DICAS[tipo || (jogador.embarcado ? 'navegando' : 'normal')];
+  montarMenuConstrucoes();
+}
+function abrirMenu(abrir = menuConstrucoes.hidden) {
+  menuConstrucoes.hidden = !abrir;
+  btnConstruir.classList.toggle('ativo', abrir);
+  if (abrir) { montarMenuConstrucoes(); fecharPainel(); }
+}
+btnPlantar.addEventListener('click', () => definirModo(modo.tipo === 'plantar' ? null : 'plantar'));
+btnConstruir.addEventListener('click', () => abrirMenu());
+
+// ===================== Painel de interação =====================
+// Cada painel é uma função que devolve { titulo, texto, botoes: [{ rotulo, desabilitado, acao }] }
+const painel = el('painel');
+let painelAtual = null, painelAssinatura = '';
+function abrirPainel(render) { painelAtual = render; painelAssinatura = ''; abrirMenu(false); atualizarPainel(); painel.hidden = false; }
+function fecharPainel() { painelAtual = null; painel.hidden = true; }
+el('btnFechar').addEventListener('click', fecharPainel);
+function atualizarPainel() {
+  if (!painelAtual) return;
+  const c = painelAtual();
+  if (!c) { fecharPainel(); return; }
+  // Só reconstrói se algo mudou (evita perder cliques)
+  const assinatura = JSON.stringify([c.titulo, c.texto, c.botoes.map(b => [b.rotulo, b.desabilitado])]);
+  if (assinatura === painelAssinatura) return;
+  painelAssinatura = assinatura;
+  el('painelTitulo').textContent = c.titulo;
+  el('painelTexto').innerHTML = c.texto;
+  const box = el('painelBotoes');
+  box.innerHTML = '';
+  for (const b of c.botoes) {
+    const btn = document.createElement('button');
+    btn.className = 'botao';
+    btn.innerHTML = b.rotulo;
+    btn.disabled = !!b.desabilitado;
+    btn.addEventListener('click', b.acao);
+    box.appendChild(btn);
+  }
+}
+
+function painelTotem() {
+  return {
+    titulo: `🗿 Totem da Vida · nível ${(estruturaDoTipo('totem') || { nivel: 1 }).nivel}`,
+    texto: '<p>Faça uma oferenda e peça algo aos deuses.</p>',
+    botoes: Object.entries(PEDIDOS).map(([id, p]) => {
+      const ok = p.disponivel();
+      return {
+        rotulo: `${p.icone} ${p.nome}<br><span class="custo" style="font-size:13px">${ok ? textoCusto(p.custo) : p.motivo}</span>`,
+        desabilitado: !ok || !temRecursos(p.custo),
+        acao: () => p.realizar(id),
+      };
+    }),
+  };
+}
+
+function podeNamorar() {
+  return esposa && esposa.gravidez <= 0 && esposa.cuidado <= 0 && esposa.descanso <= 0;
+}
+// Painel genérico para construções sem ações próprias (cabana, jangada...)
+function painelEstrutura(est) {
+  return () => {
+    if (!estruturas.includes(est)) return null;
+    const c = CONSTRUCOES[est.tipo];
+    return { titulo: `${c.icone} ${c.nome} · nível ${est.nivel}`, texto: `<p>${c.descricao || ''}</p>`, botoes: [] };
+  };
+}
+
+function painelEsposa() {
+  if (!esposa) return null;
+  let status = 'Trabalhando: corta árvores e planta sementes.';
+  if (esposa.gravidez > 0) status = `🤰 Grávida. O bebê nasce em ${Math.ceil(esposa.gravidez)}s. Ela continua trabalhando.`;
+  if (esposa.cuidado > 0) status = `🍼 Cuidando do bebê. Vira criança em ${Math.ceil(esposa.cuidado)}s. Enquanto isso ela não trabalha.`;
+  if (esposa.descanso > 0) status = `⏳ Trabalhando. Pode ter outro filho em ${Math.ceil(esposa.descanso)}s.`;
+  const namorando = jogador.tarefa && jogador.tarefa.tipo === 'namorar';
+  if (namorando) status = '💕 Namorando...';
+  const filhos = agentes.filter(a => a.tipo === 'crianca' || a.tipo === 'adolescente').length + (esposa.cuidado > 0 ? 1 : 0);
+  return {
+    titulo: '👩 Esposa',
+    texto: `<p>${status}</p><p>Filhos: ${filhos}</p>`,
+    botoes: [{
+      rotulo: '💕 Namorar',
+      desabilitado: !podeNamorar() || namorando || !!jogador.embarcado,
+      acao: () => {
+        cancelar(jogador);
+        iniciarTarefa(jogador, { tipo: 'namorar', alvo: esposa, x: esposa.x, y: esposa.y, raio: esposa.raio });
+      },
+    }],
+  };
+}
+
+const FASES = {
+  crianca:     { icone: '🧒', texto: 'Criança. Ajuda a mãe plantando sementes. Vira adolescente quando nascer o próximo irmão.' },
+  adolescente: { icone: '🧑', texto: 'Adolescente. Caça animais adultos e, quando não há caça, corta árvores e planta sementes. Ajuda o pai a construir a jangada. Vira adulto quando nascer o próximo irmão.' },
+  adulto:      { icone: '🧔', texto: 'Filho adulto. Caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.' },
+};
+function painelFilho(c) {
+  return () => agentes.includes(c) ? {
+    titulo: `${FASES[c.tipo].icone} ${c.nome}`,
+    texto: `<p>${c.tipo === 'crianca' && estruturaDoTipo('campoTrigo')
+      ? 'Criança. Cuida do campo de trigo: planta e colhe. Vira adolescente quando nascer o próximo irmão.'
+      : FASES[c.tipo].texto}</p>`,
+    botoes: [],
+  } : null;
+}
+
+// ===================== Efeitos visuais =====================
+const textos = [];
+function textoFlutuante(x, y, msg, cor = '#ffe27a') { textos.push({ x, y, msg, cor, vida: 1.6 }); }
+const efeitos = []; // { x, y, vida }
+function luzDivina(x, y) { efeitos.push({ x, y, vida: 1.8 }); }
+
+// ===================== Ilha =====================
+const ondas = [
+  { freq: 3, amp: 0.08, fase: 0.7 },
+  { freq: 5, amp: 0.05, fase: 2.1 },
+  { freq: 7, amp: 0.03, fase: 4.0 },
+];
+function raioIlha(angulo) {
+  let r = 1;
+  for (const o of ondas) r += Math.sin(angulo * o.freq + o.fase) * o.amp;
+  return ILHA.raio * r;
+}
+function dentroDaIlha(x, y, margem = 0) {
+  const dx = x - ILHA.x, dy = y - ILHA.y;
+  return Math.hypot(dx, dy) <= raioIlha(Math.atan2(dy, dx)) - margem;
+}
+function naGrama(x, y) { return dentroDaIlha(x, y, 55); }
+
+// ===================== Árvores =====================
+let arvores = [];
+function novaArvore(x, y, adulta) { return { x, y, raio: 14 + Math.random() * 6, idade: adulta ? TEMPO_CRESCER : 0 }; }
+function adulta(t) { return t.idade >= TEMPO_CRESCER; }
+function crescimento(t) { return Math.min(t.idade / TEMPO_CRESCER, 1); }
+
+(function gerarArvores(qtd) {
+  let tentativas = 0;
+  while (arvores.length < qtd && tentativas < 2000) {
+    tentativas++;
+    const a = Math.random() * Math.PI * 2, d = Math.random() * ILHA.raio * 0.75;
+    const x = ILHA.x + Math.cos(a) * d, y = ILHA.y + Math.sin(a) * d;
+    if (!dentroDaIlha(x, y, 70)) continue;
+    if (Math.hypot(x - ILHA.x, y - ILHA.y) < 60) continue;
+    if (arvores.some(t => Math.hypot(t.x - x, t.y - y) < 70)) continue;
+    arvores.push(novaArvore(x, y, true));
+  }
+})(12);
+
+function arvoreEm(p) {
+  return arvores.find(t => {
+    const c = 0.3 + 0.7 * crescimento(t);
+    return Math.hypot(p.x - t.x, p.y - t.y) < t.raio + 6 ||
+           Math.hypot(p.x - t.x, p.y - (t.y - t.raio * 0.9 * c)) < t.raio * 1.6 * c;
+  });
+}
+
+// ===================== Estruturas =====================
+const estruturas = [];
+function dentroDaArea(s, x, y) { return Math.abs(x - s.x) < s.raio && Math.abs(y - s.y) < s.raio; }
+function estruturaEm(p) {
+  // construções "de pé" têm prioridade sobre áreas no chão
+  return estruturas.find(s => {
+    const c = CONSTRUCOES[s.tipo];
+    return !c.area && Math.abs(p.x - s.x) < c.largura / 2 && p.y < s.y + 10 && p.y > s.y - c.altura;
+  }) || estruturas.find(s => CONSTRUCOES[s.tipo].area && dentroDaArea(s, p.x, p.y));
+}
+function abrigoDe(especie) {
+  return estruturas.find(s => CONSTRUCOES[s.tipo].abrigo === especie);
+}
+function limiteEspecie(e) { return abrigoDe(e) ? MAX_COM_ABRIGO : MAX_POR_ESPECIE; }
+function carneDe(e) { return ESPECIES[e].carne * (abrigoDe(e) ? 2 : 1); }
+
+// ===================== Personagens (agentes) =====================
+// Todos compartilham: posição, destino, tarefa (o que vão fazer) e ação (o que estão fazendo)
+function novoAgente(tipo, x, y, extra = {}) {
+  return { tipo, x, y, raio: 10, velocidade: VELOCIDADE, destino: null, tarefa: null, acao: null, espera: 0, embarcado: null, ...extra };
+}
+const jogador = novoAgente('jogador', ILHA.x, ILHA.y);
+const agentes = [jogador];
+let esposa = null;
+let contadorFilhos = 0;
+
+function agenteEm(p) {
+  return agentes.find(a => a !== jogador && Math.hypot(p.x - a.x, p.y - (a.y - a.raio * 0.5)) < a.raio + 10);
+}
+
+function lugarLivrePerto(x, y, dist) {
+  for (let i = 0; i < 24; i++) {
+    const ang = i / 24 * Math.PI * 2;
+    const px = x + Math.cos(ang) * dist, py = y + Math.sin(ang) * dist;
+    if (podeFicar(px, py, 10)) return { x: px, y: py };
+  }
+  return { x, y: y + dist };
+}
+
+function pedirEsposa(id) {
+  const p = PEDIDOS[id];
+  const totem = estruturas.find(s => s.tipo === 'totem');
+  if (!totem || !p.disponivel() || !temRecursos(p.custo)) return;
+  gastarRecursos(p.custo);
+  const pos = lugarLivrePerto(totem.x, totem.y, 38);
+  esposa = novoAgente('esposa', pos.x, pos.y, { velocidade: 120, gravidez: 0, cuidado: 0, descanso: 0, plantarProximo: false, espera: 1.8 });
+  agentes.push(esposa);
+  luzDivina(pos.x, pos.y);
+  textoFlutuante(totem.x, totem.y - 90, 'Os deuses atenderam!', '#fff3b0');
+  atualizarInventario();
+  fecharPainel();
+}
+
+function virarAdulto(f) {
+  f.tipo = 'adulto';
+  f.raio = 10;
+  f.velocidade = 160;
+  f.plantarProximo = false;
+  cancelar(f);
+  f.espera = 1;
+  textoFlutuante(f.x, f.y - 35, f.nome + ' virou adulto!', '#b8d8ff');
+}
+
+function virarAdolescente(f) {
+  f.tipo = 'adolescente';
+  f.raio = 9;
+  f.velocidade = 140;
+  f.plantarProximo = false;
+  cancelar(f);
+  f.espera = 1;
+  textoFlutuante(f.x, f.y - 35, f.nome + ' virou adolescente!', '#b8f0e0');
+}
+
+function nascerCrianca(mae) {
+  contadorFilhos++;
+  const pos = lugarLivrePerto(mae.x, mae.y, 24);
+  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: 'Filho ' + contadorFilhos, espera: 1 });
+  agentes.push(c);
+  textoFlutuante(mae.x, mae.y - 40, 'O bebê virou criança!', '#c8e8ff');
+}
+
+// ===================== Animais =====================
+// reprodutor: animal enviado pelos deuses (o casal). Não pode ser caçado.
+const animais = [];
+
+function novoAnimal(especie, sexo, x, y, reprodutor) {
+  const E = ESPECIES[especie];
+  return {
+    especie, sexo, x, y, reprodutor,
+    raio: E.raio, velocidade: E.velocidade,
+    idade: reprodutor ? TEMPO_CRESCER_ANIMAL : 0,
+    destino: null, espera: 1 + Math.random() * 2, cria: 0, dir: 1,
+  };
+}
+function nomeAnimal(an) { return ESPECIES[an.especie].nome[an.sexo]; }
+function iconeAnimal(an) { return ESPECIES[an.especie].icone[an.sexo]; }
+function animalAdulto(an) { return an.idade >= TEMPO_CRESCER_ANIMAL; }
+function cacavel(an) { return !an.reprodutor && animalAdulto(an); }
+function casal(especie) {
+  const r = animais.filter(a => a.especie === especie && a.reprodutor);
+  return { f: r.find(a => a.sexo === 'f'), m: r.find(a => a.sexo === 'm') };
+}
+// Espécies que ainda não têm o casal completo (1 fêmea + 1 macho)
+function especiesIncompletas() {
+  return Object.keys(ESPECIES).filter(e => { const c = casal(e); return !(c.f && c.m); });
+}
+
+function pedirAnimal(id) {
+  const p = PEDIDOS[id];
+  const totem = estruturas.find(s => s.tipo === 'totem');
+  const opcoes = especiesIncompletas();
+  if (!totem || !opcoes.length || !temRecursos(p.custo)) return;
+  gastarRecursos(p.custo);
+  const especie = opcoes[Math.floor(Math.random() * opcoes.length)];
+  const c = casal(especie);
+  // Nunca duas fêmeas ou dois machos: vem o sexo que falta
+  const sexo = c.f ? 'm' : c.m ? 'f' : (Math.random() < 0.5 ? 'f' : 'm');
+  const pos = lugarLivrePerto(totem.x, totem.y, 42);
+  const an = novoAnimal(especie, sexo, pos.x, pos.y, true);
+  animais.push(an);
+  luzDivina(pos.x, pos.y);
+  textoFlutuante(totem.x, totem.y - 90, `Os deuses enviaram ${sexo === 'f' ? 'uma' : 'um'} ${nomeAnimal(an).toLowerCase()}!`, '#fff3b0');
+  atualizarInventario();
+  fecharPainel();
+}
+
+function animalEm(p) {
+  return animais.find(a => Math.hypot(p.x - a.x, p.y - (a.y - a.raio * 0.6)) < a.raio + 8);
+}
+function sendoCacado(an) { return agentes.some(a => a.acao && a.acao.tarefa.alvo === an); }
+
+function atualizarAnimais(dt) {
+  // Casais completos têm filhotes
+  for (const e of Object.keys(ESPECIES)) {
+    const c = casal(e);
+    if (!c.f || !c.m) continue;
+    if (animais.filter(a => a.especie === e).length >= limiteEspecie(e)) continue;
+    c.f.cria += dt;
+    if (c.f.cria >= TEMPO_CRIA_ANIMAL) {
+      c.f.cria = 0;
+      const pos = lugarLivrePerto(c.f.x, c.f.y, ESPECIES[e].raio + 8);
+      const filhote = novoAnimal(e, Math.random() < 0.5 ? 'f' : 'm', pos.x, pos.y, false);
+      filhote.mae = c.f;
+      animais.push(filhote);
+      textoFlutuante(c.f.x, c.f.y - 25, 'Nasceu um filhote!', '#ffe9b0');
+      atualizarInventario();
+    }
+  }
+
+  for (const an of animais) {
+    const E = ESPECIES[an.especie];
+    if (an.idade < TEMPO_CRESCER_ANIMAL) an.idade += dt;
+    an.raio = E.raio * (animalAdulto(an) ? 1 : 0.6);
+    if (sendoCacado(an)) continue; // fica parado
+
+    if (!an.destino) {
+      an.espera -= dt;
+      if (an.espera <= 0) {
+        const abrigo = abrigoDe(an.especie);
+        let p;
+        if (abrigo) {
+          // com abrigo: passeia só dentro da cerca
+          const m = abrigo.raio - an.raio - 4;
+          p = { x: abrigo.x + (Math.random() * 2 - 1) * m, y: abrigo.y + (Math.random() * 2 - 1) * m };
+        } else {
+          // filhote fica perto da mãe
+          const base = (!animalAdulto(an) && an.mae && animais.includes(an.mae)) ? an.mae : an;
+          const ang = Math.random() * Math.PI * 2, d = 20 + Math.random() * 50;
+          p = { x: base.x + Math.cos(ang) * d, y: base.y + Math.sin(ang) * d };
+        }
+        if (podeFicar(p.x, p.y, an.raio)) an.destino = p;
+        an.espera = 2 + Math.random() * 3;
+      }
+      continue;
+    }
+    const vx = an.destino.x - an.x, vy = an.destino.y - an.y;
+    if (Math.hypot(vx, vy) < 3) { an.destino = null; continue; }
+    if (vx) an.dir = Math.sign(vx);
+    if (!mover(an, vx, vy, dt)) an.destino = null;
+  }
+}
+
+function painelAnimal(an) {
+  return () => {
+    if (!animais.includes(an)) return null;
+    const E = ESPECIES[an.especie];
+    let texto;
+    if (an.reprodutor) {
+      texto = '<p>Casal da ilha, enviado pelos deuses. Não pode ser caçado.</p>';
+      const c = casal(an.especie);
+      if (!(c.f && c.m)) texto += `<p>Precisa de ${an.sexo === 'f' ? 'um macho' : 'uma fêmea'} para ter filhotes.</p>`;
+      else if (animais.filter(a => a.especie === an.especie).length >= limiteEspecie(an.especie)) texto += `<p>Limite de ${limiteEspecie(an.especie)} atingido${abrigoDe(an.especie) ? '' : '. Construa um abrigo para aumentar'}.</p>`;
+      else texto += `<p>Próximo filhote em ${Math.ceil(TEMPO_CRIA_ANIMAL - c.f.cria)}s.</p>`;
+    } else if (!animalAdulto(an)) {
+      texto = `<p>Filhote. Vira adulto em ${Math.ceil(TEMPO_CRESCER_ANIMAL - an.idade)}s.</p>`;
+    } else {
+      texto = `<p>Adulto. Pode ser caçado e rende ${carneDe(an.especie)} 🍖${abrigoDe(an.especie) ? ' (dobro, protegido no abrigo)' : ''}.</p>`;
+    }
+    const caçando = jogador.tarefa && jogador.tarefa.alvo === an;
+    return {
+      titulo: `${iconeAnimal(an)} ${nomeAnimal(an)}`,
+      texto,
+      botoes: cacavel(an) ? [{
+        rotulo: caçando ? '🏹 Caçando...' : '🏹 Caçar',
+        desabilitado: caçando,
+        acao: () => {
+          for (const o of agentes) if (o !== jogador && o.tarefa && o.tarefa.alvo === an) cancelar(o);
+          cancelar(jogador);
+          iniciarTarefa(jogador, { tipo: 'cacar', alvo: an, x: an.x, y: an.y, raio: an.raio });
+        },
+      }] : [],
+    };
+  };
+}
+
+function desenharAnimal(an) {
+  const r = an.raio, x = an.x, y = an.y, d = an.dir;
+  const corpoY = y - r * 0.6;
+  const cores = {
+    ovelha:  an.sexo === 'f' ? ['#f4f4ee', '#3a3a3a'] : ['#d6cfbf', '#5a4a3a'],
+    vaca:    an.sexo === 'f' ? ['#f5f5f5', '#f0d8d0'] : ['#6b3e1e', '#55301a'],
+    galinha: an.sexo === 'f' ? ['#fafafa', '#fafafa'] : ['#c8642a', '#c8642a'],
+  }[an.especie];
+  // sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.beginPath(); ctx.ellipse(x, y, r * 1.1, r * 0.35, 0, 0, Math.PI * 2); ctx.fill();
+  if (an.especie === 'galinha' && an.sexo === 'm') {   // rabo do galo
+    ctx.fillStyle = '#1f5a3a';
+    ctx.beginPath(); ctx.ellipse(x - d * r * 1.1, corpoY - r * 0.5, r * 0.5, r * 0.9, -d * 0.5, 0, Math.PI * 2); ctx.fill();
+  }
+  // corpo
+  ctx.fillStyle = cores[0];
+  ctx.beginPath(); ctx.ellipse(x, corpoY, r * 1.25, r * 0.8, 0, 0, Math.PI * 2); ctx.fill();
+  if (an.especie === 'vaca' && an.sexo === 'f') {       // manchas
+    circulo(x - r * 0.4, corpoY - r * 0.2, r * 0.3, '#2a2a2a');
+    circulo(x + r * 0.5, corpoY + r * 0.2, r * 0.25, '#2a2a2a');
+  }
+  if (an.especie === 'ovelha') {                       // lã
+    for (let i = -1; i <= 1; i++) circulo(x + i * r * 0.6, corpoY - r * 0.55, r * 0.4, cores[0]);
+  }
+  // cabeça
+  const hx = x + d * r * 1.15, hy = corpoY - r * 0.4;
+  const hr = an.especie === 'galinha' ? r * 0.55 : r * 0.5;
+  circulo(hx, hy, hr, cores[1]);
+  if (an.especie === 'galinha') {                       // crista e bico
+    circulo(hx, hy - hr, an.sexo === 'm' ? hr * 0.7 : hr * 0.4, '#d62a2a');
+    ctx.fillStyle = '#f0b030';
+    ctx.beginPath(); ctx.moveTo(hx + d * hr, hy - 1); ctx.lineTo(hx + d * hr * 1.8, hy); ctx.lineTo(hx + d * hr, hy + 1.5); ctx.fill();
+  }
+  if (an.sexo === 'm' && an.especie !== 'galinha' && animalAdulto(an)) { // chifres
+    ctx.strokeStyle = an.especie === 'vaca' ? '#eeeeee' : '#a08a60';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(hx - hr * 0.5, hy - hr * 0.6); ctx.lineTo(hx - hr * 0.9, hy - hr * 1.4);
+    ctx.moveTo(hx + hr * 0.5, hy - hr * 0.6); ctx.lineTo(hx + hr * 0.9, hy - hr * 1.4);
+    ctx.stroke();
+  }
+}
+
+// ===================== Campo de trigo =====================
+// O campo é uma grade de canteiros. Só ali dentro se planta trigo.
+function criarCanteiros(est) {
+  const cols = 4, linhas = 4, passo = (est.raio * 2 - 12) / cols, lista = [];
+  for (let l = 0; l < linhas; l++) for (let c = 0; c < cols; c++) {
+    lista.push({
+      x: est.x - est.raio + 6 + passo * (c + 0.5),
+      y: est.y - est.raio + 6 + passo * (l + 0.5),
+      tam: passo - 4, estado: 'vazio', idade: 0,
+    });
+  }
+  return lista;
+}
+function canteiroEm(est, p) {
+  return est.canteiros.find(k => Math.abs(p.x - k.x) < k.tam / 2 + 1 && Math.abs(p.y - k.y) < k.tam / 2 + 1);
+}
+function atualizarCanteiros(dt) {
+  for (const est of estruturas) {
+    if (!est.canteiros) continue;
+    for (const k of est.canteiros) {
+      if (k.estado !== 'crescendo') continue;
+      k.idade += dt;
+      if (k.idade >= TEMPO_TRIGO_CRESCER) k.estado = 'maduro';
+    }
+  }
+}
+function sementesTrigoLivres(excluir = null) {
+  const aCaminho = agentes.filter(o => o !== excluir && o.tarefa && o.tarefa.tipo === 'plantarTrigo').length;
+  return inventario.sementesTrigo - aCaminho;
+}
+function clicarCampo(est, p) {
+  const k = canteiroEm(est, p);
+  if (!k) { abrirPainel(painelCampo(est)); return; }
+  fecharPainel();
+  cancelar(jogador);
+  if (k.estado === 'vazio') {
+    if (sementesTrigoLivres() <= 0) { textoFlutuante(k.x, k.y - 12, 'Sem sementes de trigo', '#ffb0a0'); return; }
+    iniciarTarefa(jogador, { tipo: 'plantarTrigo', canteiro: k, x: k.x, y: k.y, raio: 2 });
+  }
+  else if (k.estado === 'maduro') iniciarTarefa(jogador, { tipo: 'colher', canteiro: k, x: k.x, y: k.y, raio: 2 });
+  else textoFlutuante(k.x, k.y - 12, 'Trigo crescendo (' + Math.ceil(TEMPO_TRIGO_CRESCER - k.idade) + 's)', '#f5e6a0');
+}
+// Criança no campo: colhe o que está maduro, planta onde está vazio, senão espera no campo
+function cuidarDoCampo(a, campo) {
+  const livre = k => !agentes.some(o => o !== a && o.tarefa && o.tarefa.canteiro === k);
+  const perto = lista => lista.sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y))[0];
+  const maduro = perto(campo.canteiros.filter(k => k.estado === 'maduro' && livre(k)));
+  if (maduro) { iniciarTarefa(a, { tipo: 'colher', canteiro: maduro, x: maduro.x, y: maduro.y, raio: 2 }); return; }
+  const vazio = sementesTrigoLivres(a) > 0 ? perto(campo.canteiros.filter(k => k.estado === 'vazio' && livre(k))) : null;
+  if (vazio) { iniciarTarefa(a, { tipo: 'plantarTrigo', canteiro: vazio, x: vazio.x, y: vazio.y, raio: 2 }); return; }
+  const m = campo.raio - 12;
+  a.destino = { x: campo.x + (Math.random() * 2 - 1) * m, y: campo.y + (Math.random() * 2 - 1) * m };
+  a.espera = 2 + Math.random() * 2;
+}
+
+function painelCampo(est) {
+  return () => {
+    if (!estruturas.includes(est)) return null;
+    const n = estado => est.canteiros.filter(k => k.estado === estado).length;
+    return {
+      titulo: `🌾 Campo de trigo · nível ${est.nivel}`,
+      texto: `<p>Cada canteiro gasta 1 semente de trigo. Ao colher rende ${TRIGO_POR_COLHEITA} 🌾 e devolve ${SEMENTES_TRIGO_POR_COLHEITA} sementes.</p>` +
+             `<p>Sementes de trigo: ${inventario.sementesTrigo}</p>` +
+             `<p>Vazios: ${n('vazio')} · Crescendo: ${n('crescendo')} · Maduros: ${n('maduro')}</p>`,
+      botoes: [],
+    };
+  };
+}
+
+// ===================== Regras de espaço =====================
+// Colisão com árvore usa só o miolo do tronco e o "pé" do personagem.
+// Como as árvores nunca ficam a menos de ~40 de distância, sempre sobra passagem entre elas.
+function colisaoArvore(t, raio) { return t.raio * 0.35 + Math.min(raio, 10) * 0.4; }
+function podeFicar(x, y, raio) {
+  if (!dentroDaIlha(x, y, raio)) return false;
+  for (const t of arvores) if (Math.hypot(t.x - x, t.y - y) < colisaoArvore(t, raio)) return false;
+  for (const s of estruturas) if (!s.area && Math.hypot(s.x - x, s.y - y) < s.raio + raio) return false;
+  return true;
+}
+function espacoLivre(x, y, raio, folga, checarJogador = true, checarArvores = true) {
+  if (checarArvores && arvores.some(t => Math.hypot(t.x - x, t.y - y) < t.raio + raio + folga)) return false;
+  if (estruturas.some(s => Math.hypot(s.x - x, s.y - y) < (s.ocupa || s.raio) + raio + folga)) return false;
+  if (checarJogador && Math.hypot(jogador.x - x, jogador.y - y) < jogador.raio + raio + 4) return false;
+  return true;
+}
+function podePlantarEm(p) { return naGrama(p.x, p.y) && espacoLivre(p.x, p.y, 18, DISTANCIA_MIN_ARVORES - 36); }
+function podeConstruirEm(id, p) {
+  const c = CONSTRUCOES[id];
+  const ocupa = c.area ? c.raio * 1.42 : c.raio;   // área quadrada: usa a diagonal
+  const lugarOk = c.local ? c.local(p) : dentroDaIlha(p.x, p.y, ocupa + 8);
+  // árvores não impedem: as que estiverem no lugar são derrubadas (sem recursos)
+  return lugarOk && espacoLivre(p.x, p.y, ocupa, 10, !c.area, false);
+}
+// Árvores que ficam embaixo da construção
+function arvoresAfetadas(id, p) {
+  const c = CONSTRUCOES[id];
+  return arvores.filter(t => c.area
+    ? Math.abs(t.x - p.x) < c.raio + t.raio * 0.6 && Math.abs(t.y - p.y) < c.raio + t.raio * 0.6
+    : Math.hypot(t.x - p.x, t.y - p.y) < c.raio + t.raio * 0.8);
+}
+
+// ===================== Tarefas =====================
+function pertoDe(a, x, y, raio) { return Math.hypot(x - a.x, y - a.y) <= raio + a.raio + 8; }
+function cancelar(a) { a.destino = null; a.tarefa = null; a.acao = null; a.rota = null; }
+
+// ===== Rotas inteligentes =====
+// Compara o caminho reto pelo meio da ilha com o caminho pela faixa de areia.
+// O caminho reto fica "caro" quando passa no meio de árvores ou construções.
+const ANEL_AREIA = 22; // distância da beira do mar até o meio da faixa de areia
+function pontoAreia(ang) {
+  const r = raioIlha(ang) - ANEL_AREIA;
+  return { x: ILHA.x + Math.cos(ang) * r, y: ILHA.y + Math.sin(ang) * r };
+}
+function distPontoSegmento(px, py, a, b) {
+  const vx = b.x - a.x, vy = b.y - a.y, l2 = vx * vx + vy * vy || 1;
+  const t = Math.max(0, Math.min(1, ((px - a.x) * vx + (py - a.y) * vy) / l2));
+  return Math.hypot(px - (a.x + vx * t), py - (a.y + vy * t));
+}
+function custoSegmento(a, b) {
+  // andar pelo meio da ilha (grama, mato) é mais "caro" que pela areia
+  let custo = Math.hypot(b.x - a.x, b.y - a.y) * 1.3;
+  for (const t of arvores) if (distPontoSegmento(t.x, t.y, a, b) < 26) custo += 60;
+  for (const s of estruturas) if (!s.area && distPontoSegmento(s.x, s.y, a, b) < s.raio + 12) custo += 400;
+  return custo;
+}
+function planejarRota(a, alvo) {
+  const direto = Math.hypot(alvo.x - a.x, alvo.y - a.y);
+  if (direto < 70) return [{ x: alvo.x, y: alvo.y }];
+  const custoReto = custoSegmento(a, alvo);
+  if (custoReto <= direto * 1.15) return [{ x: alvo.x, y: alvo.y }]; // caminho livre: vai reto
+  // Caminho pela areia: desce até a praia, contorna e sobe até o alvo
+  const angA = Math.atan2(a.y - ILHA.y, a.x - ILHA.x), angB = Math.atan2(alvo.y - ILHA.y, alvo.x - ILHA.x);
+  const dif = Math.atan2(Math.sin(angB - angA), Math.cos(angB - angA));
+  const passos = Math.max(1, Math.ceil(Math.abs(dif) / 0.2));
+  const rota = [];
+  for (let i = 0; i <= passos; i++) rota.push(pontoAreia(angA + dif * i / passos));
+  rota.push({ x: alvo.x, y: alvo.y });
+  let custoAreia = custoSegmento(a, rota[0]) + custoSegmento(rota[rota.length - 2], alvo);
+  for (let i = 1; i < rota.length - 1; i++) custoAreia += Math.hypot(rota[i].x - rota[i - 1].x, rota[i].y - rota[i - 1].y);
+  return custoAreia < custoReto ? rota : [{ x: alvo.x, y: alvo.y }];
+}
+// Próximo ponto para onde andar (segue a rota até o destino)
+function proximoPonto(a) {
+  const d = a.destino;
+  if (!a.rota || !a.rotaPara || Math.hypot(a.rotaPara.x - d.x, a.rotaPara.y - d.y) > 25) {
+    a.rota = planejarRota(a, d);
+    a.rotaPara = { x: d.x, y: d.y };
+  }
+  while (a.rota.length > 1 && Math.hypot(a.rota[0].x - a.x, a.rota[0].y - a.y) < 10) a.rota.shift();
+  return a.rota.length > 1 ? a.rota[0] : d;
+}
+function iniciarTarefa(a, tarefa) {
+  a.tarefa = tarefa;
+  if (pertoDe(a, tarefa.x, tarefa.y, tarefa.raio)) comecarAcao(a);
+  else a.destino = { x: tarefa.x, y: tarefa.y };
+  if (a === jogador && precisaAjuda(tarefa)) chamarAjudante(tarefa);
+}
+
+// ===== Ajuda do adolescente em obras =====
+function precisaAjuda(t) {
+  return (t.tipo === 'construir' || t.tipo === 'evoluir') && CONSTRUCOES[t.construcao].precisaAdolescente;
+}
+function ajudanteValido(t) {
+  const aj = t.ajudante;
+  return aj && agentes.includes(aj) && aj.tarefa && aj.tarefa.obra === t;
+}
+function ajudanteTrabalhando(t) { return ajudanteValido(t) && !!t.ajudante.acao; }
+function chamarAjudante(t) {
+  if (ajudanteValido(t)) return;
+  let melhor = null, dist = Infinity;
+  for (const ag of agentes) {
+    if (!podeAjudarObra(ag) || (ag.tarefa && ag.tarefa.tipo === 'embarcar')) continue;
+    const d = Math.hypot(ag.x - t.x, ag.y - t.y);
+    if (d < dist) { dist = d; melhor = ag; }
+  }
+  if (!melhor) return;
+  cancelar(melhor);
+  t.ajudante = melhor;
+  iniciarTarefa(melhor, { tipo: 'ajudar', obra: t, x: t.x, y: t.y, raio: t.raio });
+}
+function duracaoDe(a, t) {
+  if (t.tipo === 'serrar') return TEMPO_SERRAR;
+  if (t.tipo === 'plantar') return a.tipo === 'crianca' ? TEMPO_PLANTAR_CRIANCA : TEMPO_PLANTAR;
+  if (t.tipo === 'namorar') return TEMPO_NAMORAR;
+  if (t.tipo === 'cacar') return TEMPO_CACAR;
+  if (t.tipo === 'evoluir') return CONSTRUCOES[t.construcao].tempo;
+  if (t.tipo === 'ajudar') return Infinity; // fica ajudando até a obra acabar
+  if (t.tipo === 'embarcar') return 0.3;
+  if (t.tipo === 'plantarTrigo') return TEMPO_PLANTAR_TRIGO;
+  if (t.tipo === 'colher') return TEMPO_COLHER_TRIGO;
+  return CONSTRUCOES[t.construcao].tempo;
+}
+function comecarAcao(a) {
+  a.destino = null;
+  a.acao = { tarefa: a.tarefa, tempo: 0, duracao: duracaoDe(a, a.tarefa) };
+}
+function tarefaValida(a) {
+  const t = a.tarefa;
+  if (!t) return true;
+  if (t.tipo === 'serrar') return arvores.includes(t.arvore);
+  if (t.tipo === 'namorar') return podeNamorar();
+  if (t.tipo === 'cacar') return animais.includes(t.alvo);
+  if (t.tipo === 'evoluir') return estruturas.includes(t.estrutura);
+  if (t.tipo === 'ajudar') return jogador.tarefa === t.obra;
+  if (t.tipo === 'plantarTrigo') return t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0;
+  if (t.tipo === 'colher') return t.canteiro.estado === 'maduro';
+  if (t.tipo === 'embarcar') return estruturas.includes(t.estrutura) && jangadaNaAgua(t.estrutura) && !!t.estrutura.reservadaPor && t.estrutura.tripulacao.length < 2;
+  return true;
+}
+
+function concluirAcao(a) {
+  const t = a.acao.tarefa;
+  if (t.tipo === 'serrar') {
+    if (arvores.includes(t.arvore)) {
+      arvores = arvores.filter(x => x !== t.arvore);
+      inventario.madeira += MADEIRA_POR_ARVORE;
+      inventario.sementes += SEMENTES_POR_ARVORE;
+      piscar(elMadeira); piscar(elSementes);
+      textoFlutuante(t.x, t.y - 30, '+' + MADEIRA_POR_ARVORE + ' 🪵  +' + SEMENTES_POR_ARVORE + ' 🌱');
+      if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') a.plantarProximo = true;
+    }
+  } else if (t.tipo === 'plantar') {
+    if (inventario.sementes > 0 && podePlantarEm(t)) {
+      arvores.push(novaArvore(t.x, t.y, false));
+      inventario.sementes -= 1;
+      piscar(elSementes);
+      textoFlutuante(t.x, t.y - 20, '-1 🌱', '#c8f0b0');
+    } else if (a === jogador) {
+      textoFlutuante(t.x, t.y - 20, 'Não dá para plantar aqui', '#ffb0a0');
+    }
+  } else if (t.tipo === 'construir') {
+    const c = CONSTRUCOES[t.construcao];
+    if (!temRecursos(c.custo)) textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
+    else if (!podeConstruirEm(t.construcao, t)) textoFlutuante(t.x, t.y - 20, 'Não dá para construir aqui', '#ffb0a0');
+    else {
+      gastarRecursos(c.custo);
+      // derruba as árvores do terreno, sem ganhar madeira nem sementes
+      const derrubadas = arvoresAfetadas(t.construcao, t);
+      if (derrubadas.length) {
+        arvores = arvores.filter(x => !derrubadas.includes(x));
+        textoFlutuante(t.x, t.y + 10, derrubadas.length + (derrubadas.length > 1 ? ' árvores derrubadas' : ' árvore derrubada'), '#e0c090');
+      }
+      const est = { tipo: t.construcao, x: t.x, y: t.y, raio: c.raio, nivel: 1 };
+      if (c.area) { est.area = true; est.ocupa = c.raio * 1.42; }
+      if (t.construcao === 'campoTrigo') {
+        est.canteiros = criarCanteiros(est);
+        inventario.sementesTrigo += SEMENTES_TRIGO_INICIAIS;
+        piscar(elSemTrigo);
+        textoFlutuante(t.x, t.y + 14, '+' + SEMENTES_TRIGO_INICIAIS + ' semente de trigo', '#f5e6a0');
+      }
+      if (c.vaiParaAgua) {
+        // direção: do centro da ilha para fora, até sair da areia
+        const ang = Math.atan2(t.y - ILHA.y, t.x - ILHA.x);
+        const dist = raioIlha(ang) + c.raio + 14;
+        est.praia = { x: t.x, y: t.y };
+        est.agua = { x: ILHA.x + Math.cos(ang) * dist, y: ILHA.y + Math.sin(ang) * dist };
+        est.empurrar = 0;
+      }
+      estruturas.push(est);
+      piscar(elMadeira); piscar(elSementes);
+      textoFlutuante(t.x, t.y - c.altura - 20, c.concluido);
+    }
+  } else if (t.tipo === 'evoluir') {
+    const est = t.estrutura, c = CONSTRUCOES[est.tipo];
+    const custo = custoEvolucao(est);
+    if (!estruturas.includes(est) || !temRecursos(custo)) {
+      textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
+    } else {
+      gastarRecursos(custo);
+      est.nivel += 1;
+      for (const r of Object.keys(custo)) piscar({ madeira: elMadeira, sementes: elSementes, carne: elCarne }[r]);
+      textoFlutuante(t.x, t.y - c.altura - 20, `${c.nome} evoluiu para o nível ${est.nivel}!`);
+    }
+  } else if (t.tipo === 'embarcar') {
+    embarcar(a, t.estrutura);
+    atualizarInventario();
+    return;
+  } else if (t.tipo === 'plantarTrigo') {
+    if (t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0) {
+      inventario.sementesTrigo -= 1;
+      piscar(elSemTrigo);
+      t.canteiro.estado = 'crescendo'; t.canteiro.idade = 0;
+    }
+  } else if (t.tipo === 'colher') {
+    if (t.canteiro.estado === 'maduro') {
+      t.canteiro.estado = 'vazio'; t.canteiro.idade = 0;
+      inventario.trigo += TRIGO_POR_COLHEITA;
+      inventario.sementesTrigo += SEMENTES_TRIGO_POR_COLHEITA;
+      piscar(elTrigo); piscar(elSemTrigo);
+      textoFlutuante(t.x, t.y - 15, '+' + TRIGO_POR_COLHEITA + ' 🌾  +' + SEMENTES_TRIGO_POR_COLHEITA + ' sementes');
+    }
+  } else if (t.tipo === 'cacar') {
+    const an = t.alvo;
+    const i = animais.indexOf(an);
+    if (i >= 0) {
+      animais.splice(i, 1);
+      const carne = carneDe(an.especie);
+      inventario.carne += carne;
+      piscar(elCarne);
+      textoFlutuante(an.x, an.y - 25, '+' + carne + ' 🍖');
+    }
+  } else if (t.tipo === 'namorar') {
+    if (podeNamorar()) {
+      esposa.gravidez = TEMPO_GRAVIDEZ;
+      textoFlutuante(esposa.x, esposa.y - 40, 'Ela está grávida! 🤰', '#ffc0dd');
+    }
+  }
+  cancelar(a);
+  atualizarInventario();
+}
+
+// ===================== Movimento =====================
+function mover(a, dx, dy, dt) {
+  const len = Math.hypot(dx, dy);
+  if (!len) return true;
+  const passo = a.velocidade * dt;
+  const mx = dx / len * passo, my = dy / len * passo;
+  // Se estiver preso dentro de algo (ex.: plantaram em cima), deixa sair
+  const preso = !podeFicar(a.x, a.y, a.raio);
+  const ok = (x, y) => podeFicar(x, y, a.raio) || (preso && dentroDaIlha(x, y, a.raio));
+  // Contornando um obstáculo: mantém o desvio por um instante para não ficar indo e voltando
+  if (a.desvio && a.desvio.t > 0) {
+    a.desvio.t -= dt;
+    const nx = a.x + Math.cos(a.desvio.ang) * passo, ny = a.y + Math.sin(a.desvio.ang) * passo;
+    if (ok(nx, ny)) { a.x = nx; a.y = ny; return true; }
+    a.desvio = null;
+  }
+  let moveu = false;
+  if (Math.abs(mx) > 1e-6 && ok(a.x + mx, a.y)) { a.x += mx; moveu = true; }
+  if (Math.abs(my) > 1e-6 && ok(a.x, a.y + my)) { a.y += my; moveu = true; }
+  if (moveu) return true;
+  // Travou de frente (ex.: árvore no caminho): contorna pelo lado
+  const ang = Math.atan2(dy, dx), lado = a.ladoDesvio || 1;
+  for (const giro of [1.57, -1.57, 2.3, -2.3]) {
+    const angDesvio = ang + giro * lado;
+    const nx = a.x + Math.cos(angDesvio) * passo, ny = a.y + Math.sin(angDesvio) * passo;
+    if (ok(nx, ny)) { a.x = nx; a.y = ny; a.desvio = { ang: angDesvio, t: 0.4 }; return true; }
+  }
+  a.ladoDesvio = -lado;
+  return false;
+}
+
+// Executa tarefa/ação/movimento de qualquer personagem. dx/dy = entrada manual (só do jogador)
+function executar(a, dt, dx = 0, dy = 0) {
+  if (a.embarcado) { if (a === jogador) navegar(dt, dx, dy); return; }
+  if (!tarefaValida(a)) cancelar(a);
+
+  if (a.acao) {
+    const t = a.acao.tarefa;
+    if (precisaAjuda(t) && !ajudanteTrabalhando(t)) {
+      chamarAjudante(t);   // garante que alguém está vindo
+      return;              // espera o adolescente chegar
+    }
+    a.acao.tempo += dt;
+    if (a.acao.tempo >= a.acao.duracao) concluirAcao(a);
+    return;
+  }
+  const t = a.tarefa;
+  if (t && t.alvo) { t.x = t.alvo.x; t.y = t.alvo.y; a.destino = { x: t.x, y: t.y }; } // alvo que se move
+  if (t && pertoDe(a, t.x, t.y, t.raio)) { comecarAcao(a); return; }
+
+  if (!dx && !dy && a.destino) {
+    const alvo = proximoPonto(a);
+    const vx = alvo.x - a.x, vy = alvo.y - a.y;
+    if (alvo === a.destino && Math.hypot(vx, vy) < 4) { a.destino = null; a.rota = null; }
+    else { dx = vx; dy = vy; }
+  }
+  if ((dx || dy) && !mover(a, dx, dy, dt)) {
+    cancelar(a);
+    a.espera = 0.8;
+  }
+}
+
+// ===================== Inteligência da família =====================
+function ocupadaPorOutro(a, arvore) {
+  return agentes.some(o => o !== a && o.tarefa && o.tarefa.arvore === arvore);
+}
+function arvoreMaisProxima(a) {
+  let melhor = null, dist = Infinity;
+  for (const t of arvores) {
+    if (!adulta(t) || ocupadaPorOutro(a, t)) continue;
+    const d = Math.hypot(t.x - a.x, t.y - a.y);
+    if (d < dist) { dist = d; melhor = t; }
+  }
+  return melhor;
+}
+function acharLugarPlantio(a) {
+  for (let i = 0; i < 40; i++) {
+    const ang = Math.random() * Math.PI * 2, d = 40 + Math.random() * 120;
+    const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
+    if (!podePlantarEm(p)) continue;
+    // evita dois plantando no mesmo lugar
+    if (agentes.some(o => o.tarefa && o.tarefa.tipo === 'plantar' && Math.hypot(o.tarefa.x - p.x, o.tarefa.y - p.y) < DISTANCIA_MIN_ARVORES)) continue;
+    return p;
+  }
+  return null;
+}
+function passear(a) {
+  const ang = Math.random() * Math.PI * 2, d = 30 + Math.random() * 50;
+  const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
+  if (podeFicar(p.x, p.y, a.raio)) a.destino = p;
+  a.espera = 1.5 + Math.random() * 1.5;
+}
+function tentarPlantar(a) {
+  if (inventario.sementes <= RESERVA_SEMENTES) return false;
+  const p = acharLugarPlantio(a);
+  if (!p) return false;
+  iniciarTarefa(a, { tipo: 'plantar', x: p.x, y: p.y, raio: 18 });
+  return true;
+}
+function presaMaisProxima(a) {
+  let melhor = null, dist = Infinity;
+  for (const an of animais) {
+    if (!cacavel(an)) continue;
+    if (agentes.some(o => o !== a && o.tarefa && o.tarefa.alvo === an)) continue;
+    const d = Math.hypot(an.x - a.x, an.y - a.y);
+    if (d < dist) { dist = d; melhor = an; }
+  }
+  return melhor;
+}
+function escolherTarefa(a) {
+  // Filhos adultos: com outro irmão adulto, pegam a jangada para pescar
+  if (a.tipo === 'adulto' && tentarViagemDePesca(a)) return;
+  // Adolescente e adulto caçam (a criança só planta)
+  if (a.tipo === 'adolescente' || a.tipo === 'adulto') {
+    const presa = presaMaisProxima(a);
+    if (presa) { iniciarTarefa(a, { tipo: 'cacar', alvo: presa, x: presa.x, y: presa.y, raio: presa.raio }); return; }
+  }
+  if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') {
+    // Depois de cortar uma árvore, planta uma semente
+    if (a.plantarProximo) { a.plantarProximo = false; if (tentarPlantar(a)) return; }
+    const t = arvoreMaisProxima(a);
+    if (t) { iniciarTarefa(a, { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t }); return; }
+  }
+  if (a.tipo === 'crianca') {
+    // Com o campo de trigo pronto, a criança passa a cuidar só dele
+    const campo = estruturaDoTipo('campoTrigo');
+    if (campo) { cuidarDoCampo(a, campo); return; }
+    if (tentarPlantar(a)) return;
+  }
+  passear(a);
+}
+
+function atualizarFamiliar(a, dt) {
+  if (a.embarcado) return; // na jangada: quem manda é a jangada
+  if (a === esposa) {
+    if (a.gravidez > 0) {
+      a.gravidez -= dt;
+      if (a.gravidez <= 0) {
+        a.gravidez = 0;
+        a.cuidado = TEMPO_CUIDAR_BEBE;
+        cancelar(a);
+        textoFlutuante(a.x, a.y - 40, 'Nasceu um bebê! 👶', '#c8e8ff');
+        // Só pode existir uma criança: a que já existia vira adolescente
+        // Cada nascimento empurra os irmãos: adolescente vira adulto, criança vira adolescente
+        const adols = agentes.filter(f => f.tipo === 'adolescente');
+        const cris = agentes.filter(f => f.tipo === 'crianca');
+        adols.forEach(virarAdulto);
+        cris.forEach(virarAdolescente);
+        atualizarInventario();
+      }
+    }
+    if (a.cuidado > 0) {
+      a.cuidado -= dt;
+      if (a.cuidado <= 0) { a.cuidado = 0; a.descanso = TEMPO_DESCANSO; nascerCrianca(a); atualizarInventario(); }
+      return; // cuidando do bebê: não faz mais nada
+    }
+    if (a.descanso > 0) {
+      a.descanso -= dt;
+      if (a.descanso <= 0) { a.descanso = 0; textoFlutuante(a.x, a.y - 40, 'Pronta para outro filho 💕', '#ffc0dd'); }
+    }
+    // Esperando o marido para namorar
+    if (jogador.tarefa && jogador.tarefa.tipo === 'namorar') {
+      if (a.tarefa || a.acao || a.destino) cancelar(a);
+      return;
+    }
+  }
+  if (!a.tarefa && !a.acao && !a.destino) {
+    a.espera -= dt;
+    if (a.espera <= 0) escolherTarefa(a);
+  }
+  executar(a, dt);
+}
+
+// ===================== Entrada =====================
+const teclas = {};
+const ponteiro = { x: -999, y: -999 };
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'p') { definirModo(modo.tipo === 'plantar' ? null : 'plantar'); return; }
+  if (k === 'c') { abrirMenu(); return; }
+  if (k === 'e') {
+    if (jogador.embarcado) desembarcar();
+    else { const j = estruturaDoTipo('jangada'); if (j) irEmbarcar(j); }
+    return;
+  }
+  if (k === 'escape') { definirModo(null); abrirMenu(false); fecharPainel(); return; }
+  teclas[k] = true;
+  if (['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d'].includes(k)) cancelar(jogador);
+});
+addEventListener('keyup', e => { teclas[e.key.toLowerCase()] = false; });
+
+canvas.addEventListener('pointermove', e => { Object.assign(ponteiro, telaParaMundo(e.clientX, e.clientY)); });
+
+canvas.addEventListener('pointerdown', e => {
+  const p = telaParaMundo(e.clientX, e.clientY);
+  Object.assign(ponteiro, p);
+  abrirMenu(false);
+
+  // Navegando: toque na jangada abre o painel, qualquer outro lugar é destino no mar
+  if (jogador.embarcado) {
+    if (estruturaEm(p) === jogador.embarcado) abrirPainel(painelJangada(jogador.embarcado));
+    else { fecharPainel(); jogador.destino = p; }
+    return;
+  }
+
+  if (modo.tipo === 'plantar') {
+    cancelar(jogador);
+    if (podePlantarEm(p)) iniciarTarefa(jogador, { tipo: 'plantar', x: p.x, y: p.y, raio: 18 });
+    else textoFlutuante(p.x, p.y - 10, 'Não dá para plantar aqui', '#ffb0a0');
+    return;
+  }
+  if (modo.tipo === 'construir') {
+    cancelar(jogador);
+    const id = modo.construcao;
+    if (podeConstruirEm(id, p)) {
+      iniciarTarefa(jogador, { tipo: 'construir', construcao: id, x: p.x, y: p.y, raio: CONSTRUCOES[id].raio });
+      definirModo(null);
+    } else textoFlutuante(p.x, p.y - 10, 'Não dá para construir aqui', '#ffb0a0');
+    return;
+  }
+
+  // Família
+  const ag = agenteEm(p);
+  if (ag) { abrirPainel(ag === esposa ? painelEsposa : painelFilho(ag)); return; }
+  // Animais
+  const an = animalEm(p);
+  if (an) { abrirPainel(painelAnimal(an)); return; }
+  // Totem
+  const s = estruturaEm(p);
+  if (s && s.tipo === 'totem') { abrirPainel(painelTotem); return; }
+  if (s && s.tipo === 'campoTrigo') { clicarCampo(s, p); return; }
+  if (s) { abrirPainel(s.tipo === 'jangada' ? painelJangada(s) : painelEstrutura(s)); return; }
+
+  fecharPainel();
+  cancelar(jogador);
+  const t = arvoreEm(p);
+  if (t) {
+    if (!adulta(t)) {
+      textoFlutuante(t.x, t.y - 30, 'Ainda crescendo (' + Math.ceil(TEMPO_CRESCER - t.idade) + 's)', '#c8f0b0');
+      return;
+    }
+    // Se alguém da família ia cortar essa, deixa para o jogador
+    for (const o of agentes) if (o !== jogador && o.tarefa && o.tarefa.arvore === t) cancelar(o);
+    iniciarTarefa(jogador, { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t });
+  } else {
+    jogador.destino = p;
+    jogador.rota = null;
+  }
+});
+
+// ===================== Câmera =====================
+let escala = 1, offX = 0, offY = 0;
+function redimensionar() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = canvas.clientHeight * dpr;
+  escala = Math.min(canvas.width / MUNDO.w, canvas.height / MUNDO.h);
+  offX = (canvas.width - MUNDO.w * escala) / 2;
+  offY = (canvas.height - MUNDO.h * escala) / 2;
+}
+addEventListener('resize', redimensionar);
+redimensionar();
+function telaParaMundo(cx, cy) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const px = (cx - rect.left) * dpr, py = (cy - rect.top) * dpr;
+  return { x: (px - offX) / escala, y: (py - offY) / escala };
+}
+
+// ===================== Jangada: tripulação, navegação e pesca =====================
+// A jangada só navega com DOIS adultos: o pai + um filho adulto, ou dois filhos adultos.
+// est.tripulacao: quem está a bordo | est.reservadaPor: 'jogador' ou 'filhos'
+function jangadaNaAgua(est) { return est && est.empurrar !== undefined && est.empurrar >= 1; }
+function prepararJangada(est) {
+  if (!est.tripulacao) Object.assign(est, { tripulacao: [], reservadaPor: null, viagem: null, pesca: 0, moveu: false, descansoViagem: 0 });
+}
+function jangadaLivre(est) {
+  prepararJangada(est);
+  return jangadaNaAgua(est) && !est.reservadaPor && !est.tripulacao.length && !emObra('jangada');
+}
+
+function pontoTerraPerto(x, y) {
+  const ang = Math.atan2(y - ILHA.y, x - ILHA.x);
+  const r = raioIlha(ang) - 14;
+  return { x: ILHA.x + Math.cos(ang) * r, y: ILHA.y + Math.sin(ang) * r };
+}
+function terraLivrePerto(x, y, deslocamento = 0) {
+  const ang0 = Math.atan2(y - ILHA.y, x - ILHA.x) + deslocamento;
+  for (const off of [0, 0.04, -0.04, 0.08, -0.08, 0.14, -0.14, 0.2, -0.2]) {
+    for (const recuo of [14, 24, 36]) {
+      const ang = ang0 + off, r = raioIlha(ang) - recuo;
+      const p = { x: ILHA.x + Math.cos(ang) * r, y: ILHA.y + Math.sin(ang) * r };
+      if (podeFicar(p.x, p.y, 10)) return p;
+    }
+  }
+  return null;
+}
+function podeNavegar(x, y, r) {
+  if (x < r || y < r || x > MUNDO.w - r || y > MUNDO.h - r) return false;
+  const ang = Math.atan2(y - ILHA.y, x - ILHA.x);
+  return Math.hypot(x - ILHA.x, y - ILHA.y) >= raioIlha(ang) + r * 0.4;
+}
+function pertoDaPraia(est) {
+  const p = pontoTerraPerto(est.x, est.y);
+  return Math.hypot(p.x - est.x, p.y - est.y) <= est.raio + 36;
+}
+function podeDesembarcar(est) { return est && pertoDaPraia(est) && !!terraLivrePerto(est.x, est.y); }
+
+// ----- Tripulação -----
+function adultosLivres(excluir = []) {
+  return agentes.filter(a => a.tipo === 'adulto' && !a.embarcado && !excluir.includes(a) &&
+    !(a.tarefa && (a.tarefa.tipo === 'ajudar' || a.tarefa.tipo === 'embarcar')));
+}
+function vindoEmbarcar(est) { return agentes.filter(a => a.tarefa && a.tarefa.tipo === 'embarcar' && a.tarefa.estrutura === est); }
+function mandarEmbarcar(a, est) {
+  cancelar(a);
+  const p = pontoTerraPerto(est.x, est.y);
+  iniciarTarefa(a, { tipo: 'embarcar', estrutura: est, x: p.x, y: p.y, raio: 4 });
+}
+// Garante que alguém está a caminho para completar os dois adultos
+function chamarTripulante(est) {
+  if (est.tripulacao.length + vindoEmbarcar(est).length >= 2) return true;
+  const livres = adultosLivres();
+  if (!livres.length) return false;
+  livres.sort((a, b) => Math.hypot(a.x - est.x, a.y - est.y) - Math.hypot(b.x - est.x, b.y - est.y));
+  mandarEmbarcar(livres[0], est);
+  return true;
+}
+function embarcar(a, est) {
+  cancelar(a);
+  a.embarcado = est;
+  a.x = est.x; a.y = est.y;
+  est.tripulacao.push(a);
+  if (est.tripulacao.length === 2) textoFlutuante(est.x, est.y - 60, 'Zarpando! ⛵', '#c8e8ff');
+  if (a === jogador) definirModo(null);
+}
+function desembarcarTodos(est) {
+  est.tripulacao.forEach((m, i) => {
+    const p = terraLivrePerto(est.x, est.y, i * 0.06) || terraLivrePerto(est.x, est.y) || pontoTerraPerto(est.x, est.y);
+    m.embarcado = null;
+    cancelar(m);
+    m.x = p.x; m.y = p.y;
+    m.espera = 1;
+  });
+  for (const a of vindoEmbarcar(est)) cancelar(a);
+  est.tripulacao = [];
+  est.reservadaPor = null;
+  est.viagem = null;
+  est.pesca = 0;
+  definirModo(null);
+}
+
+// ----- Jogador -----
+function irEmbarcar(est) {
+  if (!est || jogador.embarcado || !jangadaLivre(est) || !adultosLivres().length) return;
+  definirModo(null);
+  cancelar(jogador);
+  est.reservadaPor = 'jogador';
+  mandarEmbarcar(jogador, est);
+  chamarTripulante(est);
+}
+function desembarcar() {
+  const est = jogador.embarcado;
+  if (!podeDesembarcar(est)) return;
+  desembarcarTodos(est);
+  textoFlutuante(jogador.x, jogador.y - 30, 'Terra firme!', '#ffe9b0');
+  atualizarInventario();
+}
+
+// ----- Filhos adultos saem sozinhos para pescar -----
+function tentarViagemDePesca(a) {
+  const est = estruturaDoTipo('jangada');
+  if (!est || !jangadaLivre(est) || est.descansoViagem > 0) return false;
+  if (!cardumes.some(c => c.peixes > 0)) return false;
+  const outros = adultosLivres([a]);
+  if (!outros.length) return false;   // precisa de dois adultos
+  est.reservadaPor = 'filhos';
+  est.viagem = null;
+  mandarEmbarcar(a, est);
+  mandarEmbarcar(outros[0], est);
+  return true;
+}
+
+// ----- Movimento no mar -----
+function moverJangada(est, dx, dy, dt) {
+  const len = Math.hypot(dx, dy);
+  if (!len) return false;
+  const passo = VELOCIDADE_JANGADA * dt;
+  const mx = dx / len * passo, my = dy / len * passo;
+  let moveu = false;
+  if (podeNavegar(est.x + mx, est.y, est.raio)) { est.x += mx; moveu = true; }
+  if (podeNavegar(est.x, est.y + my, est.raio)) { est.y += my; moveu = true; }
+  if (moveu) est.moveu = true;
+  return moveu;
+}
+// Vai até um ponto; se a ilha estiver no caminho, contorna pela costa
+function rumoPara(est, alvo, dt) {
+  if (moverJangada(est, alvo.x - est.x, alvo.y - est.y, dt)) return;
+  const a1 = Math.atan2(est.y - ILHA.y, est.x - ILHA.x), a2 = Math.atan2(alvo.y - ILHA.y, alvo.x - ILHA.x);
+  const dif = Math.atan2(Math.sin(a2 - a1), Math.cos(a2 - a1));
+  const sentido = dif >= 0 ? 1 : -1;
+  moverJangada(est, -Math.sin(a1) * sentido + Math.cos(a1) * 0.3, Math.cos(a1) * sentido + Math.sin(a1) * 0.3, dt);
+}
+
+function navegar(dt, dx, dy) {
+  const est = jogador.embarcado;
+  if (est.tripulacao.length < 2) { chamarTripulante(est); jogador.destino = null; return; } // espera o filho
+  if (!dx && !dy && jogador.destino) {
+    const vx = jogador.destino.x - est.x, vy = jogador.destino.y - est.y;
+    if (Math.hypot(vx, vy) < 4) jogador.destino = null;
+    else { dx = vx; dy = vy; }
+  }
+  if ((dx || dy) && !moverJangada(est, dx, dy, dt)) jogador.destino = null;
+}
+
+// ----- Atualização da jangada (a cada quadro) -----
+function atualizarJangada(est, dt) {
+  prepararJangada(est);
+  if (est.descansoViagem > 0) est.descansoViagem -= dt;
+
+  // Reserva abandonada: libera a jangada
+  if (est.reservadaPor === 'jogador' && !jogador.embarcado && !(jogador.tarefa && jogador.tarefa.estrutura === est)) {
+    desembarcarTodos(est);
+  }
+  if (est.reservadaPor === 'filhos' && est.tripulacao.length < 2 && !chamarTripulante(est)) {
+    desembarcarTodos(est);
+  }
+
+  // Viagem automática dos filhos
+  if (est.reservadaPor === 'filhos' && est.tripulacao.length === 2) {
+    if (!est.viagem) est.viagem = { fase: 'ir', pescas: 0 };
+    const v = est.viagem;
+    if (v.pescas >= PESCAS_POR_VIAGEM) v.fase = 'voltar';
+    if (v.fase === 'ir') {
+      const alvo = cardumeMaisProximo(est);
+      if (!alvo) v.fase = 'voltar';
+      else if (Math.hypot(alvo.x - est.x, alvo.y - est.y) < 8) v.fase = 'pescar'; // chega no meio do cardume
+      else rumoPara(est, alvo, dt);
+    } else if (v.fase === 'pescar') {
+      if (!cardumeSob(est)) v.fase = 'ir';
+    } else if (v.fase === 'voltar') {
+      if (podeDesembarcar(est)) {
+        textoFlutuante(est.x, est.y - 60, 'Os filhos voltaram da pesca!', '#c8e8ff');
+        desembarcarTodos(est);
+        est.descansoViagem = DESCANSO_VIAGEM;
+      } else {
+        rumoPara(est, pontoTerraPerto(est.x, est.y), dt);
+      }
+    }
+  }
+
+  // Pesca: dois adultos a bordo, jangada parada em cima de um cardume
+  const c = est.tripulacao.length === 2 && !est.moveu ? cardumeSob(est) : null;
+  if (c) {
+    c.parado = 0.3;   // cardume fica parado enquanto estão pescando nele
+    est.pesca += dt;
+    if (est.pesca >= TEMPO_PESCAR) {
+      est.pesca = 0;
+      c.peixes -= 1;
+      inventario.peixe += PEIXES_POR_PESCA;
+      piscar(elPeixe);
+      textoFlutuante(est.x, est.y - 55, '+' + PEIXES_POR_PESCA + ' 🐟', '#c8e8ff');
+      if (est.viagem) est.viagem.pescas += 1;
+      if (c.peixes <= 0) cardumes.splice(cardumes.indexOf(c), 1);
+      atualizarInventario();
+    }
+  } else {
+    est.pesca = 0;
+  }
+  est.moveu = false;
+
+  // Tripulação acompanha a jangada
+  for (const m of est.tripulacao) { m.x = est.x; m.y = est.y; }
+}
+
+// ===================== Cardumes =====================
+const cardumes = [];
+let relogioCardume = 0;
+function novoCardume() {
+  for (let i = 0; i < 60; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const min = raioIlha(ang) + 60;
+    const d = min + Math.random() * 120;
+    const x = ILHA.x + Math.cos(ang) * d, y = ILHA.y + Math.sin(ang) * d;
+    if (!podeNavegar(x, y, 32)) continue;
+    if (cardumes.some(c => Math.hypot(c.x - x, c.y - y) < 110)) continue;
+    cardumes.push({ x, y, raio: 30, peixes: PEIXES_POR_CARDUME, dir: Math.random() * Math.PI * 2, fase: Math.random() * 10 });
+    return;
+  }
+}
+for (let i = 0; i < CARDUMES_MAX; i++) novoCardume();
+
+function cardumeSob(est) {
+  return cardumes.find(c => c.peixes > 0 && Math.hypot(c.x - est.x, c.y - est.y) < c.raio + est.raio);
+}
+function cardumeMaisProximo(est) {
+  let melhor = null, dist = Infinity;
+  for (const c of cardumes) {
+    if (c.peixes <= 0) continue;
+    const d = Math.hypot(c.x - est.x, c.y - est.y);
+    if (d < dist) { dist = d; melhor = c; }
+  }
+  return melhor;
+}
+function atualizarCardumes(dt) {
+  for (const c of cardumes) {
+    c.fase += dt;
+    if (c.parado > 0) { c.parado -= dt; continue; }
+    if (Math.random() < dt * 0.3) c.dir += (Math.random() - 0.5) * 1.5;
+    const nx = c.x + Math.cos(c.dir) * 4 * dt, ny = c.y + Math.sin(c.dir) * 4 * dt;
+    if (podeNavegar(nx, ny, 32)) { c.x = nx; c.y = ny; } else c.dir += Math.PI;
+  }
+  if (cardumes.length < CARDUMES_MAX) {
+    relogioCardume += dt;
+    if (relogioCardume >= TEMPO_NOVO_CARDUME) { relogioCardume = 0; novoCardume(); }
+  }
+}
+function desenharCardume(c) {
+  const qtd = c.peixes + 3;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(c.x, c.y, c.raio, 0, Math.PI * 2); ctx.stroke();
+  for (let i = 0; i < qtd; i++) {
+    const a = c.fase * 0.8 + i / qtd * Math.PI * 2;
+    const r = c.raio * (0.35 + 0.5 * ((i * 37) % 10) / 10);
+    const x = c.x + Math.cos(a) * r, y = c.y + Math.sin(a) * r * 0.6;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = 'rgba(20,50,80,0.75)';
+    ctx.beginPath(); ctx.ellipse(0, 0, 5, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(-8, -2.5); ctx.lineTo(-8, 2.5); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function painelJangada(est) {
+  return () => {
+    if (!estruturas.includes(est)) return null;
+    prepararJangada(est);
+    const titulo = `🛶 Jangada · nível ${est.nivel}`;
+    if (jogador.embarcado === est) {
+      if (est.tripulacao.length < 2) {
+        return { titulo, texto: '<p>Esperando o filho adulto embarcar...</p>',
+          botoes: [{ rotulo: '🏝️ Desembarcar (E)', desabilitado: !podeDesembarcar(est), acao: desembarcar }] };
+      }
+      const ok = podeDesembarcar(est);
+      return {
+        titulo,
+        texto: `<p>Navegando com seu filho. Pare em cima de um cardume para pescar.</p><p>${ok ? 'Vocês estão perto da praia.' : 'Cheguem perto da praia para desembarcar.'}</p>`,
+        botoes: [{ rotulo: '🏝️ Desembarcar (E)', desabilitado: !ok, acao: desembarcar }],
+      };
+    }
+    if (!jangadaNaAgua(est)) return { titulo, texto: '<p>Sendo empurrada para a água...</p>', botoes: [] };
+    if (est.reservadaPor === 'filhos') {
+      return { titulo, texto: '<p>Os filhos adultos estão usando a jangada para pescar.</p>', botoes: [] };
+    }
+    const temFilho = adultosLivres().length > 0;
+    return {
+      titulo,
+      texto: temFilho
+        ? '<p>Pronta no mar. Você e um filho adulto embarcam juntos.</p>'
+        : '<p>A jangada só navega com dois adultos. Você precisa de um filho adulto para ir junto.</p>',
+      botoes: [{ rotulo: '⛵ Embarcar (E)', desabilitado: !temFilho || !jangadaLivre(est), acao: () => irEmbarcar(est) }],
+    };
+  };
+}
+
+// ===================== Atualização =====================
+function atualizarEstruturas(dt) {
+  for (const est of estruturas) {
+    if (est.tipo === 'jangada' && jangadaNaAgua(est)) atualizarJangada(est, dt);
+    if (est.empurrar === undefined || est.empurrar >= 1) continue;
+    est.empurrar = Math.min(est.empurrar + dt / TEMPO_EMPURRAR, 1);
+    const e = est.empurrar < 0.5 ? 2 * est.empurrar ** 2 : 1 - (-2 * est.empurrar + 2) ** 2 / 2; // suave
+    est.x = est.praia.x + (est.agua.x - est.praia.x) * e;
+    est.y = est.praia.y + (est.agua.y - est.praia.y) * e;
+    if (est.empurrar >= 1) textoFlutuante(est.x, est.y - 60, 'A jangada está na água! 🌊', '#c8e8ff');
+  }
+}
+
+function atualizar(dt) {
+  for (const t of arvores) if (t.idade < TEMPO_CRESCER) t.idade += dt;
+  atualizarEstruturas(dt);
+
+  let dx = 0, dy = 0;
+  if (teclas['arrowleft']  || teclas['a']) dx -= 1;
+  if (teclas['arrowright'] || teclas['d']) dx += 1;
+  if (teclas['arrowup']    || teclas['w']) dy -= 1;
+  if (teclas['arrowdown']  || teclas['s']) dy += 1;
+  executar(jogador, dt, dx, dy);
+
+  for (const a of agentes) if (a !== jogador) atualizarFamiliar(a, dt);
+  atualizarAnimais(dt);
+  atualizarCardumes(dt);
+  atualizarCanteiros(dt);
+
+  for (const t of textos) { t.vida -= dt; t.y -= 30 * dt; }
+  for (let i = textos.length - 1; i >= 0; i--) if (textos[i].vida <= 0) textos.splice(i, 1);
+  for (const f of efeitos) f.vida -= dt;
+  for (let i = efeitos.length - 1; i >= 0; i--) if (efeitos[i].vida <= 0) efeitos.splice(i, 1);
+}
+
+// ===================== Desenho =====================
+function contornoIlha(recuo) {
+  ctx.beginPath();
+  for (let i = 0; i <= 120; i++) {
+    const a = i / 120 * Math.PI * 2, r = raioIlha(a) - recuo;
+    const x = ILHA.x + Math.cos(a) * r, y = ILHA.y + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+}
+function desenharIlha() {
+  ctx.fillStyle = '#e8d08a'; contornoIlha(0);  ctx.fill();
+  ctx.fillStyle = '#5a9e3c'; contornoIlha(45); ctx.fill();
+}
+
+function circulo(x, y, r, cor) { ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+
+function desenharArvore(t) {
+  const c = crescimento(t), tam = 0.3 + 0.7 * c;
+  const sendoSerrada = agentes.some(a => a.acao && a.acao.tarefa.arvore === t);
+  const balanco = sendoSerrada ? Math.sin(performance.now() / 60) * 2 : 0;
+  if (c < 1) circulo(t.x, t.y, t.raio, '#7a5a32');
+  circulo(t.x, t.y, t.raio * 0.6 * tam, '#6b4423');
+  const alvo = jogador.tarefa && jogador.tarefa.arvore === t;
+  circulo(t.x + balanco, t.y - t.raio * 0.9 * tam, t.raio * 1.6 * tam, c < 1 ? '#6fbf4a' : (alvo ? '#3d8a30' : '#2f6b25'));
+  if (c < 1) {
+    const larg = 30, x = t.x - larg / 2, y = t.y + t.raio + 4;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(x, y, larg, 4);
+    ctx.fillStyle = '#8fd16a'; ctx.fillRect(x, y, larg * c, 4);
+  }
+}
+
+function desenharTotem(x, y, progresso = 1, alpha = 1) {
+  ctx.globalAlpha = alpha;
+  const larg = 22, altBloco = 16, blocos = 4;
+  const visiveis = Math.ceil(blocos * progresso);
+  ctx.fillStyle = '#5a3a1c';
+  ctx.beginPath(); ctx.ellipse(x, y, 16, 7, 0, 0, Math.PI * 2); ctx.fill();
+  const cores = ['#8b5a2b', '#a06a35', '#8b5a2b', '#a06a35'];
+  for (let i = 0; i < visiveis; i++) {
+    const by = y - (i + 1) * altBloco;
+    ctx.fillStyle = cores[i];
+    ctx.fillRect(x - larg / 2, by, larg, altBloco);
+    ctx.strokeStyle = '#4a2e14'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(x - larg / 2, by, larg, altBloco);
+    ctx.fillStyle = '#3a220e';
+    ctx.fillRect(x - 6, by + 4, 4, 3);
+    ctx.fillRect(x + 2, by + 4, 4, 3);
+    ctx.fillRect(x - 5, by + 10, 10, 2);
+  }
+  if (progresso >= 1) {
+    const ty = y - blocos * altBloco;
+    ctx.fillStyle = '#c47f3d';
+    ctx.beginPath();
+    ctx.moveTo(x - larg / 2, ty + 6); ctx.lineTo(x - larg / 2 - 14, ty - 2); ctx.lineTo(x - larg / 2, ty + 12);
+    ctx.moveTo(x + larg / 2, ty + 6); ctx.lineTo(x + larg / 2 + 14, ty - 2); ctx.lineTo(x + larg / 2, ty + 12);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Cabana: paredes de troncos sobem primeiro, depois o telhado de palha
+function desenharCabana(x, y, progresso = 1, alpha = 1) {
+  ctx.globalAlpha = alpha;
+  const larg = 64, altParede = 30, altTelhado = 34;
+  const esq = x - larg / 2;
+  // chão
+  ctx.fillStyle = '#7a5a32';
+  ctx.beginPath(); ctx.ellipse(x, y, larg / 2 + 6, 10, 0, 0, Math.PI * 2); ctx.fill();
+  // paredes (5 troncos)
+  const troncos = 5, altTronco = altParede / troncos;
+  const pParede = Math.min(progresso / 0.65, 1);
+  const visiveis = Math.ceil(troncos * pParede);
+  for (let i = 0; i < visiveis; i++) {
+    const ty = y - (i + 1) * altTronco;
+    ctx.fillStyle = i % 2 ? '#9a6532' : '#875627';
+    ctx.fillRect(esq, ty, larg, altTronco);
+    ctx.strokeStyle = '#4a2e14'; ctx.lineWidth = 1;
+    ctx.strokeRect(esq, ty, larg, altTronco);
+  }
+  // porta
+  if (pParede >= 1) {
+    ctx.fillStyle = '#3a220e';
+    ctx.fillRect(x - 7, y - 20, 14, 20);
+  }
+  // telhado
+  if (progresso > 0.65) {
+    const pTelhado = Math.min((progresso - 0.65) / 0.35, 1);
+    const topo = y - altParede;
+    ctx.fillStyle = '#c9a24a';
+    ctx.beginPath();
+    ctx.moveTo(esq - 8, topo);
+    ctx.lineTo(x + larg / 2 + 8, topo);
+    ctx.lineTo(x, topo - altTelhado * pTelhado);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#8a6a24'; ctx.lineWidth = 1.5; ctx.stroke();
+    if (pTelhado >= 1) {
+      ctx.strokeStyle = 'rgba(138,106,36,0.6)'; ctx.lineWidth = 1;
+      for (let i = 1; i < 4; i++) {
+        const yy = topo - altTelhado * i / 4, meia = (larg / 2 + 8) * (1 - i / 4);
+        ctx.beginPath(); ctx.moveTo(x - meia, yy); ctx.lineTo(x + meia, yy); ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Jangada: troncos lado a lado, amarras, depois mastro e vela
+function desenharJangada(x, y, progresso = 1, alpha = 1) {
+  ctx.globalAlpha = alpha;
+  const larg = 54, alt = 26, troncos = 6;
+  const esq = x - larg / 2, topo = y - alt / 2;
+  // sombra na água/areia
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath(); ctx.ellipse(x, y + 4, larg / 2 + 4, alt / 2 + 2, 0, 0, Math.PI * 2); ctx.fill();
+  // troncos aparecem um a um nos primeiros 70%
+  const pTroncos = Math.min(progresso / 0.7, 1);
+  const visiveis = Math.ceil(troncos * pTroncos);
+  const altTronco = alt / troncos;
+  for (let i = 0; i < visiveis; i++) {
+    const ty = topo + i * altTronco;
+    ctx.fillStyle = i % 2 ? '#a06a35' : '#8b5a2b';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(esq, ty, larg, altTronco, altTronco / 2) : ctx.rect(esq, ty, larg, altTronco);
+    ctx.fill();
+    ctx.strokeStyle = '#4a2e14'; ctx.lineWidth = 0.8; ctx.stroke();
+  }
+  // amarras de corda
+  if (pTroncos >= 1) {
+    ctx.strokeStyle = '#d9c38a'; ctx.lineWidth = 2;
+    for (const fx of [esq + 8, x + larg / 2 - 8]) {
+      ctx.beginPath(); ctx.moveTo(fx, topo); ctx.lineTo(fx, topo + alt); ctx.stroke();
+    }
+  }
+  // mastro e vela nos últimos 30%
+  if (progresso > 0.7) {
+    const pMastro = Math.min((progresso - 0.7) / 0.3, 1);
+    const altMastro = 44 * pMastro;
+    ctx.strokeStyle = '#5a3a1c'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - altMastro); ctx.stroke();
+    if (pMastro >= 1) {
+      ctx.fillStyle = '#efe6cf';
+      ctx.beginPath();
+      ctx.moveTo(x + 2, y - 42); ctx.lineTo(x + 22, y - 14); ctx.lineTo(x + 2, y - 10);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#b8ab88'; ctx.lineWidth = 1; ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Área cercada quadrada: chão, cerca de estacas e um detalhe no meio
+function desenharCercado(x, y, h, corChao, detalhe, progresso = 1, alpha = 1) {
+  ctx.globalAlpha = alpha * 0.85;
+  ctx.fillStyle = corChao;
+  ctx.fillRect(x - h, y - h, h * 2, h * 2);
+  ctx.globalAlpha = alpha;
+  // estacas ao redor, aparecendo conforme a obra avança
+  const porLado = Math.max(4, Math.round(h / 9)), total = porLado * 4;
+  const visiveis = Math.ceil(total * progresso);
+  const ponto = i => {
+    const lado = Math.floor(i / porLado), f = (i % porLado) / porLado;
+    if (lado === 0) return [x - h + f * 2 * h, y - h];
+    if (lado === 1) return [x + h, y - h + f * 2 * h];
+    if (lado === 2) return [x + h - f * 2 * h, y + h];
+    return [x - h, y + h - f * 2 * h];
+  };
+  ctx.strokeStyle = '#7a5428'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= Math.min(visiveis, total); i++) {
+    const [px, py] = ponto(i % total);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  // deixa uma porteira aberta no meio do lado de baixo
+  ctx.stroke();
+  for (let i = 0; i < visiveis; i++) {
+    const [px, py] = ponto(i);
+    ctx.fillStyle = '#5a3a1c';
+    ctx.fillRect(px - 2, py - 4, 4, 6);
+  }
+  if (progresso >= 1) {
+    if (detalhe === 'casinha') {
+      ctx.fillStyle = '#9a6532'; ctx.fillRect(x - 10, y - h + 6, 20, 14);
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath(); ctx.moveTo(x - 13, y - h + 7); ctx.lineTo(x + 13, y - h + 7); ctx.lineTo(x, y - h - 2); ctx.fill();
+    } else if (detalhe === 'cocho') {
+      ctx.fillStyle = '#6b4423'; ctx.fillRect(x - 12, y + h - 14, 24, 7);
+      ctx.fillStyle = '#d9c050'; ctx.fillRect(x - 10, y + h - 13, 20, 4);
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function desenharCampoTrigo(x, y, progresso = 1, alpha = 1, est = null) {
+  const h = 46;
+  desenharCercado(x, y, h, '#8a6a3a', null, progresso, alpha);
+  if (!est || progresso < 1) return;
+  ctx.globalAlpha = alpha;
+  for (const k of est.canteiros) {
+    const meia = k.tam / 2;
+    ctx.fillStyle = '#6e4f28';
+    ctx.fillRect(k.x - meia, k.y - meia, k.tam, k.tam);
+    if (k.estado === 'vazio') continue;
+    const cresc = k.estado === 'maduro' ? 1 : Math.min(k.idade / TEMPO_TRIGO_CRESCER, 1);
+    ctx.strokeStyle = k.estado === 'maduro' ? '#f0c840' : '#7cbf4a';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+      const px = k.x - meia + 3 + i * (k.tam - 6) / 2, py = k.y - meia + 4 + j * (k.tam - 6) / 2;
+      ctx.beginPath(); ctx.moveTo(px, py + 2); ctx.lineTo(px, py + 2 - 7 * (0.3 + 0.7 * cresc)); ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function rotulo(x, y, msg, cor = '#fff') {
+  ctx.font = 'bold 11px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  const w = ctx.measureText(msg).width + 8;
+  ctx.fillRect(x - w / 2, y - 11, w, 14);
+  ctx.fillStyle = cor;
+  ctx.fillText(msg, x, y);
+}
+
+function desenharAgente(a) {
+  const { x, y, raio: r } = a;
+  if (a.tipo === 'jogador') {
+    circulo(x, y, r, '#d9822b');
+    circulo(x, y - r, r * 0.6, '#f2c79a');
+  } else if (a.tipo === 'esposa') {
+    const barriga = a.gravidez > 0 ? 1.25 : 1;
+    circulo(x, y, r * barriga, '#b5508a');
+    circulo(x, y - r - 1, r * 0.75, '#5a3418');   // cabelo
+    circulo(x, y - r, r * 0.6, '#f2c79a');
+    if (a.cuidado > 0) {                           // bebê no colo
+      circulo(x + r, y - 2, 5, '#ffffff');
+      circulo(x + r, y - 4, 3, '#f2c79a');
+    }
+    if (a.gravidez > 0) rotulo(x, y - r * 2 - 6, '🤰 ' + Math.ceil(a.gravidez) + 's', '#ffc0dd');
+    if (a.cuidado > 0) rotulo(x, y - r * 2 - 6, '🍼 ' + Math.ceil(a.cuidado) + 's', '#c8e8ff');
+    if (a.descanso > 0) rotulo(x, y - r * 2 - 6, '⏳ ' + Math.ceil(a.descanso) + 's', '#e8e8e8');
+  } else if (a.tipo === 'adulto') {
+    circulo(x, y, r, '#2b5fa8');
+    circulo(x, y - r, r * 0.6, '#f2c79a');
+    circulo(x, y - r * 0.55, r * 0.35, '#6b4423'); // barba
+  } else if (a.tipo === 'adolescente') {
+    circulo(x, y, r, '#2e9c84');
+    circulo(x, y - r, r * 0.62, '#f2c79a');
+  } else if (a.tipo === 'crianca') {
+    circulo(x, y, r, '#4aa3d9');
+    circulo(x, y - r, r * 0.65, '#f2c79a');
+  }
+}
+
+function obraAtual() {
+  const a = jogador.acao;
+  if (!a || a.tarefa.tipo !== 'construir') return null;
+  return { a, t: a.tarefa };
+}
+function desenharObra() {
+  const o = obraAtual();
+  if (!o || CONSTRUCOES[o.t.construcao].area) return null;
+  const { a, t } = o;
+  return { y: t.y, f: () => CONSTRUCOES[t.construcao].desenhar(t.x, t.y, a.tempo / a.duracao) };
+}
+
+const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050' };
+const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo' };
+function desenharBarraAcao(a) {
+  if (!a.acao) return;
+  const t = a.acao.tarefa;
+  if (t.tipo === 'ajudar') {
+    rotulo(a.x, a.y - a.raio * 2 - 6, '🔨 ajudando', '#ffe9b0');
+    return;
+  }
+  if (precisaAjuda(t) && !ajudanteTrabalhando(t)) {
+    const msg = temAdolescente() ? 'Esperando o filho chegar para ajudar...' : 'Precisa de um filho adolescente ou adulto';
+    rotulo(t.x, t.y - CONSTRUCOES[t.construcao].altura - 16, msg, '#ffe9b0');
+    return;
+  }
+  const pequeno = a !== jogador;
+  const larg = pequeno ? 40 : 60, alt = pequeno ? 5 : 8;
+  let cx = t.x, y = t.y - 34;
+  if (t.tipo === 'serrar') y = t.y - t.raio * 2.8 - 14;
+  if (t.tipo === 'construir' || t.tipo === 'evoluir') y = t.y - CONSTRUCOES[t.construcao].altura - 16;
+  if (t.tipo === 'namorar') { cx = (a.x + t.x) / 2; y = Math.min(a.y, t.y) - 40; }
+  const x = cx - larg / 2;
+  const prog = Math.min(a.acao.tempo / a.acao.duracao, 1);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(x - 2, y - 2, larg + 4, alt + 4);
+  ctx.fillStyle = CORES_ACAO[t.tipo];
+  ctx.fillRect(x, y, larg * prog, alt);
+  if (!pequeno) {
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(NOMES_ACAO[t.tipo] + '... ' + Math.ceil(a.acao.duracao - a.acao.tempo) + 's', cx, y - 5);
+  }
+  if (t.tipo === 'namorar') {
+    ctx.font = '16px system-ui, sans-serif';
+    const b = Math.sin(performance.now() / 200) * 4;
+    ctx.fillText('💕', cx, y - 22 + b);
+  }
+}
+
+function desenharPrevia() {
+  if (jogador.acao) return;
+  if (modo.tipo === 'plantar') {
+    const ok = podePlantarEm(ponteiro);
+    ctx.strokeStyle = ok ? 'rgba(160,255,120,0.9)' : 'rgba(255,120,100,0.9)';
+    ctx.fillStyle = ok ? 'rgba(160,255,120,0.25)' : 'rgba(255,120,100,0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(ponteiro.x, ponteiro.y, 16, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+  if (modo.tipo === 'construir') {
+    const c = CONSTRUCOES[modo.construcao];
+    const ok = podeConstruirEm(modo.construcao, ponteiro);
+    ctx.strokeStyle = ok ? 'rgba(255,220,140,0.9)' : 'rgba(255,120,100,0.9)';
+    ctx.fillStyle = ok ? 'rgba(255,220,140,0.25)' : 'rgba(255,120,100,0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (c.area) ctx.rect(ponteiro.x - c.raio, ponteiro.y - c.raio, c.raio * 2, c.raio * 2);
+    else ctx.arc(ponteiro.x, ponteiro.y, c.raio, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    c.desenhar(ponteiro.x, ponteiro.y, 1, 0.5);
+    // marca em vermelho as árvores que vão ser derrubadas
+    for (const t of arvoresAfetadas(modo.construcao, ponteiro)) {
+      ctx.strokeStyle = 'rgba(255,90,70,0.95)'; ctx.lineWidth = 2.5;
+      const cy = t.y - t.raio * 0.9;
+      ctx.beginPath();
+      ctx.moveTo(t.x - 8, cy - 8); ctx.lineTo(t.x + 8, cy + 8);
+      ctx.moveTo(t.x + 8, cy - 8); ctx.lineTo(t.x - 8, cy + 8);
+      ctx.stroke();
+    }
+  }
+}
+
+function desenharEfeitos() {
+  for (const f of efeitos) {
+    ctx.globalAlpha = Math.max(f.vida / 1.8, 0) * 0.7;
+    const g = ctx.createLinearGradient(0, 0, 0, f.y);
+    g.addColorStop(0, 'rgba(255,245,180,0)');
+    g.addColorStop(1, 'rgba(255,245,180,1)');
+    ctx.fillStyle = g;
+    ctx.fillRect(f.x - 22, 0, 44, f.y + 6);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function desenharTextos() {
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 18px system-ui, sans-serif';
+  for (const t of textos) {
+    ctx.globalAlpha = Math.max(t.vida / 1.6, 0);
+    ctx.fillStyle = t.cor;
+    ctx.fillText(t.msg, t.x, t.y);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function desenhar() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#1f6fa8';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(escala, 0, 0, escala, offX, offY);
+  for (const c of cardumes) desenharCardume(c);
+  desenharIlha();
+  for (const s of estruturas) {
+    if (!s.area) continue;
+    if (s.tipo === 'campoTrigo') desenharCampoTrigo(s.x, s.y, 1, 1, s);
+    else CONSTRUCOES[s.tipo].desenhar(s.x, s.y);
+    rotulo(s.x, s.y + s.raio + 14, 'Nv ' + s.nivel, '#ffe9b0');
+  }
+  const obraArea = obraAtual();
+  if (obraArea && CONSTRUCOES[obraArea.t.construcao].area) {
+    CONSTRUCOES[obraArea.t.construcao].desenhar(obraArea.t.x, obraArea.t.y, obraArea.a.tempo / obraArea.a.duracao);
+  }
+
+  if (jogador.destino && !jogador.tarefa) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(jogador.destino.x, jogador.destino.y, 8, 0, Math.PI * 2); ctx.stroke();
+  }
+  const tf = jogador.tarefa;
+  if (tf && (tf.tipo === 'plantar' || tf.tipo === 'construir') && !jogador.acao) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(tf.x, tf.y, tf.raio, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  const objetos = [
+    ...arvores.map(t => ({ y: t.y, f: () => desenharArvore(t) })),
+    ...estruturas.filter(s => !s.area).map(s => ({ y: s.y, f: () => {
+      const naAgua = !dentroDaIlha(s.x, s.y, 0);
+      if (naAgua) {
+        const tempo = performance.now() / 1000;
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5;
+        const r = 34 + (tempo * 8) % 10;
+        ctx.beginPath(); ctx.ellipse(s.x, s.y + 4, r, r * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
+        const balanco = Math.sin(tempo * 2) * 1.5;
+        CONSTRUCOES[s.tipo].desenhar(s.x, s.y + balanco);
+        // Tripulação em pé no convés
+        (s.tripulacao || []).forEach((m, i) => desenharAgente({ ...m, x: s.x - 18 + i * 13, y: s.y + balanco - 1 }));
+        if (s.pesca > 0) {
+          const prog = s.pesca / TEMPO_PESCAR, larg = 44, bx = s.x - larg / 2, by = s.y - 66;
+          ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(bx - 2, by - 2, larg + 4, 9);
+          ctx.fillStyle = '#7ec8f0'; ctx.fillRect(bx, by, larg * prog, 5);
+          rotulo(s.x, by - 5, '🎣 Pescando...', '#c8e8ff');
+        } else if (s.tripulacao && s.tripulacao.length === 1) {
+          rotulo(s.x, s.y - 66, 'Esperando o segundo adulto...', '#ffe9b0');
+        }
+      } else {
+        CONSTRUCOES[s.tipo].desenhar(s.x, s.y);
+      }
+      if (s.empurrar !== undefined && s.empurrar < 1) rotulo(s.x, s.y - 70, 'Empurrando para a água...', '#c8e8ff');
+      rotulo(s.x, s.y + 20, 'Nv ' + s.nivel, '#ffe9b0');
+    } })),
+    ...agentes.filter(a => !a.embarcado).map(a => ({ y: a.y, f: () => desenharAgente(a) })),
+    ...animais.map(an => ({ y: an.y, f: () => desenharAnimal(an) })),
+  ];
+  const obra = desenharObra();
+  if (obra) objetos.push(obra);
+  objetos.sort((a, b) => a.y - b.y).forEach(o => o.f());
+
+  desenharEfeitos();
+  desenharPrevia();
+  for (const a of agentes) desenharBarraAcao(a);
+  desenharTextos();
+}
+
+// ===================== Início =====================
+definirModo(null);
+atualizarInventario();
+
+let ultimo = performance.now(), relogioPainel = 0;
+function loop(agora) {
+  const dt = Math.min((agora - ultimo) / 1000, 0.05);
+  ultimo = agora;
+  atualizar(dt);
+  relogioPainel += dt;
+  if (relogioPainel > 0.25) { relogioPainel = 0; atualizarPainel(); }
+  desenhar();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

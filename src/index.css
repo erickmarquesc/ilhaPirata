@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mar: #1f6fa8;
+  --color-planta: #8fd16a;
+  --color-obra: #e0a95a;
+  --color-amor: #f08bbd;
+  --color-ganho: #ffe27a;
+  --color-falta: #ffb0a0;
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    @apply bg-mar text-white font-sans overflow-hidden;
+    touch-action: none;
+  }
+}
