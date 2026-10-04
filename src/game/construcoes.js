@@ -1,18 +1,14 @@
 import { dentroDaIlha } from './ilha.js';
-import {
-  desenharTotem, desenharCabana, desenharJangada, desenharCercado, desenharCampoTrigo,
-} from './desenho/construcoes.js';
 
 // ===================== Construções =====================
-// desenhar(ctx, x, y, progresso, alpha, estrutura)
+// O visual 3D de cada uma fica em src/components/cena/modelos
 export const CONSTRUCOES = {
   totem: {
     nome: 'Totem da Vida', icone: '🗿',
     custo: { madeira: 60, sementes: 4 },
     tempo: 8, raio: 16,
-    largura: 36, altura: 75,      // área clicável / altura do desenho
+    largura: 70, altura: 95,      // área clicável / altura do modelo
     concluido: 'Totem da Vida construído!',
-    desenhar: desenharTotem,
   },
   cabana: {
     nome: 'Cabana', icone: '🛖',
@@ -21,7 +17,6 @@ export const CONSTRUCOES = {
     largura: 76, altura: 70,
     concluido: 'Cabana construída!',
     descricao: 'O primeiro lar da família na ilha.',
-    desenhar: desenharCabana,
   },
   jangada: {
     nome: 'Jangada', icone: '🛶',
@@ -35,7 +30,6 @@ export const CONSTRUCOES = {
     vaiParaAgua: true,          // depois de pronta é empurrada para o mar
     // só na faixa de areia, colada na água
     local: p => dentroDaIlha(p.x, p.y, 4) && !dentroDaIlha(p.x, p.y, 48),
-    desenhar: desenharJangada,
   },
   // Abrigos de animais: área cercada (não bloqueia a passagem das pessoas)
   galinheiro: {
@@ -44,7 +38,6 @@ export const CONSTRUCOES = {
     tempo: 12, raio: 34, area: true, largura: 68, altura: 34, abrigo: 'galinha',
     concluido: 'Galinheiro construído!',
     descricao: 'Protege as galinhas e o galo. Limite de 10 galinhas e o dobro de carne por animal.',
-    desenhar: (ctx, x, y, p, a) => desenharCercado(ctx, x, y, 34, '#b89a62', 'casinha', p, a),
   },
   curral: {
     nome: 'Curral', icone: '🐑',
@@ -52,7 +45,6 @@ export const CONSTRUCOES = {
     tempo: 15, raio: 44, area: true, largura: 88, altura: 44, abrigo: 'ovelha',
     concluido: 'Curral construído!',
     descricao: 'Protege as ovelhas e o carneiro. Limite de 10 ovelhas e o dobro de carne por animal.',
-    desenhar: (ctx, x, y, p, a) => desenharCercado(ctx, x, y, 44, '#a88a55', 'cocho', p, a),
   },
   pasto: {
     nome: 'Pasto', icone: '🐄',
@@ -60,7 +52,6 @@ export const CONSTRUCOES = {
     tempo: 20, raio: 56, area: true, largura: 112, altura: 56, abrigo: 'vaca',
     concluido: 'Pasto construído!',
     descricao: 'Protege as vacas e o touro. Limite de 10 vacas e o dobro de carne por animal.',
-    desenhar: (ctx, x, y, p, a) => desenharCercado(ctx, x, y, 56, '#7fbf55', 'cocho', p, a),
   },
   campoTrigo: {
     nome: 'Campo de trigo', icone: '🌾',
@@ -68,6 +59,5 @@ export const CONSTRUCOES = {
     tempo: 10, raio: 46, area: true, largura: 92, altura: 46,
     concluido: 'Campo de trigo pronto!',
     descricao: 'Área demarcada: o trigo só pode ser plantado aqui dentro.',
-    desenhar: desenharCampoTrigo,
   },
 };

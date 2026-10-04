@@ -9,6 +9,7 @@ const CORES = {
   planta: { borda: 'border-planta', fundo: 'bg-planta' },
   obra: { borda: 'border-obra', fundo: 'bg-obra' },
   amor: { borda: 'border-amor', fundo: 'bg-amor' },
+  areia: { borda: 'border-areia', fundo: 'bg-areia' },
 };
 
 function Botao({ cor = 'planta', ativo = false, className = '', children, ...props }) {

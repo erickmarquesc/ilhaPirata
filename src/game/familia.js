@@ -7,6 +7,7 @@ import { lugarLivrePerto, podeFicar, podePlantarEm } from './espaco.js';
 import { estruturaDoTipo } from './estruturas.js';
 import { gastarRecursos, temRecursos } from './inventario.js';
 import { tentarViagemDePesca } from './jangada.js';
+import { monteLivreParaColetar, tarefaColetar } from './montes.js';
 import { mundo } from './mundo.js';
 import { PEDIDOS } from './pedidos.js';
 import { executar, iniciarTarefa } from './tarefas.js';
@@ -118,6 +119,11 @@ function presaMaisProxima(a) {
   return melhor;
 }
 function escolherTarefa(a) {
+  // Obrigação do filho adulto: coletar barro/pedra num monte livre (um filho por monte)
+  if (a.tipo === 'adulto') {
+    const monte = monteLivreParaColetar(a);
+    if (monte) { iniciarTarefa(a, tarefaColetar(monte)); return; }
+  }
   // Filhos adultos: com outro irmão adulto, pegam a jangada para pescar
   if (a.tipo === 'adulto' && tentarViagemDePesca(a)) return;
   // Adolescente e adulto caçam (a criança só planta)

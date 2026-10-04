@@ -5,6 +5,8 @@ export const mundo = {
   inventario: null,
   arvores: [],
   estruturas: [],
+  expansoes: [],     // pedaços de terra aterrados: { ang, alt, larg }
+  montes: [],        // montes de barro e pedra: { tipo, x, y, raio, restante, recarga }
   agentes: [],
   jogador: null,
   esposa: null,
@@ -21,9 +23,11 @@ export const mundo = {
 
 export function limparMundo() {
   Object.assign(mundo, {
-    inventario: { madeira: 0, sementes: 0, carne: 0, peixe: 0, trigo: 0, sementesTrigo: 0 },
+    inventario: { madeira: 0, sementes: 0, carne: 0, peixe: 0, trigo: 0, sementesTrigo: 0, tijolo: 0, pedra: 0 },
     arvores: [],
     estruturas: [],
+    expansoes: [],
+    montes: [],
     agentes: [],
     jogador: null,
     esposa: null,

@@ -6,6 +6,7 @@ import PainelEsposa from './paineis/PainelEsposa.jsx';
 import PainelEstrutura from './paineis/PainelEstrutura.jsx';
 import PainelFilho from './paineis/PainelFilho.jsx';
 import PainelJangada from './paineis/PainelJangada.jsx';
+import PainelMonte from './paineis/PainelMonte.jsx';
 import PainelTotem from './paineis/PainelTotem.jsx';
 import Painel from './ui/Painel.jsx';
 
@@ -15,6 +16,7 @@ const PAINEIS = {
   esposa: PainelEsposa,
   filho: PainelFilho,
   animal: PainelAnimal,
+  monte: PainelMonte,
   campo: PainelCampo,
   jangada: PainelJangada,
   estrutura: PainelEstrutura,

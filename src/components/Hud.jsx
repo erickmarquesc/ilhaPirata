@@ -1,9 +1,12 @@
 import { resumoFilhos } from '../game/familia.js';
-import { abrirMenu, alternarPlantar } from '../game/ui.js';
+import { CUSTO_EXPANSAO } from '../game/config.js';
+import { temRecursos } from '../game/inventario.js';
+import { abrirMenu, alternarExpandir, alternarPlantar } from '../game/ui.js';
 import { useMundo } from '../hooks/useMundo.js';
 import Inventario from './Inventario.jsx';
 import MenuConstrucoes from './MenuConstrucoes.jsx';
 import Botao from './ui/Botao.jsx';
+import Custo from './ui/Custo.jsx';
 
 // Coluna fixa à esquerda: inventário, ações rápidas e menu de construções
 function Hud({ children }) {
@@ -34,6 +37,22 @@ function BotaoPlantar() {
   );
 }
 
+function BotaoExpandir() {
+  const { ui, jogador } = useMundo();
+  const expandindo = ui.modo.tipo === 'expandir';
+  return (
+    <Botao
+      cor="areia"
+      ativo={expandindo}
+      disabled={!temRecursos(CUSTO_EXPANSAO) || !!jogador.embarcado}
+      onClick={alternarExpandir}
+    >
+      {expandindo ? '🏝️ Expandindo... (X)' : '🏝️ Expandir ilha (X)'}
+      <Botao.Detalhe><Custo custo={CUSTO_EXPANSAO} /></Botao.Detalhe>
+    </Botao>
+  );
+}
+
 function BotaoConstrucoes() {
   const { ui } = useMundo();
   return (
@@ -55,12 +74,15 @@ export function HudPadrao() {
         <Inventario.Item recurso="peixe" icone="🐟" rotulo="Peixe" />
         <Inventario.Item recurso="trigo" icone="🌾" rotulo="Trigo" />
         <Inventario.Item recurso="sementesTrigo" icone="🌾" rotulo="Sementes de trigo" />
+        <Inventario.Item recurso="tijolo" icone="🧱" rotulo="Tijolo" />
+        <Inventario.Item recurso="pedra" icone="🪨" rotulo="Pedra" />
         <Inventario.Separador />
         <Inventario.Item icone="👩" rotulo="Esposa" valor={esposa ? 'sim' : '—'} />
         <Inventario.Item icone="🧒" rotulo="Filhos" valor={textoFilhos()} />
         <Inventario.Item icone="🐾" rotulo="Animais" valor={animais.length} />
         <Inventario.Rodape>
           <Hud.BotaoPlantar />
+          <Hud.BotaoExpandir />
           <Hud.BotaoConstrucoes />
         </Inventario.Rodape>
       </Inventario>
@@ -70,6 +92,7 @@ export function HudPadrao() {
 }
 
 Hud.BotaoPlantar = BotaoPlantar;
+Hud.BotaoExpandir = BotaoExpandir;
 Hud.BotaoConstrucoes = BotaoConstrucoes;
 
 export default Hud;

@@ -7,13 +7,15 @@ import { atualizarCardumes, novoCardume } from './cardumes.js';
 import { atualizarEfeitos, textoFlutuante } from './efeitos.js';
 import { podeConstruirEm, podePlantarEm } from './espaco.js';
 import { estruturaEm } from './estruturas.js';
+import { atualizarMontes, gerarMontes, monteEm } from './montes.js';
+import { expansaoPara, tarefaAterrar } from './expansao.js';
 import { atualizarFamiliar } from './familia.js';
 import { alternarEmbarque, atualizarEstruturas } from './jangada.js';
 import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
 import {
-  abrirMenu, abrirPainel, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
+  abrirMenu, abrirPainel, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
 } from './ui.js';
 
 // ===================== Início =====================
@@ -22,6 +24,7 @@ export function criarMundo() {
   mundo.jogador = novoAgente('jogador', ILHA.x, ILHA.y);
   mundo.agentes.push(mundo.jogador);
   gerarArvores(12);
+  gerarMontes();
   for (let i = 0; i < CARDUMES_MAX; i++) novoCardume();
   atualizarInventario();
 }
@@ -48,6 +51,7 @@ export function atualizar(dt) {
   atualizarAnimais(dt);
   atualizarCardumes(dt);
   atualizarCanteiros(dt);
+  atualizarMontes(dt);
   atualizarEfeitos(dt);
 }
 
@@ -70,6 +74,7 @@ export function teclaPressionada(tecla) {
   const k = tecla.toLowerCase();
   if (k === 'p') { alternarPlantar(); return; }
   if (k === 'c') { abrirMenu(); return; }
+  if (k === 'x') { alternarExpandir(); return; }
   if (k === 'e') { alternarEmbarque(); return; }
   if (k === 'escape') { cancelarTudo(); return; }
   mundo.teclas[k] = true;
@@ -101,6 +106,12 @@ export function clicar(p) {
     else textoFlutuante(p.x, p.y - 10, 'Não dá para plantar aqui', '#ffb0a0');
     return;
   }
+  if (ui.modo.tipo === 'expandir') {
+    cancelar(jogador);
+    if (expansaoPara(p)) iniciarTarefa(jogador, tarefaAterrar(p));
+    else textoFlutuante(p.x, p.y - 10, 'Toque no mar, perto da praia', '#ffb0a0');
+    return;
+  }
   if (ui.modo.tipo === 'construir') {
     cancelar(jogador);
     const id = ui.modo.construcao;
@@ -117,6 +128,9 @@ export function clicar(p) {
   // Animais
   const an = animalEm(p);
   if (an) { abrirPainel('animal', an); return; }
+  // Montes de barro / pedra
+  const monte = monteEm(p);
+  if (monte) { abrirPainel('monte', monte); return; }
   // Construções
   const s = estruturaEm(p);
   if (s) {

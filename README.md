@@ -1,6 +1,7 @@
 # Ilha do Náufrago
 
-Jogo de sobrevivência numa ilha (canvas 2D) feito com **Vite + React + Tailwind CSS**.
+Jogo de sobrevivência numa ilha, em 3D low-poly, feito com **Vite + React + Tailwind CSS +
+React Three Fiber (three.js)**.
 O arquivo original de página única está em `jogo-pirata.html`, como referência.
 
 ```bash
@@ -28,8 +29,7 @@ src/
 │   ├── animais.js, trigo.js, jangada.js, cardumes.js, arvores.js
 │   ├── ilha.js, espaco.js, movimento.js, estruturas.js, inventario.js
 │   ├── ui.js             # modo plantar/construir, menu e painel aberto
-│   ├── camera.js
-│   └── desenho/          # tudo que desenha no canvas (recebe ctx)
+│   └── expansao.js       # aterrar o mar para aumentar a ilha
 ├── hooks/                # useMundo (store → React), useTeclado, usePiscar
 └── components/
     ├── ui/               # Painel, Botao (compound components), Custo
@@ -39,9 +39,18 @@ src/
     ├── PainelInteracao.jsx  # escolhe o painel pelo tipo
     ├── paineis/          # Totem, Esposa, Filho, Animal, Campo, Jangada, Estrutura
     ├── Dica.jsx
-    └── TelaJogo.jsx      # canvas + loop requestAnimationFrame
+    └── cena/             # tudo que é 3D
+        ├── Cena.jsx      # <Canvas>, loop do jogo e ordem da cena
+        ├── Camera.jsx    # segue o jogador, zoom (roda/pinça), sol e sombras
+        ├── Terreno.jsx   # mar, raso, espuma, areia, grama, rochas, tufos
+        ├── Arvores.jsx, Seres.jsx, Estruturas.jsx, Mar.jsx (cardumes, luz divina)
+        ├── Previas.jsx   # prévias de plantar/construir/expandir e marcadores
+        ├── Rotulos.jsx   # camada 2D por cima: níveis, barras e textos flutuantes
+        ├── Peca.jsx      # primitivas low-poly compartilhadas
+        └── modelos/      # Totem, Cabana, Jangada, Cercado, CampoTrigo, Pessoa, Animal, Pinheiro
 ```
 
 **Fluxo:** a engine altera `mundo` e chama `notificar()`; os componentes leem
 `mundo` via `useMundo()` (`useSyncExternalStore`). A interface é atualizada nos
-eventos e 4x por segundo; o canvas é redesenhado a cada quadro.
+eventos e 4x por segundo. Na cena 3D, cada objeto lê a posição do mundo a cada
+quadro (`useFrame`), então o movimento é suave sem re-renderizar o React.

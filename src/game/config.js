@@ -1,6 +1,6 @@
 // ===================== Configuração =====================
-export const MUNDO = { w: 1000, h: 1000 };
-export const ILHA = { x: 500, y: 500, raio: 330 };
+export const MUNDO = { w: 1600, h: 1600 };
+export const ILHA = { x: 800, y: 800, raio: 330 };
 export const VELOCIDADE = 180;
 export const TEMPO_SERRAR = 5;
 export const TEMPO_PLANTAR = 2;
@@ -13,6 +13,7 @@ export const TEMPO_DESCANSO = 60;     // espera depois que o bebê vira criança
 export const MADEIRA_POR_ARVORE = 20;
 export const SEMENTES_POR_ARVORE = 2;
 export const DISTANCIA_MIN_ARVORES = 45;
+export const DISTANCIA_MIN_CONSTRUCAO = 12; // folga mínima entre construções e entre construção e monte
 export const RESERVA_SEMENTES = 4;    // a família não planta se isso deixar você com menos que isso
 export const TEMPO_CACAR = 3;
 export const TEMPO_EMPURRAR = 3;      // segundos empurrando a jangada para a água
@@ -34,6 +35,20 @@ export const TEMPO_COLHER_TRIGO = 2;
 export const TRIGO_POR_COLHEITA = 5;
 export const SEMENTES_TRIGO_INICIAIS = 1;      // ganha ao construir o campo
 export const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 2 sementes
+// Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
+export const QTD_POR_MONTE = 500;
+export const TEMPO_COLETAR = 2;        // segundos por unidade
+export const TEMPO_RECARGA_MONTE = 60; // monte esgotado volta a ter 500 depois disso
+export const MONTES = {
+  barro: { nome: 'Monte de barro', icone: '🟫', recurso: 'tijolo', raio: 20, acabou: 'O monte de barro esgotou!', voltou: 'O monte de barro voltou!' },
+  pedra: { nome: 'Monte de pedra', icone: '🪨', recurso: 'pedra', raio: 20, acabou: 'O monte de pedra esgotou!', voltou: 'O monte de pedra voltou!' },
+};
+
+// Expansão da ilha: aterrar um pedaço de mar perto da costa
+export const CUSTO_EXPANSAO = { madeira: 50 };
+export const TEMPO_ATERRAR = 4;          // segundos aterrando
+export const ALCANCE_EXPANSAO = 90;      // distância máxima da costa até o ponto clicado
+export const LARGURA_EXPANSAO = 0.18;    // largura do pedaço de terra (em radianos)
 export const ANEL_AREIA = 22; // distância da beira do mar até o meio da faixa de areia
 
 // Espécies: f = fêmea, m = macho
@@ -43,20 +58,21 @@ export const ESPECIES = {
   galinha: { nome: { f: 'Galinha', m: 'Galo' },    icone: { f: '🐔', m: '🐓' }, raio: 5,  carne: 5,  velocidade: 55 },
 };
 
-export const ICONES = { madeira: '🪵', sementes: '🌱', carne: '🍖', peixe: '🐟', trigo: '🌾', sementesTrigo: '🌾 sem.' };
+export const ICONES = { madeira: '🪵', sementes: '🌱', carne: '🍖', peixe: '🐟', trigo: '🌾', sementesTrigo: '🌾 sem.', tijolo: '🧱', pedra: '🪨' };
 
 export const DICAS = {
   normal: 'Ande com setas / WASD ou tocando. Toque em árvores, construções, família ou animais.',
   plantar: 'Toque num lugar da grama para plantar. P ou Esc para sair.',
   construir: 'Toque num lugar da ilha para construir. Esc para cancelar.',
+  expandir: 'Toque no mar, perto da praia, para aterrar um pedaço de terra. X ou Esc para sair.',
   navegando: 'Navegando: setas / WASD ou toque no mar. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
 };
 
 export const FASES = {
   crianca:     { icone: '🧒', texto: 'Criança. Ajuda a mãe plantando sementes. Vira adolescente quando nascer o próximo irmão.' },
   adolescente: { icone: '🧑', texto: 'Adolescente. Caça animais adultos e, quando não há caça, corta árvores e planta sementes. Ajuda o pai a construir a jangada. Vira adulto quando nascer o próximo irmão.' },
-  adulto:      { icone: '🧔', texto: 'Filho adulto. Caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.' },
+  adulto:      { icone: '🧔', texto: 'Filho adulto. Sua obrigação é coletar barro e pedra nos montes (um filho por monte). Sem monte livre, caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.' },
 };
 
-export const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050' };
-export const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo' };
+export const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050', aterrar: '#e8d08a', coletar: '#c8794a' };
+export const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo', aterrar: 'Aterrando', coletar: 'Coletando' };

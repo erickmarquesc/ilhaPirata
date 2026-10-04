@@ -1,5 +1,6 @@
 import { ILHA, MUNDO, ANEL_AREIA } from './config.js';
 import { podeFicar } from './espaco.js';
+import { mundo } from './mundo.js';
 
 // ===================== Ilha =====================
 const ondas = [
@@ -8,14 +9,23 @@ const ondas = [
   { freq: 7, amp: 0.03, fase: 4.0 },
 ];
 
-export function raioIlha(angulo) {
+// Cada expansão é uma "lombada" suave no raio da ilha, centrada no ângulo onde foi aterrada
+function alturaExpansao(e, angulo) {
+  const d = Math.atan2(Math.sin(angulo - e.ang), Math.cos(angulo - e.ang)) / e.larg;
+  return e.alt * Math.exp(-d * d);
+}
+// extras: expansões ainda não feitas (para prever como a ilha vai ficar)
+export function raioIlha(angulo, extras = []) {
   let r = 1;
   for (const o of ondas) r += Math.sin(angulo * o.freq + o.fase) * o.amp;
-  return ILHA.raio * r;
+  r *= ILHA.raio;
+  for (const e of mundo.expansoes) r += alturaExpansao(e, angulo);
+  for (const e of extras) r += alturaExpansao(e, angulo);
+  return r;
 }
-export function dentroDaIlha(x, y, margem = 0) {
+export function dentroDaIlha(x, y, margem = 0, extras = []) {
   const dx = x - ILHA.x, dy = y - ILHA.y;
-  return Math.hypot(dx, dy) <= raioIlha(Math.atan2(dy, dx)) - margem;
+  return Math.hypot(dx, dy) <= raioIlha(Math.atan2(dy, dx), extras) - margem;
 }
 export function naGrama(x, y) { return dentroDaIlha(x, y, 55); }
 

@@ -1,7 +1,7 @@
 import {
   ILHA, MADEIRA_POR_ARVORE, SEMENTES_POR_ARVORE, SEMENTES_TRIGO_INICIAIS, SEMENTES_TRIGO_POR_COLHEITA,
   TEMPO_CACAR, TEMPO_COLHER_TRIGO, TEMPO_GRAVIDEZ, TEMPO_NAMORAR, TEMPO_PLANTAR, TEMPO_PLANTAR_CRIANCA,
-  TEMPO_PLANTAR_TRIGO, TEMPO_SERRAR, TRIGO_POR_COLHEITA,
+  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_PLANTAR_TRIGO, TEMPO_SERRAR, TRIGO_POR_COLHEITA,
 } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
@@ -9,6 +9,8 @@ import { novaArvore, removerArvores } from './arvores.js';
 import { arvoresAfetadas, podeConstruirEm, podePlantarEm } from './espaco.js';
 import { carneDe, custoEvolucao, podeAjudarObra } from './estruturas.js';
 import { textoFlutuante } from './efeitos.js';
+import { concluirAterro } from './expansao.js';
+import { coletarUma } from './montes.js';
 import { raioIlha } from './ilha.js';
 import { gastarRecursos, ganhar, temRecursos } from './inventario.js';
 import { embarcar, jangadaNaAgua, navegar } from './jangada.js';
@@ -59,6 +61,8 @@ function duracaoDe(a, t) {
     case 'embarcar': return 0.3;
     case 'plantarTrigo': return TEMPO_PLANTAR_TRIGO;
     case 'colher': return TEMPO_COLHER_TRIGO;
+    case 'aterrar': return TEMPO_ATERRAR;
+    case 'coletar': return TEMPO_COLETAR;
     default: return CONSTRUCOES[t.construcao].tempo; // construir / evoluir
   }
 }
@@ -78,12 +82,14 @@ function tarefaValida(a) {
     case 'ajudar': return jogador.tarefa === t.obra;
     case 'plantarTrigo': return t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0;
     case 'colher': return t.canteiro.estado === 'maduro';
+    case 'coletar': return t.monte.restante > 0;
     case 'embarcar': return estruturas.includes(t.estrutura) && jangadaNaAgua(t.estrutura) && !!t.estrutura.reservadaPor && t.estrutura.tripulacao.length < 2;
     default: return true;
   }
 }
 
 // ===== Conclusão de cada tipo de tarefa =====
+// Pode devolver a próxima tarefa do mesmo agente (ex.: continuar coletando no monte)
 const CONCLUIR = {
   serrar(a, t) {
     if (!mundo.arvores.includes(t.arvore)) return;
@@ -163,6 +169,12 @@ const CONCLUIR = {
     ganhar('carne', carne);
     textoFlutuante(an.x, an.y - 25, '+' + carne + ' 🍖');
   },
+  coletar(a, t) {
+    return coletarUma(t.monte);
+  },
+  aterrar(a, t) {
+    concluirAterro(t);
+  },
   namorar() {
     if (!podeNamorar()) return;
     const { esposa } = mundo;
@@ -178,8 +190,9 @@ function concluirAcao(a) {
     atualizarInventario();
     return;
   }
-  CONCLUIR[t.tipo]?.(a, t);
+  const proxima = CONCLUIR[t.tipo]?.(a, t);
   cancelar(a);
+  if (proxima) iniciarTarefa(a, proxima);
   atualizarInventario();
 }
 

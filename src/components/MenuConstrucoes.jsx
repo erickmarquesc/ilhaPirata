@@ -20,7 +20,7 @@ function MenuConstrucoes({ children }) {
   if (!ui.menuAberto) return null;
   return (
     <MenuContext.Provider value={{ modo: ui.modo }}>
-      <Painel className="max-h-[calc(100vh_-_330px)] min-h-[120px] overflow-y-auto">
+      <Painel className="max-h-[calc(100vh_-_380px)] min-h-[120px] overflow-y-auto">
         <Painel.Cabecalho>
           <Painel.Titulo>Construções</Painel.Titulo>
         </Painel.Cabecalho>
