@@ -22,7 +22,7 @@ export default function Cena() {
   const rotulos = useRef(null);
   return (
     <div className="fixed inset-0">
-      <Canvas shadows flat dpr={[1, 2]} camera={{ fov: 35, near: 5, far: 6000 }}>
+      <Canvas shadows flat dpr={[1, 1.5]} camera={{ fov: 35, near: 5, far: 6000 }}>
         <Loop />
         <color attach="background" args={['#2a7fc4']} />
         <fog attach="fog" args={['#2a7fc4', 1400, 3200]} />

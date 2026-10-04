@@ -12,7 +12,8 @@ import { definirModo } from './ui.js';
 export function evoluir(id) {
   const { jogador } = mundo;
   const s = estruturaDoTipo(id);
-  if (!s || !temRecursos(custoEvolucao(s)) || !requisitosOk(id)) return;
+  const custo = s && custoEvolucao(s);
+  if (!custo || !temRecursos(custo) || !requisitosOk(id)) return; // custo null: nível máximo
   definirModo(null);
   cancelar(jogador);
   if (jogador.embarcado) return;

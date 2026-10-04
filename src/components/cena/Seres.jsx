@@ -4,6 +4,8 @@ import { ILHA } from '../../game/config.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import { aoTocarEntidade } from './clique.js';
 import { ALTURA, alturaDoChao, idDe } from './coords.js';
+import { animalAdulto } from '../../game/animais.js';
+import AnimaisSimples from './AnimaisSimples.jsx';
 import AnimalAnimado from './AnimalAnimado.jsx';
 import { Pessoa } from './modelos/Seres.jsx';
 
@@ -58,7 +60,25 @@ export function Pessoas() {
   return agentes.map(a => <PessoaNaCena key={idDe(a)} a={a} eJogador={a === jogador} />);
 }
 
+// ===================== Animais com nível de detalhe =====================
+// Só os mais perto da câmera (que segue o jogador) usam o modelo completo e animado;
+// os demais são desenhados simplificados e instanciados (ver AnimaisSimples).
+const MAX_DETALHADOS = 24;
+const RAIO_DETALHE = 420;
+
 export function Animais() {
-  const { animais } = useMundo();
-  return animais.map(an => <AnimalAnimado key={idDe(an)} an={an} />);
+  const { animais, jogador } = useMundo();
+  const detalhados = useRef(new Set());
+  const dist = an => Math.hypot(an.x - jogador.x, an.y - jogador.y);
+  const perto = animais
+    .filter(an => dist(an) < RAIO_DETALHE)
+    .sort((a, b) => dist(a) - dist(b))
+    .slice(0, MAX_DETALHADOS);
+  detalhados.current = new Set(perto);
+  return (
+    <>
+      {perto.map(an => <AnimalAnimado key={idDe(an)} an={an} filhote={!animalAdulto(an)} />)}
+      <AnimaisSimples detalhados={detalhados} />
+    </>
+  );
 }

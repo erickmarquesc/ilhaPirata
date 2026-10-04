@@ -8,12 +8,14 @@ import { cancelar, pertoDe } from './agentes.js';
 import { entrarNaCabana, sairDaCabana, sairSemMotivo } from './cabana.js';
 import { novaArvore, removerArvores } from './arvores.js';
 import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js';
-import { carneDe, custoEvolucao, podeAjudarObra, requisitosDaConstrucao } from './estruturas.js';
+import {
+  carneDe, custoEvolucao, filhosParaNivel, nivelAlvoDaObra, podeAjudarObra, requisitosDaConstrucao, tempoDoNivel,
+} from './estruturas.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
 import { coletarUma } from './montes.js';
 import { raioIlha } from './ilha.js';
-import { gastarRecursos, ganhar, temRecursos } from './inventario.js';
+import { cabeNoEstoque, gastarRecursos, ganhar, temRecursos } from './inventario.js';
 import { embarcar, jangadaNaAgua, navegar } from './jangada.js';
 import { podeNamorar } from './familia.js';
 import { mover, proximoPonto } from './movimento.js';
@@ -29,27 +31,38 @@ export function iniciarTarefa(a, tarefa) {
   if (a === mundo.jogador && precisaAjuda(tarefa)) chamarAjudante(tarefa);
 }
 
-// ===== Ajuda do adolescente em obras =====
-export function precisaAjuda(t) {
-  return (t.tipo === 'construir' || t.tipo === 'evoluir') && !!CONSTRUCOES[t.construcao].precisaAdolescente;
+// ===== Filhos ajudando nas obras =====
+// Algumas obras pedem 1 ou mais filhos (adolescentes ou adultos) ajudando.
+// A obra só avança quando todos os ajudantes necessários estão trabalhando nela.
+function ajudantesNecessarios(t) {
+  if (t.tipo !== 'construir' && t.tipo !== 'evoluir') return 0;
+  return filhosParaNivel(t.construcao, nivelAlvoDaObra(t));
 }
-function ajudanteValido(t) {
-  const aj = t.ajudante;
-  return aj && mundo.agentes.includes(aj) && aj.tarefa && aj.tarefa.obra === t;
+export function precisaAjuda(t) { return ajudantesNecessarios(t) > 0; }
+function ajudantesValidos(t) {
+  return (t.ajudantes || []).filter(aj => mundo.agentes.includes(aj) && aj.tarefa && aj.tarefa.obra === t);
 }
-export function ajudanteTrabalhando(t) { return ajudanteValido(t) && !!t.ajudante.acao; }
+export function ajudantesTrabalhando(t) {
+  return ajudantesValidos(t).filter(aj => aj.acao).length >= ajudantesNecessarios(t);
+}
 function chamarAjudante(t) {
-  if (ajudanteValido(t)) return;
-  let melhor = null, dist = Infinity;
-  for (const ag of mundo.agentes) {
-    if (!podeAjudarObra(ag) || (ag.tarefa && ag.tarefa.tipo === 'embarcar')) continue;
-    const d = Math.hypot(ag.x - t.x, ag.y - t.y);
-    if (d < dist) { dist = d; melhor = ag; }
+  t.ajudantes = ajudantesValidos(t);
+  let faltam = ajudantesNecessarios(t) - t.ajudantes.length;
+  while (faltam > 0) {
+    let melhor = null, dist = Infinity;
+    for (const ag of mundo.agentes) {
+      if (!podeAjudarObra(ag, t.construcao) || t.ajudantes.includes(ag) || (ag.tarefa && ag.tarefa.tipo === 'embarcar')) continue;
+      const d = Math.hypot(ag.x - t.x, ag.y - t.y);
+      if (d < dist) { dist = d; melhor = ag; }
+    }
+    if (!melhor) return;
+    cancelar(melhor);
+    t.ajudantes.push(melhor);
+    // cada ajudante fica num lado da obra
+    const ang = t.ajudantes.length * 2.1;
+    iniciarTarefa(melhor, { tipo: 'ajudar', obra: t, x: t.x + Math.cos(ang) * 6, y: t.y + Math.sin(ang) * 6, raio: t.raio });
+    faltam--;
   }
-  if (!melhor) return;
-  cancelar(melhor);
-  t.ajudante = melhor;
-  iniciarTarefa(melhor, { tipo: 'ajudar', obra: t, x: t.x, y: t.y, raio: t.raio });
 }
 
 function duracaoDe(a, t) {
@@ -66,16 +79,29 @@ function duracaoDe(a, t) {
     case 'colher': return TEMPO_COLHER_TRIGO;
     case 'aterrar': return TEMPO_ATERRAR;
     case 'coletar': return TEMPO_COLETAR;
-    default: return CONSTRUCOES[t.construcao].tempo; // construir / evoluir
+    default: return tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir
   }
 }
 function comecarAcao(a) {
   a.destino = null;
   a.acao = { tarefa: a.tarefa, tempo: 0, duracao: duracaoDe(a, a.tarefa) };
 }
+// Quanto uma tarefa vai render no estoque (para só começar se couber tudo)
+export function rendimentoDe(t) {
+  switch (t.tipo) {
+    case 'serrar': return MADEIRA_POR_ARVORE + SEMENTES_POR_ARVORE;
+    case 'cacar': return carneDe(t.alvo.especie);
+    case 'coletar': return 1;
+    case 'colher': return TRIGO_POR_COLHEITA + SEMENTES_TRIGO_POR_COLHEITA;
+    default: return 0;
+  }
+}
+function semEspaco(t) { const r = rendimentoDe(t); return r > 0 && !cabeNoEstoque(r); }
+
 function tarefaValida(a) {
   const t = a.tarefa;
   if (!t) return true;
+  if (semEspaco(t)) return false; // estoque cheio: a coleta fica bloqueada
   const { arvores, animais, estruturas, inventario, jogador } = mundo;
   switch (t.tipo) {
     case 'serrar': return arvores.includes(t.arvore);
@@ -146,6 +172,7 @@ const CONCLUIR = {
   evoluir(a, t) {
     const est = t.estrutura, c = CONSTRUCOES[est.tipo];
     const custo = custoEvolucao(est);
+    if (!custo) return; // já está no nível máximo
     if (!mundo.estruturas.includes(est) || !temRecursos(custo)) {
       textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
       return;
@@ -210,7 +237,12 @@ function concluirAcao(a) {
 // Executa tarefa/ação/movimento de qualquer personagem. dx/dy = entrada manual (só do jogador)
 export function executar(a, dt, dx = 0, dy = 0) {
   if (a.embarcado) { if (a === mundo.jogador) navegar(dt, dx, dy); return; }
-  if (!tarefaValida(a)) cancelar(a);
+  if (!tarefaValida(a)) {
+    if (a === mundo.jogador && a.tarefa && semEspaco(a.tarefa)) {
+      textoFlutuante(a.x, a.y - 30, 'Estoque cheio! Gaste recursos ou melhore o moinho', '#ffb0a0');
+    }
+    cancelar(a);
+  }
   sairSemMotivo(a);
 
   if (a.acao) {
@@ -223,7 +255,7 @@ export function executar(a, dt, dx = 0, dy = 0) {
       entrarNaCabana(esposa, t.cabana);
     }
     if (t.tipo === 'cuidarNaCabana' && !a.dentro) entrarNaCabana(a, t.cabana);
-    if (precisaAjuda(t) && !ajudanteTrabalhando(t)) {
+    if (precisaAjuda(t) && !ajudantesTrabalhando(t)) {
       chamarAjudante(t);   // garante que alguém está vindo
       return;              // espera o adolescente chegar
     }

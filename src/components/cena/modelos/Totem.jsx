@@ -8,6 +8,8 @@ import Peca from '../Peca.jsx';
 // Totem entalhado em madeira com pintura ritual: urso, águia, rosto sereno e,
 // no topo, o pássaro-trovão de asas abertas. Um orbe dourado flutua acima (os deuses).
 // A obra sobe em etapas: base → rostos → topo → orbe.
+// Níveis: 2 asas com pontas de ouro · 3 segundo anel no orbe · 4 coroa dourada ·
+// 5 totem divino (faixas e base de ouro, olhos do pássaro brilhando, orbe maior com raios).
 
 const MADEIRA = '#8b5a2b', MADEIRA_CLARA = '#a06a35', MADEIRA_ESCURA = '#5a3a1c', ENTALHE = '#2a1a10';
 const VERMELHO = '#b5442e', TURQUESA = '#2f8f8a', AMARELO = '#e6b84a', OSSO = '#efe6cf';
@@ -23,13 +25,16 @@ function Apontada({ p, r, comprimento, children }) {
   );
 }
 
-function Base() {
+const OURO = '#f5c84c';
+
+function Base({ nivel }) {
   return (
     <>
       <Peca geo="octogono" cor={MADEIRA_ESCURA} p={[0, 1.2, 0]} s={[22, 2.4, 22]} />
       <Peca geo="octogono" cor="#7a4a24" p={[0, 3.6, 0]} s={[16, 2.4, 16]} />
       {/* faixa pintada no degrau */}
-      <Peca geo="octogono" cor={VERMELHO} p={[0, 1.2, 0]} s={[22.4, 0.9, 22.4]} sombra={false} />
+      <Peca geo="octogono" cor={nivel >= 5 ? OURO : VERMELHO} p={[0, 1.2, 0]} s={[22.4, 0.9, 22.4]} sombra={false} />
+      {nivel >= 5 && <Peca geo="octogono" cor={OURO} p={[0, 3.6, 0]} s={[16.3, 0.7, 16.3]} sombra={false} />}
     </>
   );
 }
@@ -111,9 +116,9 @@ function Sereno() {
 }
 
 // Faixas pintadas entre os rostos
-function Faixas({ rostos }) {
+function Faixas({ rostos, nivel }) {
   return [[26, VERMELHO, 11.6], [44, TURQUESA, 10.6], [60, AMARELO, 10.1]].slice(0, rostos).map(([y, cor, r]) => (
-    <Peca key={y} geo="octogono" cor={cor} p={[0, y, 0]} s={[r, 1.6, r]} />
+    <Peca key={y} geo="octogono" cor={nivel >= 5 ? OURO : cor} p={[0, y, 0]} s={[r, 1.6, r]} />
   ));
 }
 
@@ -134,13 +139,16 @@ function Asa({ lado, dourada }) {
 
 // Topo: cabeça do pássaro-trovão
 function PassaroTrovao({ nivel }) {
+  const olhoDivino = useBrilho('#ffe27a', 2);
   return (
     <group>
       <Peca geo="octogono" cor={MADEIRA_CLARA} p={[0, 66, 0]} s={[8.5, 12, 8.5]} />
       {[-3.5, 3.5].map(x => (
         <group key={x}>
           <Peca cor={AMARELO} p={[x, 67.5, 8.1]} s={[4, 4, 1]} sombra={false} />
-          <Peca cor={ENTALHE} p={[x, 67.5, 8.6]} s={[1.8, 1.8, 1]} sombra={false} />
+          {nivel >= 5
+            ? <mesh geometry={geoOrbe} material={olhoDivino} position={[x, 67.5, 8.9]} scale={1.3} />
+            : <Peca cor={ENTALHE} p={[x, 67.5, 8.6]} s={[1.8, 1.8, 1]} sombra={false} />}
         </group>
       ))}
       <Apontada p={[0, 64.5, 7.5]} r={[Math.PI / 2 + 0.75, 0, 0]} comprimento={13}>
@@ -171,15 +179,29 @@ function Orbe({ nivel }) {
     grupo.current.position.y = 92 + Math.sin(t * 1.5) * 2;
     grupo.current.rotation.y = t * 0.8;
   });
+  const divino = nivel >= 5;
   return (
     <group ref={grupo}>
-      <mesh geometry={geoOrbe} material={ouro} scale={4.2} />
-      <mesh geometry={geoAnel} material={anel} rotation={[Math.PI / 2.4, 0, 0]} />
+      <mesh geometry={geoOrbe} material={ouro} scale={divino ? 5.4 : 4.2} />
+      <mesh geometry={geoAnel} material={anel} rotation={[Math.PI / 2.4, 0, 0]} scale={divino ? 1.15 : 1} />
       {nivel >= 3 && <mesh geometry={geoAnel} material={anel} rotation={[Math.PI / 2, 0.9, 0]} scale={1.3} />}
+      {divino && (
+        <>
+          <mesh geometry={geoAnel} material={anel} rotation={[0.3, 0, Math.PI / 2]} scale={1.45} />
+          {/* raios de luz em volta do orbe */}
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = i / 8 * Math.PI * 2;
+            return (
+              <mesh key={i} geometry={geoRaio} material={ouro} position={[Math.cos(a) * 10, 0, Math.sin(a) * 10]} rotation={[0, -a, -Math.PI / 2]} scale={[1.2, 7, 1.2]} />
+            );
+          })}
+        </>
+      )}
     </group>
   );
 }
 const geoOrbe = new THREE.IcosahedronGeometry(1, 1);
+const geoRaio = new THREE.ConeGeometry(1, 1, 4);
 
 export function Totem({ progresso = 1, est = null }) {
   const nivel = est?.nivel ?? 1;
@@ -189,11 +211,11 @@ export function Totem({ progresso = 1, est = null }) {
   const pronto = progresso >= 1;
   return (
     <group>
-      <Base />
+      <Base nivel={nivel} />
       {rostos >= 1 && <Urso />}
       {rostos >= 2 && <Aguia />}
       {rostos >= 3 && <Sereno />}
-      <Faixas rostos={rostos} />
+      <Faixas rostos={rostos} nivel={nivel} />
       {topo && <PassaroTrovao nivel={nivel} />}
       {pronto && (
         <>

@@ -3,9 +3,9 @@ import * as THREE from 'three';
 import { CORES_ACAO, ICONES, ILHA, MONTES, NOMES_ACAO, TEMPO_PESCAR } from '../../game/config.js';
 import { CONSTRUCOES } from '../../game/construcoes.js';
 import { crescimento } from '../../game/arvores.js';
-import { temAdolescente } from '../../game/estruturas.js';
+import { filhosParaNivel, filhosQuePodemAjudar, nivelAlvoDaObra } from '../../game/estruturas.js';
 import { mundo } from '../../game/mundo.js';
-import { ajudanteTrabalhando, precisaAjuda } from '../../game/tarefas.js';
+import { ajudantesTrabalhando, precisaAjuda } from '../../game/tarefas.js';
 import { escalaDoMonte } from './Montes.jsx';
 
 // Desenha num canvas 2D por cima da cena: rótulos, barras de progresso e textos flutuantes.
@@ -66,6 +66,8 @@ function desenhar(ctx, proj) {
     else if (s.pesca > 0) {
       barra(ctx, topo.x, topo.y, 44, 5, s.pesca / TEMPO_PESCAR, '#7ec8f0');
       rotulo(ctx, topo.x, topo.y - 8, '🎣 Pescando...', '#c8e8ff');
+    } else if (s.estoqueCheio) {
+      rotulo(ctx, topo.x, topo.y, 'Estoque cheio! Não dá para pescar', '#ffb0a0');
     } else if (s.tripulacao && s.tripulacao.length === 1) {
       rotulo(ctx, topo.x, topo.y, 'Esperando o segundo adulto...', '#ffe9b0');
     }
@@ -91,9 +93,14 @@ function desenhar(ctx, proj) {
       if (p) rotulo(ctx, p.x, p.y, '🔨 ajudando', '#ffe9b0');
       continue;
     }
-    if (precisaAjuda(t) && !ajudanteTrabalhando(t)) {
+    if (precisaAjuda(t) && !ajudantesTrabalhando(t)) {
       const p = proj(t.x, alturaDaBarra(t), t.y);
-      const msg = temAdolescente() ? 'Esperando o filho chegar para ajudar...' : 'Precisa de um filho adolescente ou adulto';
+      const n = filhosParaNivel(t.construcao, nivelAlvoDaObra(t));
+      const adultos = !!CONSTRUCOES[t.construcao].soAdultos;
+      const quem = adultos ? (n > 1 ? `${n} filhos adultos` : 'um filho adulto') : (n > 1 ? `${n} filhos adolescentes ou adultos` : 'um filho adolescente ou adulto');
+      const msg = filhosQuePodemAjudar(t.construcao) >= n
+        ? (n > 1 ? `Esperando os ${n} filhos chegarem para ajudar...` : 'Esperando o filho chegar para ajudar...')
+        : `Precisa de ${quem}`;
       if (p) rotulo(ctx, p.x, p.y, msg, '#ffe9b0');
       continue;
     }

@@ -6,12 +6,12 @@ import { cabanaDaFamilia, sairDaCabana, tarefaNaPorta } from './cabana.js';
 import { textoFlutuante, luzDivina } from './efeitos.js';
 import { lugarLivrePerto, podeFicar, podePlantarEm } from './espaco.js';
 import { estruturaDoTipo } from './estruturas.js';
-import { gastarRecursos, temRecursos } from './inventario.js';
+import { cabeNoEstoque, gastarRecursos, temRecursos } from './inventario.js';
 import { tentarViagemDePesca } from './jangada.js';
 import { monteLivreParaColetar, tarefaColetar } from './montes.js';
 import { mundo } from './mundo.js';
 import { PEDIDOS } from './pedidos.js';
-import { executar, iniciarTarefa } from './tarefas.js';
+import { executar, iniciarTarefa, rendimentoDe } from './tarefas.js';
 import { cuidarDoCampo } from './trigo.js';
 import { atualizarInventario, fecharPainel } from './ui.js';
 
@@ -145,22 +145,25 @@ function presaMaisProxima(a) {
 }
 function escolherTarefa(a) {
   // Obrigação do filho adulto: coletar barro/pedra num monte livre (um filho por monte)
+  // (com o estoque cheio, nada que rende recursos é escolhido)
   if (a.tipo === 'adulto') {
     const monte = monteLivreParaColetar(a);
-    if (monte) { iniciarTarefa(a, tarefaColetar(monte)); return; }
+    if (monte && cabeNoEstoque(1)) { iniciarTarefa(a, tarefaColetar(monte)); return; }
   }
   // Filhos adultos: com outro irmão adulto, pegam a jangada para pescar
   if (a.tipo === 'adulto' && tentarViagemDePesca(a)) return;
   // Adolescente e adulto caçam (a criança só planta)
   if (a.tipo === 'adolescente' || a.tipo === 'adulto') {
     const presa = presaMaisProxima(a);
-    if (presa) { iniciarTarefa(a, { tipo: 'cacar', alvo: presa, x: presa.x, y: presa.y, raio: presa.raio }); return; }
+    const caca = presa && { tipo: 'cacar', alvo: presa, x: presa.x, y: presa.y, raio: presa.raio };
+    if (caca && cabeNoEstoque(rendimentoDe(caca))) { iniciarTarefa(a, caca); return; }
   }
   if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') {
     // Depois de cortar uma árvore, planta uma semente
     if (a.plantarProximo) { a.plantarProximo = false; if (tentarPlantar(a)) return; }
     const t = arvoreMaisProxima(a);
-    if (t) { iniciarTarefa(a, { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t }); return; }
+    const serrar = t && { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t };
+    if (serrar && cabeNoEstoque(rendimentoDe(serrar))) { iniciarTarefa(a, serrar); return; }
   }
   if (a.tipo === 'crianca') {
     // Com o campo de trigo pronto, a criança passa a cuidar só dele

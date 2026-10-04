@@ -37,6 +37,11 @@ export const TEMPO_COLHER_TRIGO = 2;
 export const TRIGO_POR_COLHEITA = 5;
 export const SEMENTES_TRIGO_INICIAIS = 1;      // ganha ao construir o campo
 export const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 2 sementes
+// Estoque: a soma de todos os recursos não passa da capacidade.
+// Sem moinho: 300. Cada nível do moinho soma +150.
+export const ESTOQUE_BASE = 300;
+export const ESTOQUE_POR_NIVEL_MOINHO = 150;
+
 // Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
 export const QTD_POR_MONTE = 500;
 export const TEMPO_COLETAR = 2;        // segundos por unidade

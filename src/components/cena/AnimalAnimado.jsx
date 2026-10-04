@@ -1,10 +1,15 @@
-import { useMemo, useRef } from 'react';
+import { memo, useLayoutEffect, useMemo, useRef } from 'react';
+import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { animalAdulto } from '../../game/animais.js';
 import { ESPECIES, ILHA } from '../../game/config.js';
 import { aoTocarEntidade } from './clique.js';
 import { alturaDoChao, idDe } from './coords.js';
 import { MODELOS_ANIMAL } from './modelos/Animais.jsx';
+import { GEO } from './Peca.jsx';
+
+// Sombra "de mentira" (um disco escuro e suave): bem mais barata que cada peça
+// do animal projetar sombra de verdade
+const matSombra = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.22, depthWrite: false });
 
 const angulo = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 const suave = (atual, alvo, dt, rapidez) => atual + (alvo - atual) * Math.min(1, dt * rapidez);
@@ -13,14 +18,20 @@ const suave = (atual, alvo, dt, rapidez) => atual + (alvo - atual) * Math.min(1,
 // andando → passos (diagonais nos quadrúpedes, alternados na galinha), corpo balançando
 //           e inclinando nas curvas; parado → pasta / bica o chão e olha em volta;
 // sempre → respira, pisca e balança o rabo.
-export default function AnimalAnimado({ an }) {
+// memo: só re-renderiza quando o animal troca ou o filhote vira adulto
+function AnimalAnimado({ an, filhote }) {
   const grupo = useRef();
   const rig = useRef({}).current;
   const bipede = an.especie === 'galinha';
-  const filhote = !animalAdulto(an);
   const Modelo = MODELOS_ANIMAL[an.especie];
   const semente = useMemo(() => (idDe(an) * 1.618) % 10, [an]);
   const estado = useRef({ px: an.x, py: an.y, vel: 0, fase: 0, yaw: null, inclina: 0, base: {} });
+  const modelo = useRef();
+
+  // as peças não projetam sombra (o disco embaixo faz esse papel)
+  useLayoutEffect(() => {
+    modelo.current?.traverse(o => { if (o.isMesh) o.castShadow = false; });
+  }, [filhote]);
 
   useFrame(({ clock }, dt) => {
     const g = grupo.current;
@@ -101,7 +112,12 @@ export default function AnimalAnimado({ an }) {
 
   return (
     <group ref={grupo} onPointerDown={e => aoTocarEntidade(e, an.x, an.y)}>
-      <Modelo key={filhote ? 'filhote' : 'adulto'} an={an} rig={rig} filhote={filhote} />
+      <mesh geometry={GEO.disco} material={matSombra} position={[0, 0.15, 0]} scale={[1.25, 1, 0.85]} />
+      <group ref={modelo}>
+        <Modelo key={filhote ? 'filhote' : 'adulto'} an={an} rig={rig} filhote={filhote} />
+      </group>
     </group>
   );
 }
+
+export default memo(AnimalAnimado);

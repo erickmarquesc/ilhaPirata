@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { ILHA } from '../../game/config.js';
 import { CONSTRUCOES } from '../../game/construcoes.js';
@@ -10,7 +10,8 @@ import { MODELOS } from './modelos/Construcoes.jsx';
 import Peca from './Peca.jsx';
 
 // Construção pronta. A jangada se move (empurrada para a água, navegando) e balança no mar.
-function Estrutura({ s }) {
+// memo: o modelo só é refeito quando o nível muda (o resto anima no useFrame).
+const Estrutura = memo(function Estrutura({ s }) {
   const ref = useRef();
   const ondinha = useRef();
   const c = CONSTRUCOES[s.tipo];
@@ -36,7 +37,7 @@ function Estrutura({ s }) {
       {s.tipo === 'jangada' && <Peca ref={ondinha} geo="anel" cor="#ffffff" sombra={false} />}
     </>
   );
-}
+});
 
 // Obra do jogador em andamento: o modelo vai aparecendo conforme o progresso
 function Obra() {
@@ -56,7 +57,7 @@ export default function Estruturas() {
   const { estruturas } = useMundo();
   return (
     <>
-      {estruturas.map(s => <Estrutura key={idDe(s)} s={s} />)}
+      {estruturas.map(s => <Estrutura key={idDe(s)} s={s} nivel={s.nivel} />)}
       <Obra />
     </>
   );

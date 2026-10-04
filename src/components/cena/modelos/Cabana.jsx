@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useBrilho, useMaterial } from '../materiais.jsx';
 import Peca from '../Peca.jsx';
@@ -5,8 +7,9 @@ import Peca from '../Peca.jsx';
 // ===================== Cabana do náufrago =====================
 // Casinha torta de tábuas sobre um deck, telhado de duas águas irregular,
 // porta torta, chaminé de cano e varandinha com poste de galho.
-// Nível 1 é precária (tábuas faltando, janela tapada, telhado remendado com folhas);
-// os níveis seguintes ganham acabamento e cara de pirata (lanterna, bandeira, baú).
+// Nível 1 é precária (tábuas faltando, janela tapada, telhado remendado com folhas).
+// 2: acabamento, lanterna e chaminé de tijolos com fumaça · 3: pilares de pedra e bandeira ·
+// 4: baú do tesouro · 5: mastro de vigia com cesto de gávea e luneta (bandeira no topo).
 // Obra em etapas: deck → paredes → telhado → detalhes.
 
 const TABUAS = ['#8b6a45', '#7a5a3a', '#9a7650', '#6e5236', '#a07a52'];
@@ -31,11 +34,14 @@ const geoFrontao = new THREE.ExtrudeGeometry(
   { depth: 1.2, bevelEnabled: false },
 );
 
-function Deck({ tabuas }) {
+// Estacas de madeira; a partir do nível 3, pilares de pedra
+function Deck({ tabuas, pedra }) {
   return (
     <group>
       {[[-29, -23], [29, -23], [-29, 23], [29, 23], [0, 23], [0, -23]].map(([x, z], i) => (
-        <Peca key={i} geo="cilindro" cor="#5a3a1c" p={[x, 2, z]} s={[1.6, 4, 1.6]} />
+        pedra
+          ? <Peca key={i} geo="rocha" cor={i % 2 ? '#9aa0a6' : '#b3b9be'} p={[x, 2.2, z]} s={[3.4, 2.6, 3.4]} r={[0, i, 0]} />
+          : <Peca key={i} geo="cilindro" cor="#5a3a1c" p={[x, 2, z]} s={[1.6, 4, 1.6]} />
       ))}
       {Array.from({ length: tabuas }, (_, i) => (
         <Peca key={i} cor={i % 2 ? '#9c7a52' : '#8a6a44'} p={[0, 5, -25 + (i + 0.5) * (50 / 6)]} s={[62, 2.5, 50 / 6 - 0.6]} />
@@ -173,15 +179,49 @@ function JanelaLosango() {
   );
 }
 
-function Chamine() {
+const BASE_CHAMINE = [12, TOPO + CUMEEIRA * (1 - 12 / BEIRAL) - 1, -10];
+
+// Nível 1: cano de metal torto. Nível 2+: chaminé de tijolos soltando fumaça.
+function Chamine({ tijolo }) {
+  if (!tijolo) {
+    return (
+      <group position={BASE_CHAMINE} rotation={[0, 0, -0.1]}>
+        <Peca geo="cilindro" cor="#555a5e" p={[0, 8, 0]} s={[2, 16, 2]} />
+        <Peca geo="cilindro" cor="#3e4245" p={[0, 13, 0]} s={[2.3, 1, 2.3]} />
+        <Peca geo="cone" cor="#3e4245" p={[0, 17.5, 0]} s={[3.6, 3, 3.6]} />
+      </group>
+    );
+  }
   return (
-    <group position={[12, TOPO + CUMEEIRA * (1 - 12 / BEIRAL) - 1, -10]} rotation={[0, 0, -0.1]}>
-      <Peca geo="cilindro" cor="#555a5e" p={[0, 8, 0]} s={[2, 16, 2]} />
-      <Peca geo="cilindro" cor="#3e4245" p={[0, 13, 0]} s={[2.3, 1, 2.3]} />
-      <Peca geo="cone" cor="#3e4245" p={[0, 17.5, 0]} s={[3.6, 3, 3.6]} />
+    <group position={BASE_CHAMINE}>
+      {Array.from({ length: 6 }, (_, i) => (
+        <Peca key={i} cor={i % 2 ? '#a8452e' : '#b85538'} p={[0, 1.5 + i * 2.6, 0]} s={[7, 2.4, 7]} r={[0, i % 2 ? 0.04 : -0.04, 0]} />
+      ))}
+      <Peca cor="#7a3020" p={[0, 17, 0]} s={[8.2, 1.6, 8.2]} />
+      <Fumaca />
     </group>
   );
 }
+
+// Fumacinha subindo e sumindo
+function Fumaca() {
+  const bolas = useRef([]);
+  useFrame(({ clock }) => {
+    bolas.current.forEach((b, i) => {
+      if (!b) return;
+      const f = (clock.elapsedTime * 0.35 + i / 3) % 1;
+      b.position.set(Math.sin(f * 4 + i) * 2, 19 + f * 22, -f * 3);
+      b.scale.setScalar(1.6 + f * 3.4);
+      b.material.opacity = 0.55 * (1 - f);
+    });
+  });
+  return [0, 1, 2].map(i => (
+    <mesh key={i} ref={el => { bolas.current[i] = el; }} geometry={geoFumaca}>
+      <meshStandardMaterial color="#d8d8d8" transparent depthWrite={false} flatShading />
+    </mesh>
+  ));
+}
+const geoFumaca = new THREE.IcosahedronGeometry(1, 0);
 
 // Varandinha: cobertura sobre a porta apoiada num galho torto, degraus e barril
 function Varanda() {
@@ -220,12 +260,39 @@ function Bandeira() {
   return (
     <group position={[0, y, CASA.zFrente - 1]}>
       <Peca geo="cilindro" cor="#4a3426" p={[0, 11, 0]} s={[0.6, 22, 0.6]} />
-      <group position={[6.6, 18, 0]} rotation={[0, -0.25, 0]}>
-        <Peca cor="#1a1a1a" s={[12, 8, 0.4]} />
-        <Peca geo="bola" cor="#f2f2f2" p={[0, 0.8, 0.4]} s={1.6} sombra={false} />
-        <Peca cor="#f2f2f2" p={[0, -1.6, 0.4]} s={[5, 0.7, 0.3]} r={[0, 0, 0.6]} sombra={false} />
-        <Peca cor="#f2f2f2" p={[0, -1.6, 0.4]} s={[5, 0.7, 0.3]} r={[0, 0, -0.6]} sombra={false} />
+      <Pano />
+    </group>
+  );
+}
+// Pano preto com caveira e ossos cruzados
+function Pano({ p = [6.6, 18, 0] }) {
+  return (
+    <group position={p} rotation={[0, -0.25, 0]}>
+      <Peca cor="#1a1a1a" s={[12, 8, 0.4]} />
+      <Peca geo="bola" cor="#f2f2f2" p={[0, 0.8, 0.4]} s={1.6} sombra={false} />
+      <Peca cor="#f2f2f2" p={[0, -1.6, 0.4]} s={[5, 0.7, 0.3]} r={[0, 0, 0.6]} sombra={false} />
+      <Peca cor="#f2f2f2" p={[0, -1.6, 0.4]} s={[5, 0.7, 0.3]} r={[0, 0, -0.6]} sombra={false} />
+    </group>
+  );
+}
+
+// Nível 5: mastro de vigia atrás da casa, com cesto de gávea, luneta e a bandeira no topo
+function MastroDeVigia() {
+  const alto = 78;
+  return (
+    <group position={[-17, PISO, -17]}>
+      <Peca geo="cilindro" cor="#5a3a1c" p={[0, alto / 2, 0]} s={[1.6, alto, 1.6]} />
+      {/* escadinha de corda */}
+      {Array.from({ length: 9 }, (_, i) => (
+        <Peca key={i} cor="#d9c38a" p={[0, 8 + i * 6.5, 2]} s={[4, 0.5, 0.5]} sombra={false} />
+      ))}
+      {/* cesto de gávea */}
+      <group position={[0, alto - 8, 0]}>
+        <Peca geo="cilindro" cor="#8a5a30" p={[0, 0, 0]} s={[6, 6, 6]} />
+        {[-1.5, 1.5].map(y => <Peca key={y} geo="cilindro" cor="#3a2a1a" p={[0, y, 0]} s={[6.2, 0.6, 6.2]} sombra={false} />)}
+        <Peca geo="cilindro" cor="#c9a24a" p={[5, 4, 2]} s={[0.7, 6, 0.7]} r={[0, 0, -1.1]} />
       </group>
+      <Pano p={[6.6, alto + 2, 0]} />
     </group>
   );
 }
@@ -255,7 +322,7 @@ export function Cabana({ progresso = 1, est = null }) {
   return (
     // a cabana precária fica levemente torta
     <group rotation={[0, 0, precaria ? 0.03 : 0.01]}>
-      <Deck tabuas={Math.max(tabuasDeck, 1)} />
+      <Deck tabuas={Math.max(tabuasDeck, 1)} pedra={nivel >= 3} />
       <Paredes visiveis={tabuasParede} precaria={precaria} />
       {fileiras > 0 && <Telhado fileiras={fileiras} precaria={precaria} />}
       {detalhes && (
@@ -263,11 +330,12 @@ export function Cabana({ progresso = 1, est = null }) {
           <Porta precaria={precaria} />
           <Janela precaria={precaria} />
           {!precaria && <JanelaLosango />}
-          <Chamine />
+          <Chamine tijolo={nivel >= 2} />
           <Varanda />
           {nivel >= 2 && <Lanterna />}
-          {nivel >= 3 && <Bandeira />}
+          {nivel >= 3 && nivel < 5 && <Bandeira />}
           {nivel >= 4 && <Bau />}
+          {nivel >= 5 && <MastroDeVigia />}
         </>
       )}
     </group>

@@ -2,7 +2,8 @@ import { TEMPO_TRIGO_CRESCER } from './config.js';
 import { cancelar } from './agentes.js';
 import { textoFlutuante } from './efeitos.js';
 import { mundo } from './mundo.js';
-import { iniciarTarefa } from './tarefas.js';
+import { iniciarTarefa, rendimentoDe } from './tarefas.js';
+import { cabeNoEstoque } from './inventario.js';
 import { abrirPainel, fecharPainel } from './ui.js';
 
 // ===================== Campo de trigo =====================
@@ -55,7 +56,8 @@ export function cuidarDoCampo(a, campo) {
   const livre = k => !mundo.agentes.some(o => o !== a && o.tarefa && o.tarefa.canteiro === k);
   const perto = lista => lista.sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y))[0];
   const maduro = perto(campo.canteiros.filter(k => k.estado === 'maduro' && livre(k)));
-  if (maduro) { iniciarTarefa(a, { tipo: 'colher', canteiro: maduro, x: maduro.x, y: maduro.y, raio: 2 }); return; }
+  const colher = maduro && { tipo: 'colher', canteiro: maduro, x: maduro.x, y: maduro.y, raio: 2 };
+  if (colher && cabeNoEstoque(rendimentoDe(colher))) { iniciarTarefa(a, colher); return; }
   const vazio = sementesTrigoLivres(a) > 0 ? perto(campo.canteiros.filter(k => k.estado === 'vazio' && livre(k))) : null;
   if (vazio) { iniciarTarefa(a, { tipo: 'plantarTrigo', canteiro: vazio, x: vazio.x, y: vazio.y, raio: 2 }); return; }
   const m = campo.raio - 12;

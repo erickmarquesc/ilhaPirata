@@ -1,6 +1,7 @@
 import { Children, createContext, isValidElement, useContext } from 'react';
 import { useMundo } from '../hooks/useMundo.js';
 import { usePiscar } from '../hooks/usePiscar.js';
+import { capacidadeDoEstoque, totalNoEstoque } from '../game/inventario.js';
 import Moldura from './ui/Moldura.jsx';
 
 // Recursos em medalhões dentro de uma moldura de madeira e ouro.
@@ -54,12 +55,33 @@ function Item({ recurso, icone, rotulo, valor }) {
   );
 }
 
+// Barra do estoque: soma de todos os recursos / capacidade (o moinho aumenta)
+function Estoque() {
+  useMundo();
+  const total = totalNoEstoque(), capacidade = capacidadeDoEstoque();
+  const fracao = Math.min(total / capacidade, 1);
+  const cheio = total >= capacidade;
+  const cor = cheio ? 'from-[#e8584a] to-[#9c2a22]' : fracao > 0.85 ? 'from-[#f0a040] to-[#b0601a]' : 'from-[#ffe58a] to-[#c9851e]';
+  return (
+    <div className="mt-2" title="Soma de todos os recursos. Construa e evolua o moinho para guardar mais.">
+      <div className="mb-0.5 flex items-baseline justify-between px-0.5 text-[11px] text-[#f3dcae]">
+        <span>📦 Estoque{cheio && <strong className="ml-1 text-[#ff8a7a]">cheio!</strong>}</span>
+        <span className="texto-ouro text-[13px] font-normal tabular-nums">{total} / {capacidade}</span>
+      </div>
+      <div className="medalhao h-3 overflow-hidden rounded-full p-0.5">
+        <div className={`h-full rounded-full bg-gradient-to-r transition-[width] duration-300 ${cor}`} style={{ width: `${fracao * 100}%` }} />
+      </div>
+    </div>
+  );
+}
+
 // Fica pendurado embaixo da moldura (atrás da borda)
 function Rodape({ children }) {
   return <div className="-mt-1 flex justify-center gap-3">{children}</div>;
 }
 
 Inventario.Grade = Grade;
+Inventario.Estoque = Estoque;
 Inventario.Item = Item;
 Inventario.Rodape = Rodape;
 

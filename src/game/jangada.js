@@ -6,7 +6,7 @@ import { cardumeMaisProximo, cardumeSob, removerCardume } from './cardumes.js';
 import { textoFlutuante } from './efeitos.js';
 import { emObra, estruturaDoTipo } from './estruturas.js';
 import { dentroDaIlha, podeNavegar, pontoTerraPerto, terraLivrePerto } from './ilha.js';
-import { ganhar } from './inventario.js';
+import { cabeNoEstoque, ganhar } from './inventario.js';
 import { mundo } from './mundo.js';
 import { iniciarTarefa } from './tarefas.js';
 import { atualizarInventario, definirModo } from './ui.js';
@@ -102,6 +102,7 @@ export function tentarViagemDePesca(a) {
   const est = estruturaDoTipo('jangada');
   if (!est || !jangadaLivre(est) || est.descansoViagem > 0) return false;
   if (!mundo.cardumes.some(c => c.peixes > 0)) return false;
+  if (!cabeNoEstoque(PEIXES_POR_PESCA)) return false; // estoque cheio: nem saem
   const outros = adultosLivres([a]);
   if (!outros.length) return false;   // precisa de dois adultos
   est.reservadaPor = 'filhos';
@@ -148,7 +149,7 @@ export function navegar(dt, dx, dy) {
 function viagemDosFilhos(est, dt) {
   if (!est.viagem) est.viagem = { fase: 'ir', pescas: 0 };
   const v = est.viagem;
-  if (v.pescas >= PESCAS_POR_VIAGEM) v.fase = 'voltar';
+  if (v.pescas >= PESCAS_POR_VIAGEM || !cabeNoEstoque(PEIXES_POR_PESCA)) v.fase = 'voltar';
   if (v.fase === 'ir') {
     const alvo = cardumeMaisProximo(est);
     if (!alvo) v.fase = 'voltar';
@@ -170,7 +171,8 @@ function viagemDosFilhos(est, dt) {
 function pescar(est, dt) {
   // Pesca: dois adultos a bordo, jangada parada em cima de um cardume
   const c = est.tripulacao.length === 2 && !est.moveu ? cardumeSob(est) : null;
-  if (!c) { est.pesca = 0; return; }
+  est.estoqueCheio = !!c && !cabeNoEstoque(PEIXES_POR_PESCA);
+  if (!c || est.estoqueCheio) { est.pesca = 0; return; }
   c.parado = 0.3;   // cardume fica parado enquanto estão pescando nele
   est.pesca += dt;
   if (est.pesca < TEMPO_PESCAR) return;

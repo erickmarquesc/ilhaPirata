@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { escolherConstrucao } from '../game/acoes.js';
 import { CONSTRUCOES } from '../game/construcoes.js';
-import { custoEvolucao, emObra, estruturaDoTipo, requisitosDaConstrucao, requisitosOk } from '../game/estruturas.js';
+import { custoEvolucao, emObra, estruturaDoTipo, noNivelMaximo, requisitosDaConstrucao, requisitosOk } from '../game/estruturas.js';
 import { temRecursos } from '../game/inventario.js';
 import { alternarCartas, definirModo } from '../game/ui.js';
 import { useMundo } from '../hooks/useMundo.js';
@@ -48,14 +48,15 @@ function estadoDaCarta(id, modo) {
   const c = CONSTRUCOES[id];
   const existente = estruturaDoTipo(id);
   const obra = emObra(id);
+  const maximo = !!existente && noNivelMaximo(existente);
   const custo = existente ? custoEvolucao(existente) : c.custo;
-  const temCusto = temRecursos(custo);
+  const temCusto = !!custo && temRecursos(custo);
   const temAjuda = requisitosOk(id);
   const selecionada = !existente && modo.tipo === 'construir' && modo.construcao === id;
   return {
-    c, existente, obra, custo, selecionada, requisitos: requisitosDaConstrucao(id),
-    disponivel: !obra && temCusto && temAjuda,
-    acao: existente ? `Evoluir p/ nível ${existente.nivel + 1}` : 'Construir',
+    c, existente, obra, custo, selecionada, maximo, requisitos: requisitosDaConstrucao(id),
+    disponivel: !obra && !maximo && temCusto && temAjuda,
+    acao: maximo ? 'Nível máximo ⭐' : existente ? `Evoluir p/ nível ${existente.nivel + 1}` : 'Construir',
   };
 }
 
@@ -77,6 +78,7 @@ function Carta({ id }) {
   const ativa = e.obra || e.selecionada;
 
   let visual = 'carta-madeira border-[#9a7040] opacity-60 saturate-50';
+  if (e.maximo) visual = 'carta-madeira border-[#f0bd4e]'; // completa: madeira viva com aro de ouro, sem brilho
   if (e.disponivel) visual = 'carta-madeira border-[#f0bd4e] shadow-[0_0_14px_rgb(245_200_76/0.6)]';
   if (ativa) visual = 'ouro border-[#8a5414] shadow-[0_0_16px_rgb(245_200_76/0.85)]';
 
@@ -114,7 +116,7 @@ function Carta({ id }) {
         {e.obra ? (e.existente ? 'Evoluindo...' : 'Em construção...') : e.acao}
       </span>
       {/* 4. recursos (e gente) necessários, um embaixo do outro */}
-      {!e.obra && <ListaCusto custo={e.custo} requisitos={e.requisitos} escuro={ativa} />}
+      {!e.obra && !e.maximo && <ListaCusto custo={e.custo} requisitos={e.requisitos} escuro={ativa} />}
     </button>
   );
 }

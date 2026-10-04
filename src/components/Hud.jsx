@@ -89,6 +89,7 @@ export function HudPadrao() {
             <Inventario.Item recurso="sementesTrigo" icone="🌾" rotulo="Sem. de trigo" />
             <Inventario.Item icone="🐾" rotulo="Animais" valor={animais.length} />
           </Inventario.Grade>
+          <Inventario.Estoque />
           <Inventario.Rodape>
             <Hud.BotaoPlantar />
             <Hud.BotaoExpandir />
