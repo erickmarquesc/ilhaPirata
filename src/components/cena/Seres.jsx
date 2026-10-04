@@ -4,7 +4,8 @@ import { ILHA } from '../../game/config.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import { aoTocarEntidade } from './clique.js';
 import { ALTURA, alturaDoChao, idDe } from './coords.js';
-import { Animal, Pessoa } from './modelos/Seres.jsx';
+import AnimalAnimado from './AnimalAnimado.jsx';
+import { Pessoa } from './modelos/Seres.jsx';
 
 // Atualiza posição e direção de um grupo a partir do objeto do mundo, a cada quadro
 function useSegue(obj, opcoes = {}) {
@@ -51,17 +52,6 @@ function PessoaNaCena({ a, eJogador }) {
   );
 }
 
-function AnimalNaCena({ an }) {
-  const ref = useSegue(an, { pular: 0.8 });
-  return (
-    <group ref={ref} onPointerDown={e => aoTocarEntidade(e, an.x, an.y)}>
-      <group scale={an.raio} rotation={[0, an.dir > 0 ? 0 : Math.PI, 0]}>
-        <Animal an={an} />
-      </group>
-    </group>
-  );
-}
-
 export function Pessoas() {
   const { agentes, jogador } = useMundo();
   return agentes.map(a => <PessoaNaCena key={idDe(a)} a={a} eJogador={a === jogador} />);
@@ -69,5 +59,5 @@ export function Pessoas() {
 
 export function Animais() {
   const { animais } = useMundo();
-  return animais.map(an => <AnimalNaCena key={idDe(an)} an={an} />);
+  return animais.map(an => <AnimalAnimado key={idDe(an)} an={an} />);
 }

@@ -71,6 +71,27 @@ export function resumoFilhos() {
   };
 }
 
+// O que cada um está fazendo agora (para a árvore genealógica)
+const ATIVIDADES = {
+  serrar: 'Cortando árvore', plantar: 'Plantando', cacar: 'Caçando', coletar: 'Coletando',
+  ajudar: 'Ajudando na obra', embarcar: 'Indo à jangada', plantarTrigo: 'Plantando trigo',
+  colher: 'Colhendo trigo', namorar: 'Namorando', construir: 'Construindo', evoluir: 'Evoluindo obra',
+  aterrar: 'Aterrando',
+};
+export function atividadeDe(a) {
+  if (a.embarcado) return a.embarcado.pesca > 0 ? 'Pescando' : 'Navegando';
+  if (a === mundo.esposa) {
+    if (a.cuidado > 0) return 'Cuidando do bebê';
+    if (mundo.jogador.tarefa?.tipo === 'namorar') return 'Namorando';
+  }
+  if (a.tarefa) {
+    const t = a.tarefa;
+    if (t.tipo === 'coletar') return t.monte.tipo === 'barro' ? 'Coletando barro' : 'Coletando pedra';
+    return ATIVIDADES[t.tipo] || 'Trabalhando';
+  }
+  return a.destino ? 'Andando' : 'Descansando';
+}
+
 // ===================== Inteligência da família =====================
 function ocupadaPorOutro(a, arvore) {
   return mundo.agentes.some(o => o !== a && o.tarefa && o.tarefa.arvore === arvore);

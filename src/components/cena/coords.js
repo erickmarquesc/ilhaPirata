@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { ILHA } from '../../game/config.js';
+import { ILHA, RECUO_GRAMA } from '../../game/config.js';
 import { dentroDaIlha, raioIlha } from '../../game/ilha.js';
 
 // Mundo do jogo (x, y) → cena 3D (X, altura, Z). O centro da ilha fica na origem.
 export const ALTURA = { agua: 0, areia: 2, grama: 3.5 };
-export const RECUO_GRAMA = 45;
+export { RECUO_GRAMA };
 
 export function paraCena(x, y, h = 0) { return [x - ILHA.x, h, y - ILHA.y]; }
 export function doMundo(X, Z) { return { x: X + ILHA.x, y: Z + ILHA.y }; }

@@ -33,3 +33,12 @@ export function emObra(id) {
 export function podeAjudarObra(a) { return (a.tipo === 'adolescente' || a.tipo === 'adulto') && !a.embarcado; }
 export function temAdolescente() { return mundo.agentes.some(podeAjudarObra); }
 export function requisitosOk(id) { return !CONSTRUCOES[id].precisaAdolescente || temAdolescente(); }
+
+// Requisitos de gente para a obra, no mesmo formato de uma linha de custo
+export function requisitosDaConstrucao(id) {
+  const lista = [];
+  if (CONSTRUCOES[id].precisaAdolescente) {
+    lista.push({ chave: 'filho', icone: '🧑', rotulo: 'Filho', qtd: 1, ok: temAdolescente(), dica: 'Filho adolescente ou adulto para ajudar na obra' });
+  }
+  return lista;
+}

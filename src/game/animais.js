@@ -67,6 +67,30 @@ export function cacar(an) {
   iniciarTarefa(jogador, { tipo: 'cacar', alvo: an, x: an.x, y: an.y, raio: an.raio });
 }
 
+// ===================== Locomoção =====================
+// O animal tem um rumo que gira aos poucos (anda em curvas) e uma velocidade que
+// acelera e freia suavemente: sai devagar, desacelera ao chegar e nas curvas fechadas.
+const GIRO_POR_SEGUNDO = 3;      // quanto o rumo pode virar por segundo (rad)
+const DISTANCIA_DE_FREIO = 25;   // começa a frear a essa distância do destino
+
+function andar(an, dt) {
+  const vx = an.destino.x - an.x, vy = an.destino.y - an.y;
+  const dist = Math.hypot(vx, vy);
+  if (dist < 3) { an.destino = null; an.vel = 0; return; }
+  const alvo = Math.atan2(vy, vx);
+  if (an.rumo === undefined) an.rumo = alvo;
+  const dif = Math.atan2(Math.sin(alvo - an.rumo), Math.cos(alvo - an.rumo));
+  const giro = GIRO_POR_SEGUNDO * dt;
+  an.rumo += Math.max(-giro, Math.min(giro, dif));
+  // mais devagar perto do destino e quando ainda está virando
+  const alinhado = Math.max(0, Math.cos(dif));
+  const desejada = an.velocidade * Math.min(1, dist / DISTANCIA_DE_FREIO) * (0.3 + 0.7 * alinhado);
+  an.vel = (an.vel || 0) + (desejada - (an.vel || 0)) * Math.min(1, dt * 3);
+  const dx = Math.cos(an.rumo), dy = Math.sin(an.rumo);
+  if (Math.abs(dx) > 0.1) an.dir = Math.sign(dx);
+  if (!mover(an, dx, dy, dt, an.vel)) { an.destino = null; an.vel = 0; }
+}
+
 export function atualizarAnimais(dt) {
   const { animais } = mundo;
   // Casais completos têm filhotes
@@ -112,9 +136,6 @@ export function atualizarAnimais(dt) {
       }
       continue;
     }
-    const vx = an.destino.x - an.x, vy = an.destino.y - an.y;
-    if (Math.hypot(vx, vy) < 3) { an.destino = null; continue; }
-    if (vx) an.dir = Math.sign(vx);
-    if (!mover(an, vx, vy, dt)) an.destino = null;
+    andar(an, dt);
   }
 }

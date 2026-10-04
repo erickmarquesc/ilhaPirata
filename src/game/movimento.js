@@ -46,10 +46,10 @@ export function proximoPonto(a) {
 }
 
 // ===================== Movimento =====================
-export function mover(a, dx, dy, dt) {
+export function mover(a, dx, dy, dt, velocidade = a.velocidade) {
   const len = Math.hypot(dx, dy);
   if (!len) return true;
-  const passo = a.velocidade * dt;
+  const passo = velocidade * dt;
   const mx = dx / len * passo, my = dy / len * passo;
   // Se estiver preso dentro de algo (ex.: plantaram em cima), deixa sair
   const preso = !podeFicar(a.x, a.y, a.raio);

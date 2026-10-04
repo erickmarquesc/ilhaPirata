@@ -1,35 +1,12 @@
 import * as THREE from 'three';
 import { useMaterial } from '../materiais.jsx';
 import Peca from '../Peca.jsx';
+import { Cabana } from './Cabana.jsx';
 import { Totem } from './Totem.jsx';
 import { Trigal } from './Trigal.jsx';
 
 // Todos os modelos recebem "progresso" (0..1) para mostrar a obra subindo.
 // A origem é o centro da base; +Z aponta para a câmera.
-
-// ===================== Cabana =====================
-// Paredes de troncos sobem primeiro, depois o telhado
-export function Cabana({ progresso = 1 }) {
-  const troncos = 5, altTronco = 6;
-  const pParede = Math.min(progresso / 0.65, 1);
-  const visiveis = Math.ceil(troncos * pParede);
-  const pTelhado = progresso > 0.65 ? Math.min((progresso - 0.65) / 0.35, 1) : 0;
-  return (
-    <group>
-      <Peca geo="cilindro" cor="#7a5a32" p={[0, 0.5, 0]} s={[40, 1, 32]} />
-      {Array.from({ length: visiveis }, (_, i) => (
-        <Peca key={i} cor={i % 2 ? '#9a6532' : '#875627'} p={[0, 1 + altTronco * i + altTronco / 2, 0]} s={[64, altTronco, 44]} />
-      ))}
-      {pParede >= 1 && <Peca cor="#3a220e" p={[0, 11, 22.2]} s={[14, 20, 1]} sombra={false} />}
-      {pTelhado > 0 && (
-        <>
-          <Peca geo="telhado" cor="#e8a23a" p={[0, 31 + 17 * pTelhado, 0]} s={[57, 34 * pTelhado, 45]} />
-          {pTelhado >= 1 && <Peca cor="#7a5428" p={[18, 50, -6]} s={[6, 14, 6]} />}
-        </>
-      )}
-    </group>
-  );
-}
 
 // ===================== Jangada =====================
 const formaVela = new THREE.Shape([new THREE.Vector2(2, 42), new THREE.Vector2(24, 14), new THREE.Vector2(2, 10)]);

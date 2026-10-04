@@ -33,9 +33,10 @@ src/
 ├── hooks/                # useMundo (store → React), useTeclado, usePiscar
 └── components/
     ├── ui/               # Painel, Botao (compound components), Custo
-    ├── Inventario.jsx    # <Inventario> + .Item / .Separador / .Rodape
-    ├── MenuConstrucoes.jsx  # <MenuConstrucoes> + .Item / .Requisito
-    ├── Hud.jsx           # <Hud> + .BotaoPlantar / .BotaoConstrucoes, HudPadrao
+    ├── Hud.jsx           # <Hud> + .Topo / .Meio / .Base, HudPadrao (layout da esquerda)
+    ├── Inventario.jsx    # recursos em fichas: <Inventario> + .Grade / .Item / .Rodape
+    ├── ArvoreFamilia.jsx # árvore genealógica: .Casal / .Coracao / .Filhos / .Membro
+    ├── CartasConstrucao.jsx # cartas de construção que brilham quando dá para construir/evoluir
     ├── PainelInteracao.jsx  # escolhe o painel pelo tipo
     ├── paineis/          # Totem, Esposa, Filho, Animal, Campo, Jangada, Estrutura
     ├── Dica.jsx

@@ -6,7 +6,7 @@ import { pontoTerraPerto } from './ilha.js';
 import { temRecursos } from './inventario.js';
 import { mundo } from './mundo.js';
 import { iniciarTarefa } from './tarefas.js';
-import { abrirMenu, definirModo } from './ui.js';
+import { definirModo } from './ui.js';
 
 // ===================== Ações disparadas pela interface =====================
 export function evoluir(id) {
@@ -14,7 +14,6 @@ export function evoluir(id) {
   const s = estruturaDoTipo(id);
   if (!s || !temRecursos(custoEvolucao(s)) || !requisitosOk(id)) return;
   definirModo(null);
-  abrirMenu(false);
   cancelar(jogador);
   if (jogador.embarcado) return;
   if (s.tipo === 'jangada') { prepararJangada(s); if (s.reservadaPor || s.tripulacao.length) return; }

@@ -1,5 +1,5 @@
 import { CONSTRUCOES } from './construcoes.js';
-import { DISTANCIA_MIN_ARVORES, DISTANCIA_MIN_CONSTRUCAO } from './config.js';
+import { DISTANCIA_MIN_ARVORES, DISTANCIA_MIN_CONSTRUCAO, DISTANCIA_MIN_PLANTIO } from './config.js';
 import { dentroDaIlha, naGrama } from './ilha.js';
 import { mundo } from './mundo.js';
 
@@ -15,15 +15,20 @@ export function podeFicar(x, y, raio) {
   for (const m of mundo.montes) if (Math.hypot(m.x - x, m.y - y) < m.raio * 0.8 + raio * 0.5) return false;
   return true;
 }
-export function espacoLivre(x, y, raio, folga, checarJogador = true, checarArvores = true) {
-  const { arvores, estruturas, jogador } = mundo;
-  if (checarArvores && arvores.some(t => Math.hypot(t.x - x, t.y - y) < t.raio + raio + folga)) return false;
-  if (estruturas.some(s => Math.hypot(s.x - x, s.y - y) < (s.ocupa || s.raio) + raio + folga)) return false;
-  if (mundo.montes.some(m => Math.hypot(m.x - x, m.y - y) < m.raio + raio + folga)) return false;
-  if (checarJogador && Math.hypot(jogador.x - x, jogador.y - y) < jogador.raio + raio + 4) return false;
-  return true;
+// ===================== Plantar =====================
+// Devolve por que não dá para plantar no ponto, ou null se pode.
+// O jogador e a família não impedem: quem estiver em cima da muda sai andando.
+const RAIO_MUDA = 10;
+export function motivoNaoPlantar(p) {
+  if (!naGrama(p.x, p.y)) return 'Só dá para plantar na grama';
+  if (mundo.arvores.some(t => Math.hypot(t.x - p.x, t.y - p.y) < DISTANCIA_MIN_ARVORES)) return 'Muito perto de outra árvore';
+  const muda = { x: p.x, y: p.y, r: RAIO_MUDA };
+  if (mundo.estruturas.some(s => folgaEntre(muda, formaDaEstrutura(s)) < DISTANCIA_MIN_PLANTIO)) return 'Muito perto de uma construção';
+  if (mundo.montes.some(m => folgaEntre(muda, formaDoMonte(m)) < DISTANCIA_MIN_PLANTIO)) return 'Muito perto do monte';
+  return null;
 }
-export function podePlantarEm(p) { return naGrama(p.x, p.y) && espacoLivre(p.x, p.y, 18, DISTANCIA_MIN_ARVORES - 36); }
+export function podePlantarEm(p) { return !motivoNaoPlantar(p); }
+
 // ===================== Construir =====================
 // Formas no chão: áreas cercadas são quadrados (h = meio lado), o resto é círculo (r).
 function formaDaConstrucao(id, x, y) {

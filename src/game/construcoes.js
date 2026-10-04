@@ -14,7 +14,7 @@ export const CONSTRUCOES = {
     nome: 'Cabana', icone: '🛖',
     custo: { madeira: 300 },
     tempo: 15, raio: 30,
-    largura: 76, altura: 70,
+    largura: 66, altura: 75,
     concluido: 'Cabana construída!',
     descricao: 'O primeiro lar da família na ilha.',
   },

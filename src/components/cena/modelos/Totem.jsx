@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useFantasma } from '../materiais.jsx';
+import { useBrilho } from '../materiais.jsx';
 import Peca from '../Peca.jsx';
 
 // ===================== Totem da Vida =====================
@@ -13,15 +13,6 @@ const MADEIRA = '#8b5a2b', MADEIRA_CLARA = '#a06a35', MADEIRA_ESCURA = '#5a3a1c'
 const VERMELHO = '#b5442e', TURQUESA = '#2f8f8a', AMARELO = '#e6b84a', OSSO = '#efe6cf';
 
 const geoAnel = new THREE.TorusGeometry(9, 0.6, 6, 32);
-
-// Materiais que brilham (fogo, orbe). Na prévia de construção ficam translúcidos.
-function useBrilho(cor, intensidade) {
-  const fantasma = useFantasma();
-  return useMemo(() => new THREE.MeshStandardMaterial({
-    color: cor, emissive: cor, emissiveIntensity: intensidade, flatShading: true,
-    transparent: fantasma, opacity: fantasma ? 0.45 : 1, depthWrite: !fantasma,
-  }), [cor, intensidade, fantasma]);
-}
 
 // Peça presa num ponto e girada (bicos, penas): o filho fica deslocado ao longo do eixo Y local
 function Apontada({ p, r, comprimento, children }) {

@@ -9,6 +9,9 @@
   --color-ganho: #ffe27a;
   --color-falta: #ffb0a0;
   --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-jogo: "Lilita One", system-ui, sans-serif;
+  --color-ouro: #f5c84c;
+  --color-ouro-escuro: #8a5414;
 }
 
 @layer base {
@@ -21,5 +24,51 @@
   body {
     @apply bg-mar text-white font-sans overflow-hidden;
     touch-action: none;
+  }
+}
+
+/* ===================== Madeira e ouro (molduras do jogo) ===================== */
+@layer components {
+  /* Tábuas de madeira escura com veios */
+  .madeira {
+    background-color: #5c3418;
+    background-image:
+      repeating-linear-gradient(90deg, rgb(0 0 0 / 0.22) 0 2px, transparent 2px 52px),
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 6px),
+      radial-gradient(ellipse at 30% 20%, rgb(255 200 140 / 0.12), transparent 60%),
+      linear-gradient(180deg, #74431f, #4e2b13);
+  }
+  /* Ouro com brilho em cima e sombra embaixo */
+  .ouro {
+    background-image: linear-gradient(180deg, #fff0a8 0%, #f5c84c 38%, #d99a2b 70%, #b07216 100%);
+    border-color: var(--color-ouro-escuro);
+  }
+  /* Texto dourado com contorno escuro (números e títulos) */
+  .texto-ouro {
+    font-family: var(--font-jogo);
+    color: #ffd75e;
+    text-shadow:
+      -1px -1px 0 #5a2e0c, 1px -1px 0 #5a2e0c, -1px 1px 0 #5a2e0c, 1px 1px 0 #5a2e0c,
+      0 2px 0 #5a2e0c, 0 3px 3px rgb(0 0 0 / 0.45);
+  }
+  /* Texto gravado numa placa de ouro */
+  .texto-gravado {
+    font-family: var(--font-jogo);
+    color: #7a4410;
+    text-shadow: 0 1px 0 rgb(255 245 200 / 0.8);
+  }
+  /* Carta de madeira (mais clara que a moldura) com aro de ouro */
+  .carta-madeira {
+    background-color: #6e4220;
+    background-image:
+      repeating-linear-gradient(90deg, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 22px),
+      linear-gradient(180deg, #8a5a2e, #5c3519);
+    box-shadow: inset 0 0 0 1px #7a4a12, inset 0 -3px 6px rgb(0 0 0 / 0.35), 0 3px 0 #3b2210;
+  }
+  /* Medalhão de madeira com aro de ouro */
+  .medalhao {
+    background: radial-gradient(circle at 50% 35%, #6b3f1f, #3d2210 75%);
+    border: 2px solid #d9a441;
+    box-shadow: inset 0 0 0 1px #7a4a12, inset 0 3px 6px rgb(0 0 0 / 0.45), 0 2px 0 #3b2210;
   }
 }

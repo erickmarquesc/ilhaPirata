@@ -5,7 +5,7 @@ import { animalEm, atualizarAnimais } from './animais.js';
 import { adulta, arvoreEm, atualizarArvores, gerarArvores } from './arvores.js';
 import { atualizarCardumes, novoCardume } from './cardumes.js';
 import { atualizarEfeitos, textoFlutuante } from './efeitos.js';
-import { podeConstruirEm, podePlantarEm } from './espaco.js';
+import { motivoNaoPlantar, podeConstruirEm } from './espaco.js';
 import { estruturaEm } from './estruturas.js';
 import { atualizarMontes, gerarMontes, monteEm } from './montes.js';
 import { expansaoPara, tarefaAterrar } from './expansao.js';
@@ -15,7 +15,7 @@ import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
 import {
-  abrirMenu, abrirPainel, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
+  abrirPainel, alternarCartas, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
 } from './ui.js';
 
 // ===================== Início =====================
@@ -73,7 +73,7 @@ const TECLAS_MOVIMENTO = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'w'
 export function teclaPressionada(tecla) {
   const k = tecla.toLowerCase();
   if (k === 'p') { alternarPlantar(); return; }
-  if (k === 'c') { abrirMenu(); return; }
+  if (k === 'c') { alternarCartas(); return; }
   if (k === 'x') { alternarExpandir(); return; }
   if (k === 'e') { alternarEmbarque(); return; }
   if (k === 'escape') { cancelarTudo(); return; }
@@ -91,7 +91,6 @@ export function moverPonteiro(p) {
 export function clicar(p) {
   const { jogador, ui } = mundo;
   moverPonteiro(p);
-  abrirMenu(false);
 
   // Navegando: toque na jangada abre o painel, qualquer outro lugar é destino no mar
   if (jogador.embarcado) {
@@ -102,8 +101,9 @@ export function clicar(p) {
 
   if (ui.modo.tipo === 'plantar') {
     cancelar(jogador);
-    if (podePlantarEm(p)) iniciarTarefa(jogador, { tipo: 'plantar', x: p.x, y: p.y, raio: 18 });
-    else textoFlutuante(p.x, p.y - 10, 'Não dá para plantar aqui', '#ffb0a0');
+    const motivo = motivoNaoPlantar(p);
+    if (!motivo) iniciarTarefa(jogador, { tipo: 'plantar', x: p.x, y: p.y, raio: 18 });
+    else textoFlutuante(p.x, p.y - 10, motivo, '#ffb0a0');
     return;
   }
   if (ui.modo.tipo === 'expandir') {

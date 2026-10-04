@@ -6,7 +6,7 @@ import {
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
 import { novaArvore, removerArvores } from './arvores.js';
-import { arvoresAfetadas, podeConstruirEm, podePlantarEm } from './espaco.js';
+import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js';
 import { carneDe, custoEvolucao, podeAjudarObra } from './estruturas.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
@@ -100,12 +100,13 @@ const CONCLUIR = {
     if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') a.plantarProximo = true;
   },
   plantar(a, t) {
-    if (mundo.inventario.sementes > 0 && podePlantarEm(t)) {
+    const motivo = mundo.inventario.sementes > 0 ? motivoNaoPlantar(t) : 'Sem sementes';
+    if (!motivo) {
       mundo.arvores.push(novaArvore(t.x, t.y, false));
       ganhar('sementes', -1);
       textoFlutuante(t.x, t.y - 20, '-1 🌱', '#c8f0b0');
     } else if (a === mundo.jogador) {
-      textoFlutuante(t.x, t.y - 20, 'Não dá para plantar aqui', '#ffb0a0');
+      textoFlutuante(t.x, t.y - 20, motivo, '#ffb0a0');
     }
   },
   construir(a, t) {

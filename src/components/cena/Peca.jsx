@@ -12,6 +12,7 @@ export const GEO = {
   bola: new THREE.IcosahedronGeometry(1, 0),
   bolaLisa: new THREE.IcosahedronGeometry(1, 1),
   rocha: new THREE.DodecahedronGeometry(1, 0),
+  rosca: new THREE.TorusGeometry(1, 0.35, 5, 12),
   anel: new THREE.RingGeometry(0.8, 1, 32).rotateX(-Math.PI / 2),
   disco: new THREE.CircleGeometry(1, 32).rotateX(-Math.PI / 2),
   quadrado: new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),

@@ -41,7 +41,7 @@ export function limparMundo() {
     ponteiro: { x: -999, y: -999 },
     ui: {
       modo: { tipo: null, construcao: null },
-      menuAberto: false,
+      cartasAbertas: true, // cartas de construção (tecla C recolhe/mostra)
       painel: null,      // { tipo, alvo }
       piscar: {},        // recurso -> contador (cada ganho/gasto incrementa)
     },

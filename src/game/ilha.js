@@ -1,4 +1,4 @@
-import { ILHA, MUNDO, ANEL_AREIA } from './config.js';
+import { ILHA, MUNDO, ANEL_AREIA, RECUO_GRAMA } from './config.js';
 import { podeFicar } from './espaco.js';
 import { mundo } from './mundo.js';
 
@@ -27,7 +27,8 @@ export function dentroDaIlha(x, y, margem = 0, extras = []) {
   const dx = x - ILHA.x, dy = y - ILHA.y;
   return Math.hypot(dx, dy) <= raioIlha(Math.atan2(dy, dx), extras) - margem;
 }
-export function naGrama(x, y) { return dentroDaIlha(x, y, 55); }
+// Um pouco para dentro da borda desenhada, para a copa não ficar sobre a areia
+export function naGrama(x, y) { return dentroDaIlha(x, y, RECUO_GRAMA + 6); }
 
 export function pontoAreia(ang) {
   const r = raioIlha(ang) - ANEL_AREIA;

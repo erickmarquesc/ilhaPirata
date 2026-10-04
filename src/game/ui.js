@@ -5,7 +5,7 @@ import { temRecursos } from './inventario.js';
 import { mundo, notificar } from './mundo.js';
 
 // ===================== Estado da interface =====================
-// Modos (plantar / construir), menu de construções e painel de interação.
+// Modos (plantar / construir / expandir), cartas de construção e painel de interação.
 // O React só lê mundo.ui; quem muda é sempre a engine, por estas funções.
 
 export function definirModo(tipo, construcao = null) {
@@ -15,7 +15,7 @@ export function definirModo(tipo, construcao = null) {
   if (tipo === 'expandir' && !temRecursos(CUSTO_EXPANSAO)) return;
   if (tipo === 'construir' && (!temRecursos(CONSTRUCOES[construcao].custo) || !requisitosOk(construcao))) return;
   ui.modo = { tipo, construcao };
-  if (tipo) { abrirMenu(false); fecharPainel(); }
+  if (tipo) fecharPainel();
   notificar();
 }
 export function alternarPlantar() {
@@ -25,16 +25,14 @@ export function alternarExpandir() {
   definirModo(mundo.ui.modo.tipo === 'expandir' ? null : 'expandir');
 }
 
-export function abrirMenu(abrir = !mundo.ui.menuAberto) {
-  mundo.ui.menuAberto = abrir;
-  if (abrir) fecharPainel();
+export function alternarCartas(abrir = !mundo.ui.cartasAbertas) {
+  mundo.ui.cartasAbertas = abrir;
   notificar();
 }
 
 // tipo: 'totem' | 'esposa' | 'filho' | 'animal' | 'monte' | 'campo' | 'jangada' | 'estrutura'
 export function abrirPainel(tipo, alvo = null) {
   mundo.ui.painel = { tipo, alvo };
-  mundo.ui.menuAberto = false;
   notificar();
 }
 export function fecharPainel() {
@@ -43,7 +41,6 @@ export function fecharPainel() {
 }
 export function cancelarTudo() {
   definirModo(null);
-  abrirMenu(false);
   fecharPainel();
 }
 

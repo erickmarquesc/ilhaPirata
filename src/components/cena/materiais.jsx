@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 // Materiais compartilhados, com sombreamento facetado (visual low-poly)
 const cache = new Map();
@@ -28,4 +28,13 @@ export function useFantasma() {
 export function useMaterial() {
   const fantasma = useContext(FantasmaContext);
   return (cor, duplo = false) => material(cor, fantasma, duplo);
+}
+
+// Material que brilha (fogo, lanterna, ouro). Na prévia de construção fica translúcido.
+export function useBrilho(cor, intensidade) {
+  const fantasma = useFantasma();
+  return useMemo(() => new THREE.MeshStandardMaterial({
+    color: cor, emissive: cor, emissiveIntensity: intensidade, flatShading: true,
+    transparent: fantasma, opacity: fantasma ? 0.45 : 1, depthWrite: !fantasma,
+  }), [cor, intensidade, fantasma]);
 }
