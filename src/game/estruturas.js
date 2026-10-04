@@ -32,11 +32,20 @@ export function emObra(id) {
 // ===================== Requisitos =====================
 export function podeAjudarObra(a) { return (a.tipo === 'adolescente' || a.tipo === 'adulto') && !a.embarcado; }
 export function temAdolescente() { return mundo.agentes.some(podeAjudarObra); }
-export function requisitosOk(id) { return !CONSTRUCOES[id].precisaAdolescente || temAdolescente(); }
+export function requisitosOk(id) { return requisitosDaConstrucao(id).every(r => r.ok); }
 
-// Requisitos de gente para a obra, no mesmo formato de uma linha de custo
+// Para evoluir qualquer construção ao nível N, o Totem da Vida precisa estar no nível N
+export function nivelDoTotem() { return estruturaDoTipo('totem')?.nivel ?? 0; }
+
+// Requisitos da obra (além dos recursos), no mesmo formato de uma linha de custo.
+// Construir: só o filho ajudante (jangada). Evoluir: também o nível do totem.
 export function requisitosDaConstrucao(id) {
   const lista = [];
+  const existente = estruturaDoTipo(id);
+  if (existente && id !== 'totem') {
+    const alvo = existente.nivel + 1;
+    lista.push({ chave: 'totem', icone: '🗿', rotulo: 'Totem nível', qtd: alvo, ok: nivelDoTotem() >= alvo, dica: `Evolua o Totem da Vida para o nível ${alvo} primeiro` });
+  }
   if (CONSTRUCOES[id].precisaAdolescente) {
     lista.push({ chave: 'filho', icone: '🧑', rotulo: 'Filho', qtd: 1, ok: temAdolescente(), dica: 'Filho adolescente ou adulto para ajudar na obra' });
   }

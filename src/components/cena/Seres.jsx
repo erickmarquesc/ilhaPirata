@@ -29,6 +29,7 @@ function useSegue(obj, opcoes = {}) {
     // pulinho ao andar
     const pulo = andando && opcoes.pular ? Math.abs(Math.sin(clock.elapsedTime * 14)) * opcoes.pular : 0;
     g.position.set(x - ILHA.x, h + pulo, y - ILHA.y);
+    g.visible = !obj.dentro; // dentro da cabana não aparece
     anterior.current = { x, y };
   });
   return ref;
@@ -44,7 +45,7 @@ function virarPessoa(g, dx, dy, andando) {
 function PessoaNaCena({ a, eJogador }) {
   const ref = useSegue(a, { virar: virarPessoa, pular: 1.5 });
   return (
-    <group ref={ref} onPointerDown={eJogador ? undefined : e => aoTocarEntidade(e, a.x, a.y)}>
+    <group ref={ref} onPointerDown={eJogador ? undefined : e => { if (!a.dentro) aoTocarEntidade(e, a.x, a.y); }}>
       <group scale={a.raio / 10}>
         <Pessoa a={a} />
       </group>

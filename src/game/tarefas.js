@@ -5,9 +5,10 @@ import {
 } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
+import { entrarNaCabana, sairDaCabana, sairSemMotivo } from './cabana.js';
 import { novaArvore, removerArvores } from './arvores.js';
 import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js';
-import { carneDe, custoEvolucao, podeAjudarObra } from './estruturas.js';
+import { carneDe, custoEvolucao, podeAjudarObra, requisitosDaConstrucao } from './estruturas.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
 import { coletarUma } from './montes.js';
@@ -58,6 +59,8 @@ function duracaoDe(a, t) {
     case 'namorar': return TEMPO_NAMORAR;
     case 'cacar': return TEMPO_CACAR;
     case 'ajudar': return Infinity; // fica ajudando até a obra acabar
+    case 'esperarNaCabana': return Infinity; // até o namoro acabar
+    case 'cuidarNaCabana': return Infinity;  // até o bebê virar criança
     case 'embarcar': return 0.3;
     case 'plantarTrigo': return TEMPO_PLANTAR_TRIGO;
     case 'colher': return TEMPO_COLHER_TRIGO;
@@ -76,7 +79,9 @@ function tarefaValida(a) {
   const { arvores, animais, estruturas, inventario, jogador } = mundo;
   switch (t.tipo) {
     case 'serrar': return arvores.includes(t.arvore);
-    case 'namorar': return podeNamorar();
+    case 'namorar': return podeNamorar() || !!a.dentro; // depois de entrar, segue até o fim
+    case 'esperarNaCabana': return mundo.jogador.tarefa?.tipo === 'namorar';
+    case 'cuidarNaCabana': return !!mundo.esposa && mundo.esposa.cuidado > 0;
     case 'cacar': return animais.includes(t.alvo);
     case 'evoluir': return estruturas.includes(t.estrutura);
     case 'ajudar': return jogador.tarefa === t.obra;
@@ -145,6 +150,8 @@ const CONCLUIR = {
       textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
       return;
     }
+    const totem = requisitosDaConstrucao(est.tipo).find(r => r.chave === 'totem' && !r.ok);
+    if (totem) { textoFlutuante(t.x, t.y - 20, totem.dica, '#ffb0a0'); return; }
     gastarRecursos(custo);
     est.nivel += 1;
     textoFlutuante(t.x, t.y - c.altura - 20, `${c.nome} evoluiu para o nível ${est.nivel}!`);
@@ -176,9 +183,12 @@ const CONCLUIR = {
   aterrar(a, t) {
     concluirAterro(t);
   },
-  namorar() {
-    if (!podeNamorar()) return;
+  namorar(a) {
+    // os dois saem da cabana e ela já sai grávida
     const { esposa } = mundo;
+    sairDaCabana(a, -8);
+    cancelar(esposa);
+    sairDaCabana(esposa, 8);
     esposa.gravidez = TEMPO_GRAVIDEZ;
     textoFlutuante(esposa.x, esposa.y - 40, 'Ela está grávida! 🤰', '#ffc0dd');
   },
@@ -201,9 +211,18 @@ function concluirAcao(a) {
 export function executar(a, dt, dx = 0, dy = 0) {
   if (a.embarcado) { if (a === mundo.jogador) navegar(dt, dx, dy); return; }
   if (!tarefaValida(a)) cancelar(a);
+  sairSemMotivo(a);
 
   if (a.acao) {
     const t = a.acao.tarefa;
+    if (t.tipo === 'namorar' && !a.dentro) {
+      // só entram quando a esposa também chegou na porta
+      const esposa = mundo.esposa;
+      if (esposa?.acao?.tarefa.tipo !== 'esperarNaCabana') return;
+      entrarNaCabana(a, t.cabana);
+      entrarNaCabana(esposa, t.cabana);
+    }
+    if (t.tipo === 'cuidarNaCabana' && !a.dentro) entrarNaCabana(a, t.cabana);
     if (precisaAjuda(t) && !ajudanteTrabalhando(t)) {
       chamarAjudante(t);   // garante que alguém está vindo
       return;              // espera o adolescente chegar

@@ -2,6 +2,7 @@ import { DISTANCIA_MIN_ARVORES, RESERVA_SEMENTES, TEMPO_CUIDAR_BEBE, TEMPO_DESCA
 import { cancelar, novoAgente } from './agentes.js';
 import { adulta } from './arvores.js';
 import { cacavel } from './animais.js';
+import { cabanaDaFamilia, sairDaCabana, tarefaNaPorta } from './cabana.js';
 import { textoFlutuante, luzDivina } from './efeitos.js';
 import { lugarLivrePerto, podeFicar, podePlantarEm } from './espaco.js';
 import { estruturaDoTipo } from './estruturas.js';
@@ -15,15 +16,17 @@ import { cuidarDoCampo } from './trigo.js';
 import { atualizarInventario, fecharPainel } from './ui.js';
 
 // ===================== Família =====================
+// Para namorar (e ter filhos) o casal precisa da cabana pronta
 export function podeNamorar() {
   const { esposa } = mundo;
-  return !!esposa && esposa.gravidez <= 0 && esposa.cuidado <= 0 && esposa.descanso <= 0;
+  return !!esposa && !!cabanaDaFamilia() && esposa.gravidez <= 0 && esposa.cuidado <= 0 && esposa.descanso <= 0;
 }
+// O casal vai até a porta da cabana; quando os dois chegam, entram (ver tarefas.js)
 export function namorar() {
-  const { jogador, esposa } = mundo;
-  if (!esposa) return;
+  const { jogador } = mundo;
+  if (!podeNamorar()) return;
   cancelar(jogador);
-  iniciarTarefa(jogador, { tipo: 'namorar', alvo: esposa, x: esposa.x, y: esposa.y, raio: esposa.raio });
+  iniciarTarefa(jogador, tarefaNaPorta('namorar', cabanaDaFamilia()));
 }
 
 export function pedirEsposa(id) {
@@ -79,6 +82,7 @@ const ATIVIDADES = {
   aterrar: 'Aterrando',
 };
 export function atividadeDe(a) {
+  if (a.dentro) return a === mundo.esposa && a.cuidado > 0 ? 'Cuidando do bebê' : 'Na cabana';
   if (a.embarcado) return a.embarcado.pesca > 0 ? 'Pescando' : 'Navegando';
   if (a === mundo.esposa) {
     if (a.cuidado > 0) return 'Cuidando do bebê';
@@ -186,17 +190,30 @@ function cicloDaEsposa(a, dt) {
     }
   }
   if (a.cuidado > 0) {
+    // cuida do bebê dentro da cabana; quando sai, o bebê já é criança
     a.cuidado -= dt;
-    if (a.cuidado <= 0) { a.cuidado = 0; a.descanso = TEMPO_DESCANSO; nascerCrianca(a); atualizarInventario(); }
+    if (a.cuidado <= 0) {
+      a.cuidado = 0;
+      a.descanso = TEMPO_DESCANSO;
+      cancelar(a);
+      sairDaCabana(a);
+      nascerCrianca(a);
+      atualizarInventario();
+      return true;
+    }
+    const cabana = cabanaDaFamilia();
+    if (cabana && a.tarefa?.tipo !== 'cuidarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('cuidarNaCabana', cabana)); }
+    if (a.tarefa) executar(a, dt);
     return true; // cuidando do bebê: não faz mais nada
   }
   if (a.descanso > 0) {
     a.descanso -= dt;
     if (a.descanso <= 0) { a.descanso = 0; textoFlutuante(a.x, a.y - 40, 'Pronta para outro filho 💕', '#ffc0dd'); }
   }
-  // Esperando o marido para namorar
+  // O marido chamou para namorar: vai até a porta da cabana e espera por ele
   if (jogador.tarefa && jogador.tarefa.tipo === 'namorar') {
-    if (a.tarefa || a.acao || a.destino) cancelar(a);
+    if (a.tarefa?.tipo !== 'esperarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('esperarNaCabana', jogador.tarefa.cabana)); }
+    executar(a, dt);
     return true;
   }
   return false;

@@ -85,6 +85,7 @@ function desenhar(ctx, proj) {
   for (const a of agentes) {
     if (!a.acao) continue;
     const t = a.acao.tarefa;
+    if (t.tipo === 'esperarNaCabana' || t.tipo === 'cuidarNaCabana') continue; // sem barra: o tempo aparece no rótulo da esposa
     if (t.tipo === 'ajudar') {
       const p = proj(a.x, 30, a.y);
       if (p) rotulo(ctx, p.x, p.y, '🔨 ajudando', '#ffe9b0');
