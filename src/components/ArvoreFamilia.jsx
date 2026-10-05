@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { FASES } from '../game/config.js';
+import { FASES, NOME_MAE, NOME_PAI } from '../game/config.js';
 import { atividadeDe } from '../game/familia.js';
 import { abrirPainel } from '../game/ui.js';
 import { useMundo } from '../hooks/useMundo.js';
@@ -120,19 +120,19 @@ export function FamiliaDoJogo() {
   return (
     <ArvoreFamilia>
       <ArvoreFamilia.Casal comFilhos={temFilhos}>
-        <ArvoreFamilia.Membro icone="🧑‍🦰" nome="Náufrago" detalhe="Você" cor="border-[#d9822b]" />
+        <ArvoreFamilia.Membro icone="🧑‍🦰" nome={NOME_PAI} detalhe="Você" cor="border-[#d9822b]" />
         <ArvoreFamilia.Coracao />
         {esposa ? (
           <ArvoreFamilia.Membro
             icone="👩"
-            nome="Esposa"
+            nome={NOME_MAE}
             detalhe={atividadeDe(esposa)}
             cor="border-amor"
             alvo="esposa"
             aoTocar={() => abrirPainel('esposa')}
           />
         ) : (
-          <ArvoreFamilia.Membro icone="❔" nome="Esposa" detalhe="Peça no Totem" pendente />
+          <ArvoreFamilia.Membro icone="❔" nome={NOME_MAE} detalhe="Peça no Totem" pendente />
         )}
       </ArvoreFamilia.Casal>
       {temFilhos && (

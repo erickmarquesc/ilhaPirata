@@ -2,7 +2,7 @@
 
 Jogo de sobrevivência numa ilha, em 3D low-poly, feito com **Vite + React + Tailwind CSS +
 React Three Fiber (three.js)**.
-O arquivo original de página única está em `jogo-pirata.html`, como referência.
+📖 **Documentação:** [docs/fluxograma.html](docs/fluxograma.html) — fluxograma de recursos, personagens, fluxos e tempos do jogo (abra no navegador).
 
 ```bash
 npm install

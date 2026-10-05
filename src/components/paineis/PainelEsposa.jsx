@@ -1,4 +1,5 @@
 import { cabanaDaFamilia } from '../../game/cabana.js';
+import { NOME_MAE } from '../../game/config.js';
 import { namorar, podeNamorar } from '../../game/familia.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import Botao from '../ui/Botao.jsx';
@@ -19,7 +20,7 @@ export default function PainelEsposa() {
   return (
     <>
       <Painel.Cabecalho>
-        <Painel.Titulo>👩 Esposa</Painel.Titulo>
+        <Painel.Titulo>👩 {NOME_MAE}</Painel.Titulo>
         <Painel.Fechar />
       </Painel.Cabecalho>
       <Painel.Texto>{statusDaEsposa(esposa, namorando)}</Painel.Texto>

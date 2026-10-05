@@ -1,4 +1,4 @@
-import { CARDUMES_MAX, ILHA, TEMPO_CRESCER } from './config.js';
+import { CARDUMES_MAX, ILHA, NOME_PAI, TEMPO_CRESCER } from './config.js';
 import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
@@ -21,7 +21,7 @@ import {
 // ===================== Início =====================
 export function criarMundo() {
   limparMundo();
-  mundo.jogador = novoAgente('jogador', ILHA.x, ILHA.y);
+  mundo.jogador = novoAgente('jogador', ILHA.x, ILHA.y, { nome: NOME_PAI });
   mundo.agentes.push(mundo.jogador);
   gerarArvores(12);
   gerarMontes();

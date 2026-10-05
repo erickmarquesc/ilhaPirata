@@ -38,8 +38,8 @@ export const TRIGO_POR_COLHEITA = 5;
 export const SEMENTES_TRIGO_INICIAIS = 1;      // ganha ao construir o campo
 export const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 2 sementes
 // Estoque: a soma de todos os recursos não passa da capacidade.
-// Sem moinho: 300. Cada nível do moinho soma +150.
-export const ESTOQUE_BASE = 300;
+// Sem moinho: 350. Cada nível do moinho soma +150.
+export const ESTOQUE_BASE = 350;
 export const ESTOQUE_POR_NIVEL_MOINHO = 150;
 
 // Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
@@ -74,6 +74,17 @@ export const DICAS = {
   expandir: 'Toque no mar, perto da praia, para aterrar um pedaço de terra. X ou Esc para sair.',
   navegando: 'Navegando: setas / WASD ou toque no mar. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
 };
+
+// Nomes da família
+export const NOME_PAI = 'Jones';
+export const NOME_MAE = 'Syrena';
+// Filhos em ordem de nascimento; passando da lista, recomeça com "II", "III"...
+export const NOMES_FILHOS = ['Jack', 'Will', 'Salazar', 'Murtogg', 'Gibbs', 'Barbossa', 'Pintel', 'Ragetti', 'Mullroy', 'Cotton', 'Teague', 'Hector'];
+export function nomeDoFilho(n) {
+  const nome = NOMES_FILHOS[(n - 1) % NOMES_FILHOS.length];
+  const volta = Math.floor((n - 1) / NOMES_FILHOS.length);
+  return volta ? `${nome} ${'I'.repeat(volta + 1)}` : nome;
+}
 
 export const FASES = {
   crianca:     { icone: '🧒', texto: 'Criança. Ajuda a mãe plantando sementes. Vira adolescente quando nascer o próximo irmão.' },

@@ -217,7 +217,7 @@ const CONCLUIR = {
     cancelar(esposa);
     sairDaCabana(esposa, 8);
     esposa.gravidez = TEMPO_GRAVIDEZ;
-    textoFlutuante(esposa.x, esposa.y - 40, 'Ela está grávida! 🤰', '#ffc0dd');
+    textoFlutuante(esposa.x, esposa.y - 40, `${esposa.nome} está grávida! 🤰`, '#ffc0dd');
   },
 };
 

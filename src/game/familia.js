@@ -1,4 +1,4 @@
-import { DISTANCIA_MIN_ARVORES, RESERVA_SEMENTES, TEMPO_CUIDAR_BEBE, TEMPO_DESCANSO } from './config.js';
+import { DISTANCIA_MIN_ARVORES, NOME_MAE, RESERVA_SEMENTES, TEMPO_CUIDAR_BEBE, TEMPO_DESCANSO, nomeDoFilho } from './config.js';
 import { cancelar, novoAgente } from './agentes.js';
 import { adulta } from './arvores.js';
 import { cacavel } from './animais.js';
@@ -35,7 +35,7 @@ export function pedirEsposa(id) {
   if (!totem || !p.disponivel() || !temRecursos(p.custo)) return;
   gastarRecursos(p.custo);
   const pos = lugarLivrePerto(totem.x, totem.y, 38);
-  mundo.esposa = novoAgente('esposa', pos.x, pos.y, { velocidade: 120, gravidez: 0, cuidado: 0, descanso: 0, plantarProximo: false, espera: 1.8 });
+  mundo.esposa = novoAgente('esposa', pos.x, pos.y, { nome: NOME_MAE, velocidade: 120, gravidez: 0, cuidado: 0, descanso: 0, plantarProximo: false, espera: 1.8 });
   mundo.agentes.push(mundo.esposa);
   luzDivina(pos.x, pos.y);
   textoFlutuante(totem.x, totem.y - 90, 'Os deuses atenderam!', '#fff3b0');
@@ -58,9 +58,9 @@ function virarAdolescente(f) {
 function nascerCrianca(mae) {
   mundo.contadorFilhos++;
   const pos = lugarLivrePerto(mae.x, mae.y, 24);
-  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: 'Filho ' + mundo.contadorFilhos, espera: 1 });
+  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: nomeDoFilho(mundo.contadorFilhos), espera: 1 });
   mundo.agentes.push(c);
-  textoFlutuante(mae.x, mae.y - 40, 'O bebê virou criança!', '#c8e8ff');
+  textoFlutuante(mae.x, mae.y - 40, `${c.nome} virou criança!`, '#c8e8ff');
 }
 
 // Contagem para o HUD: adultos, adolescentes, crianças e bebê
