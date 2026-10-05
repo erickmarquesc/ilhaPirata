@@ -30,7 +30,7 @@ export function alternarCartas(abrir = !mundo.ui.cartasAbertas) {
   notificar();
 }
 
-// tipo: 'totem' | 'esposa' | 'filho' | 'animal' | 'monte' | 'campo' | 'jangada' | 'estrutura'
+// tipo: 'totem' | 'esposa' | 'filho' | 'animal' | 'monte' | 'campo' | 'jangada' | 'fogueira' | 'estrutura'
 export function abrirPainel(tipo, alvo = null) {
   mundo.ui.painel = { tipo, alvo };
   notificar();

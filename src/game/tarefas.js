@@ -1,7 +1,7 @@
 import {
   ILHA, MADEIRA_POR_ARVORE, SEMENTES_POR_ARVORE, SEMENTES_TRIGO_INICIAIS, SEMENTES_TRIGO_POR_COLHEITA,
   TEMPO_CACAR, TEMPO_COLHER_TRIGO, TEMPO_GRAVIDEZ, TEMPO_NAMORAR, TEMPO_PLANTAR, TEMPO_PLANTAR_CRIANCA,
-  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_PLANTAR_TRIGO, TEMPO_SERRAR, TRIGO_POR_COLHEITA,
+  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_COZINHAR, TEMPO_PLANTAR_TRIGO, TEMPO_SERRAR, TRIGO_POR_COLHEITA,
 } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
@@ -13,6 +13,7 @@ import {
 } from './estruturas.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
+import { concluirCozinhar, fogueira, pedidoDe } from './fogueira.js';
 import { coletarUma } from './montes.js';
 import { raioIlha } from './ilha.js';
 import { cabeNoEstoque, gastarRecursos, ganhar, temRecursos } from './inventario.js';
@@ -79,6 +80,8 @@ function duracaoDe(a, t) {
     case 'colher': return TEMPO_COLHER_TRIGO;
     case 'aterrar': return TEMPO_ATERRAR;
     case 'coletar': return TEMPO_COLETAR;
+    case 'cozinhar': return TEMPO_COZINHAR;
+    case 'pedirComida': return Infinity; // espera na fogueira até ter o prato que pediu
     default: return tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir
   }
 }
@@ -114,6 +117,8 @@ function tarefaValida(a) {
     case 'plantarTrigo': return t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0;
     case 'colher': return t.canteiro.estado === 'maduro';
     case 'coletar': return t.monte.restante > 0;
+    case 'cozinhar': return estruturas.includes(t.estrutura);
+    case 'pedirComida': return !!fogueira() && !!pedidoDe(a);
     case 'embarcar': return estruturas.includes(t.estrutura) && jangadaNaAgua(t.estrutura) && !!t.estrutura.reservadaPor && t.estrutura.tripulacao.length < 2;
     default: return true;
   }
@@ -209,6 +214,9 @@ const CONCLUIR = {
   },
   aterrar(a, t) {
     concluirAterro(t);
+  },
+  cozinhar(a, t) {
+    concluirCozinhar(t);
   },
   namorar(a) {
     // os dois saem da cabana e ela já sai grávida

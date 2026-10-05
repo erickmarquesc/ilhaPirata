@@ -10,6 +10,7 @@ import { estruturaEm } from './estruturas.js';
 import { atualizarMontes, gerarMontes, monteEm } from './montes.js';
 import { expansaoPara, tarefaAterrar } from './expansao.js';
 import { atualizarFamiliar } from './familia.js';
+import { atualizarPedidosDeComida } from './fogueira.js';
 import { alternarEmbarque, atualizarEstruturas } from './jangada.js';
 import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
@@ -52,6 +53,7 @@ export function atualizar(dt) {
   atualizarCardumes(dt);
   atualizarCanteiros(dt);
   atualizarMontes(dt);
+  atualizarPedidosDeComida(dt);
   atualizarEfeitos(dt);
 }
 
@@ -137,6 +139,7 @@ export function clicar(p) {
     if (s.tipo === 'totem') abrirPainel('totem', s);
     else if (s.tipo === 'campoTrigo') clicarCampo(s, p);
     else if (s.tipo === 'jangada') abrirPainel('jangada', s);
+    else if (s.tipo === 'fogueira') abrirPainel('fogueira', s);
     else abrirPainel('estrutura', s);
     return;
   }

@@ -42,6 +42,16 @@ export const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 
 export const ESTOQUE_BASE = 350;
 export const ESTOQUE_POR_NIVEL_MOINHO = 150;
 
+// Fogueira: Jones faz churrasco (gasta carne) ou peixada (gasta peixe).
+// Quanto gasta por prato vem da tabela de níveis dela (construcoes.js).
+// Cada prato rende 5 pedaços e fica no espeto até acabar.
+// Depois do 1º churrasco, de tempos em tempos alguém da família para o que está fazendo
+// e vai até a fogueira pedir comida.
+export const TEMPO_COZINHAR = 5;              // segundos por prato
+export const PEDACOS_POR_PRATO = 5;           // quantos pedidos um prato atende
+export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
+export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
+
 // Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
 export const QTD_POR_MONTE = 500;
 export const TEMPO_COLETAR = 2;        // segundos por unidade
@@ -92,5 +102,5 @@ export const FASES = {
   adulto:      { icone: '🧔', texto: 'Filho adulto. Sua obrigação é coletar barro e pedra nos montes (um filho por monte). Sem monte livre, caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.' },
 };
 
-export const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050', aterrar: '#e8d08a', coletar: '#c8794a' };
-export const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo', aterrar: 'Aterrando', coletar: 'Coletando' };
+export const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050', aterrar: '#e8d08a', coletar: '#c8794a', cozinhar: '#ff8a3a' };
+export const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo', aterrar: 'Aterrando', coletar: 'Coletando', cozinhar: 'Cozinhando' };

@@ -79,7 +79,7 @@ const ATIVIDADES = {
   serrar: 'Cortando árvore', plantar: 'Plantando', cacar: 'Caçando', coletar: 'Coletando',
   ajudar: 'Ajudando na obra', embarcar: 'Indo à jangada', plantarTrigo: 'Plantando trigo',
   colher: 'Colhendo trigo', namorar: 'Namorando', construir: 'Construindo', evoluir: 'Evoluindo obra',
-  aterrar: 'Aterrando',
+  aterrar: 'Aterrando', cozinhar: 'Cozinhando',
 };
 export function atividadeDe(a) {
   if (a.dentro) return a === mundo.esposa && a.cuidado > 0 ? 'Cuidando do bebê' : 'Na cabana';
@@ -90,6 +90,7 @@ export function atividadeDe(a) {
   }
   if (a.tarefa) {
     const t = a.tarefa;
+    if (t.tipo === 'pedirComida') return t.prato === 'churrasco' ? 'Pedindo churrasco' : 'Pedindo peixada';
     if (t.tipo === 'coletar') return t.monte.tipo === 'barro' ? 'Coletando barro' : 'Coletando pedra';
     return ATIVIDADES[t.tipo] || 'Trabalhando';
   }

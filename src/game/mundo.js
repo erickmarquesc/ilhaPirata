@@ -11,6 +11,7 @@ export const mundo = {
   jogador: null,
   esposa: null,
   contadorFilhos: 0,
+  comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera }
   animais: [],
   cardumes: [],
   relogioCardume: 0,
@@ -32,6 +33,7 @@ export function limparMundo() {
     jogador: null,
     esposa: null,
     contadorFilhos: 0,
+    comida: { conhece: false, servido: null, pedidos: [], espera: 0 },
     animais: [],
     cardumes: [],
     relogioCardume: 0,

@@ -54,6 +54,15 @@ const NIVEIS_CABANA = [
   { custo: { madeira: 500, tijolo: 50, pedra: 35 }, filhos: 1 },
 ];
 
+// Fogueira: "consumo" é quanto de carne (churrasco) ou peixe (peixada) cada prato gasta
+const NIVEIS_FOGUEIRA = [
+  { custo: { madeira: 120 }, consumo: 95 },
+  { custo: { madeira: 150, pedra: 20 }, consumo: 85 },
+  { custo: { madeira: 180, pedra: 40, tijolo: 20 }, consumo: 75 },
+  { custo: { madeira: 220, pedra: 60, tijolo: 40 }, consumo: 65 },
+  { custo: { madeira: 260, pedra: 80, tijolo: 60 }, consumo: 55, filhos: 1 },
+];
+
 export const CONSTRUCOES = {
   totem: {
     nome: 'Totem da Vida', icone: '🗿',
@@ -94,6 +103,15 @@ export const CONSTRUCOES = {
     soAdultos: true,            // só filhos adultos ajudam na obra
     concluido: 'Moinho construído! O estoque aumentou.',
     descricao: 'Guarda os recursos da família: cada nível aumenta o estoque em 150.',
+  },
+  fogueira: {
+    nome: 'Fogueira', icone: '🔥',
+    niveis: NIVEIS_FOGUEIRA,
+    custo: NIVEIS_FOGUEIRA[0].custo,
+    tempo: 10, raio: 14,
+    largura: 40, altura: 30,
+    concluido: 'Fogueira acesa!',
+    descricao: 'Jones faz churrasco com carne e peixada com peixe. Cada nível gasta menos por prato.',
   },
   // Abrigos de animais: área cercada (não bloqueia a passagem das pessoas)
   galinheiro: {
