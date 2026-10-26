@@ -16,7 +16,7 @@ import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
 import {
-  abrirPainel, alternarCartas, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
+  abrirPainel, alternarCartas, fecharConquista, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
 } from './ui.js';
 
 // ===================== Início =====================
@@ -30,8 +30,11 @@ export function criarMundo() {
   atualizarInventario();
 }
 
-// ===================== Atualização =====================
-function direcaoDoTeclado() {
+// ===================== Câmera =====================
+// O personagem só anda pelo toque/clique. Setas / WASD soltam a câmera e a movem pelo
+// mapa (ver Camera.jsx); ela fica onde parou até o Espaço ou um toque que faça o Jones
+// se mover (no chão, numa árvore, no mar ou nos modos plantar/expandir/construir).
+export function direcaoDoTeclado() {
   const { teclas } = mundo;
   let dx = 0, dy = 0;
   if (teclas['arrowleft']  || teclas['a']) dx -= 1;
@@ -40,13 +43,17 @@ function direcaoDoTeclado() {
   if (teclas['arrowdown']  || teclas['s']) dy += 1;
   return { dx, dy };
 }
+export function centralizarCamera() {
+  mundo.visao = null;
+}
+
+// ===================== Atualização =====================
 
 export function atualizar(dt) {
   atualizarArvores(dt);
   atualizarEstruturas(dt);
 
-  const { dx, dy } = direcaoDoTeclado();
-  executar(mundo.jogador, dt, dx, dy);
+  executar(mundo.jogador, dt);
 
   for (const a of mundo.agentes) if (a !== mundo.jogador) atualizarFamiliar(a, dt);
   atualizarAnimais(dt);
@@ -60,7 +67,7 @@ export function atualizar(dt) {
 // A interface é atualizada 4x por segundo (contadores, painéis)
 let relogioUI = 0;
 export function passo(dt) {
-  atualizar(dt);
+  if (!mundo.ui.conquista) atualizar(dt); // pausado enquanto o aviso de construção está aberto
   relogioUI += dt;
   if (relogioUI > 0.25) {
     relogioUI = 0;
@@ -70,17 +77,17 @@ export function passo(dt) {
 }
 
 // ===================== Entrada =====================
-const TECLAS_MOVIMENTO = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'w', 'a', 's', 'd'];
-
 export function teclaPressionada(tecla) {
   const k = tecla.toLowerCase();
+  // com o aviso de construção aberto, só fechar
+  if (mundo.ui.conquista) { if (['enter', 'escape', ' '].includes(k)) fecharConquista(); return; }
   if (k === 'p') { alternarPlantar(); return; }
   if (k === 'c') { alternarCartas(); return; }
   if (k === 'x') { alternarExpandir(); return; }
   if (k === 'e') { alternarEmbarque(); return; }
   if (k === 'escape') { cancelarTudo(); return; }
+  if (k === ' ') { centralizarCamera(); return; }
   mundo.teclas[k] = true;
-  if (TECLAS_MOVIMENTO.includes(k)) cancelar(mundo.jogador);
 }
 export function teclaSolta(tecla) {
   mundo.teclas[tecla.toLowerCase()] = false;
@@ -97,10 +104,12 @@ export function clicar(p) {
   // Navegando: toque na jangada abre o painel, qualquer outro lugar é destino no mar
   if (jogador.embarcado) {
     if (estruturaEm(p) === jogador.embarcado) abrirPainel('jangada', jogador.embarcado);
-    else { fecharPainel(); jogador.destino = p; }
+    else { fecharPainel(); centralizarCamera(); jogador.destino = p; }
     return;
   }
 
+  // Nos modos, o toque manda o Jones até o lugar: a câmera volta a segui-lo
+  if (ui.modo.tipo) centralizarCamera();
   if (ui.modo.tipo === 'plantar') {
     cancelar(jogador);
     const motivo = motivoNaoPlantar(p);
@@ -144,8 +153,10 @@ export function clicar(p) {
     return;
   }
 
+  // Toque no chão ou numa árvore: o Jones vai até lá e a câmera volta a segui-lo
   fecharPainel();
   cancelar(jogador);
+  centralizarCamera();
   const t = arvoreEm(p);
   if (t) {
     if (!adulta(t)) {

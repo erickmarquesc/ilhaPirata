@@ -85,6 +85,7 @@ function desenhar(ctx, proj) {
       const { prato, pedacos } = mundo.comida.servido;
       const topo = proj(s.x, 26, s.y);
       if (topo) rotulo(ctx, topo.x, topo.y, `${PRATOS[prato].icone} ${pedacos}/${PEDACOS_POR_PRATO}`, '#ffe9b0');
+      if (topo && mundo.comida.torrando !== null) rotulo(ctx, topo.x, topo.y - 20, `🔥 torrando em ${Math.ceil(mundo.comida.torrando)}s`, '#ffb0a0');
     }
     if (s.tipo !== 'jangada') continue;
     const topo = proj(s.x, 60, s.y);

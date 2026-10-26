@@ -249,6 +249,9 @@
   <p class="nota">Estoque cheio: o jogador vê “Estoque cheio!”, a família passa a plantar/passear e os filhos pescando voltam para a praia. Gastar recursos libera espaço.</p>
 
   <!-- ===================================================== -->
+  <h3>⏸ Pausar a produção da família</h3>
+  <p class="nota">Tocar no medalhão de 🍖 carne, 🐟 peixe, 🪵 madeira, 🪨 pedra, 🧱 tijolo ou 🌾 trigo pausa a produção automática da família daquele recurso (o medalhão fica apagado com ⏸ e “Pausado”); tocar de novo retoma. Carne: ninguém caça. Peixe: não saem viagens de jangada, e a viagem em andamento volta. Madeira: ninguém corta árvores, mas a família continua plantando. Pedra / tijolo: o monte é ignorado (o filho vai para o outro, se estiver livre). Trigo: as crianças não colhem nem plantam. Quem está trabalhando termina a unidade atual. Quem fica sem nada para fazer aparece como “Descansando”. Jones continua podendo produzir tudo, e obras, cabana e pedidos de comida não mudam.</p>
+
   <h2 id="personagens">4. Personagens</h2>
   <div class="grade">
     <div class="cartao">
@@ -262,6 +265,7 @@
         <li>Navega e pesca (com 1 filho adulto)</li>
         <li>Planta e colhe trigo, expande a ilha</li>
         <li>Faz churrasco e peixada na fogueira</li>
+        <li>Oferece o espeto aos deuses e troca recursos na fogueira</li>
       </ul>
     </div>
     <div class="cartao">
@@ -299,7 +303,7 @@
       <h3>🧔 Adulto</h3>
       <div class="meta">Velocidade 160 · ajuda em todas as obras · tripulação da jangada</div>
       <ol>
-        <li><b>Obrigação:</b> coletar num monte livre (1 filho por monte)</li>
+        <li><b>Obrigação:</b> coletar num monte livre (1 filho por monte). O 1º adulto prefere 🪨 pedra, o 2º prefere 🧱 barro; do 3º em diante, o monte livre mais perto</li>
         <li>Com outro adulto livre: viagem de pesca na jangada</li>
         <li>Caça o animal adulto mais perto</li>
         <li>Depois de cortar, planta · corta árvores</li>
@@ -418,7 +422,20 @@
   </table></div>
 
   <h3>🔥 Fogueira</h3>
-  <p class="nota">Jones faz <b>churrasco</b> (gasta 🍖) ou <b>peixada</b> (gasta 🐟) — 5 s por prato. Cada prato rende <b>5 pedaços</b> e fica no espeto até o último ser comido; enquanto tiver comida no espeto, Jones não faz outro prato. Depois do 1º churrasco a família conhece a comida: 15 s depois, e então a cada 40–80 s (sorteado), Syrena ou um filho para o que está fazendo, vai até a fogueira e pede churrasco ou peixada (balão em cima da cabeça). Se o prato no espeto for o pedido, come um pedaço e volta ao trabalho; se for outro, fica parado esperando o prato do espeto acabar para Jones fazer o que pediu. Quem está na jangada, ajudando numa obra ou na cabana não é chamado.</p>
+  <p class="nota">Jones faz <b>churrasco</b> (gasta 🍖) ou <b>peixada</b> (gasta 🐟) — 5 s por prato. Cada prato rende <b>5 pedaços</b> e fica no espeto até o último ser comido; enquanto tiver comida no espeto, Jones não faz outro prato. Depois do 1º churrasco a família conhece a comida: 15 s depois, e então a cada 40–80 s (sorteado), Syrena ou um filho para o que está fazendo, vai até a fogueira e pede churrasco ou peixada (balão em cima da cabeça). Se o prato no espeto for o pedido, come um pedaço e volta ao trabalho; se for outro, fica parado esperando o prato do espeto acabar para Jones fazer o que pediu. Quem está na jangada, ajudando numa obra ou na cabana não é chamado. A peixada só é pedida se Jones tiver 🐟 ou já tiver a jangada.</p>
+  <p class="nota"><b>Comida torrando:</b> se <b>mais da metade da família</b> (Syrena e filhos) estiver na fogueira esperando um prato diferente do que está no espeto, aparece “🔥 torrando em 10s”. Se a situação continuar por <b>10 s</b>, o prato torra: o espeto fica vazio e os pedaços se perdem (o recurso gasto não volta). Se alguém comer ou desistir antes e a maioria deixar de querer outro prato, a contagem é cancelada.</p>
+  <h3>🙏 Oferenda e troca com os deuses (na fogueira)</h3>
+  <div class="fluxo">
+    <div class="no"><b>Comida no espeto</b><small>sobrou e ninguém quer</small></div>
+    <div class="seta" data-t="Oferecer aos deuses">→</div>
+    <div class="no verde"><b>Espeto livre</b><small>+1 ✨ favor por pedaço</small></div>
+  </div>
+  <div class="fluxo">
+    <div class="no"><b>Dar 10 / 50 / 100</b><small>🪵 🪨 🧱 🍖 🐟 🌾 🌱</small></div>
+    <div class="seta" data-t="2 por 1">→</div>
+    <div class="no verde"><b>Receber 5 / 25 / 50</b><small>outro recurso à escolha</small></div>
+  </div>
+  <p class="nota">No painel da fogueira, escolha o que dar e o que receber (recursos diferentes) e o lote. A taxa é <b>2 → 1</b> (ex.: 20 🪵 → 10 🪨). Com favor, a troca sai <b>1 → 1</b> e gasta 1 ✨. Como sempre se dá pelo menos o que se recebe, a troca nunca estoura o estoque.</p>
   <div class="rolagem"><table>
     <thead><tr><th>Nível</th><th>Custo</th><th>Filhos</th><th>Gasto por prato</th><th>Visual</th></tr></thead>
     <tbody>
@@ -471,6 +488,13 @@
       <li>Nível N exige o totem no nível N</li>
       <li>Custo e requisitos aparecem na carta</li>
     </ul></div>
+    <div class="cartao"><h3>Andar entre construções</h3><ul>
+      <li>Construções só bloqueiam o miolo (60% do raio)</li>
+      <li>Pessoas e animais colidem pelo pé (~4)</li>
+      <li>Com a folga de 12, sempre sobra passagem entre duas construções</li>
+      <li>Abrigos cercados não bloqueiam</li>
+      <li>Quase parado tentando andar por 1,5 s: atravessa por cima por 1 s (o mar sempre bloqueia)</li>
+    </ul></div>
     <div class="cartao"><h3>Plantar árvore</h3><ul>
       <li>Só na grama (45 da costa para dentro)</li>
       <li>45 de distância entre centros de árvores</li>
@@ -491,6 +515,7 @@
     <div class="seta" data-t="60 s">→</div>
     <div class="no verde"><b>Volta a 500</b></div>
   </div>
+  <p class="nota"><b>Preferência:</b> o 1º filho adulto vai para a pedra e o 2º para o barro, mesmo que o outro monte esteja mais perto. Se o preferido estiver esgotado ou ocupado, coleta no outro e volta para o seu assim que ele ficar livre. Quem está no monte do irmão cede o lugar quando o dono chega.</p>
   <h3>Pesca</h3>
   <div class="fluxo">
     <div class="no azul"><b>Embarque</b><small>Jones + 1 filho adulto, ou 2 filhos adultos</small></div>
@@ -508,9 +533,13 @@
   <div class="rolagem"><table>
     <thead><tr><th>Ação</th><th>Como</th><th>Tempo</th><th>Resultado</th></tr></thead>
     <tbody>
-      <tr><td>Andar</td><td>Setas / WASD ou tocar no chão</td><td>—</td><td>Câmera segue; roda/pinça dá zoom</td></tr>
+      <tr><td>Andar</td><td>Tocar / clicar no chão</td><td>—</td><td>Câmera segue; roda/pinça dá zoom</td></tr>
+      <tr><td>Olhar o mapa</td><td>Setas / WASD (Espaço volta para o Jones)</td><td>—</td><td>Só a câmera se move, o personagem fica parado. Tocar para o Jones andar (chão, árvore, mar, plantar/expandir/construir) volta a seguir ele</td></tr>
       <tr><td>Cortar árvore</td><td>Tocar na árvore adulta</td><td class="n">5 s</td><td>+20 🪵 +2 🌱</td></tr>
       <tr><td>Churrasco / peixada</td><td>Tocar na fogueira</td><td class="n">5 s</td><td>−95 🍖 ou 🐟 (menos nos níveis altos) → 5 pedaços no espeto</td></tr>
+      <tr><td>Pausar / retomar produção</td><td>Tocar no medalhão do recurso no inventário</td><td>—</td><td>A família para (ou volta) de produzir 🍖 🐟 🪵 🪨 🧱 🌾</td></tr>
+      <tr><td>Oferecer aos deuses</td><td>Tocar na fogueira com comida no espeto</td><td>—</td><td>Espeto livre, +1 ✨ favor por pedaço</td></tr>
+      <tr><td>Trocar com os deuses</td><td>Tocar na fogueira → Troca com os deuses</td><td>—</td><td>Dá 2, recebe 1 (com favor, 1 por 1)</td></tr>
       <tr><td>Plantar</td><td>P / flâmula Plantar e tocar na grama</td><td class="n">2 s</td><td>−1 🌱, árvore adulta em 60 s</td></tr>
       <tr><td>Construir</td><td>Carta de construção e tocar no lugar</td><td class="n">tabela</td><td>Construção nível 1</td></tr>
       <tr><td>Evoluir</td><td>Carta com “Evoluir!”</td><td class="n">tabela</td><td>Próximo nível</td></tr>
@@ -541,6 +570,8 @@
       <tr><td>Filhote virar adulto</td><td class="n">60 s</td></tr>
       <tr><td>Coletar no monte (por unidade)</td><td class="n">2 s</td></tr>
       <tr><td>Monte esgotado voltar a 500</td><td class="n">60 s</td></tr>
+      <tr><td>Aviso até a comida torrar</td><td class="n">10 s</td></tr>
+      <tr><td>Travado até atravessar por cima</td><td class="n">1,5 s</td></tr>
       <tr><td>Plantar trigo / colher trigo</td><td class="n">1,5 s / 2 s</td></tr>
       <tr><td>Trigo amadurecer</td><td class="n">45 s</td></tr>
       <tr><td>Pescar (por pesca)</td><td class="n">4 s</td></tr>

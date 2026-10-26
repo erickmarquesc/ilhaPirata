@@ -1,10 +1,13 @@
 import { createContext, useContext, useState } from 'react';
 import { FASES, NOME_MAE, NOME_PAI } from '../game/config.js';
 import { atividadeDe } from '../game/familia.js';
+import { recursoPreferido } from '../game/montes.js';
 import { abrirPainel } from '../game/ui.js';
 import { useMundo } from '../hooks/useMundo.js';
+import Moldura from './ui/Moldura.jsx';
 
-// Árvore genealógica: o casal em cima e os filhos ligados por linhas, em ordem de nascimento.
+// Árvore genealógica numa moldura de madeira e ouro (como Recursos e Construções):
+// o casal em cima e os filhos pendurados numa corda dourada, em ordem de nascimento.
 //
 // <ArvoreFamilia>
 //   <ArvoreFamilia.Casal>
@@ -15,50 +18,52 @@ import { useMundo } from '../hooks/useMundo.js';
 //   </ArvoreFamilia.Filhos>
 // </ArvoreFamilia>
 const ArvoreContext = createContext(null);
-const LINHA = 'border-white/35';
+// Ligações em "corda" dourada, no tom das cantoneiras da moldura
+const CORDA = 'bg-[#d9a441] shadow-[0_1px_0_#3b2210]';
 
 function ArvoreFamilia({ children, titulo = 'Família' }) {
   const { ui } = useMundo();
   const [aberta, setAberta] = useState(true);
   return (
     <ArvoreContext.Provider value={{ selecionado: ui.painel?.alvo ?? (ui.painel?.tipo === 'esposa' ? 'esposa' : null) }}>
-      <section className="pointer-events-auto max-w-[min(470px,calc(100vw_-_24px))] rounded-lg bg-black/65 p-2">
-        <header className="mb-1 flex items-center justify-between gap-3 px-0.5">
-          <h2 className="m-0 text-[13px] font-semibold opacity-80">{titulo}</h2>
-          <button
-            type="button"
-            onClick={() => setAberta(a => !a)}
-            className="cursor-pointer rounded border-0 bg-white/10 px-1.5 py-0.5 text-[11px] text-white hover:bg-white/20"
-          >
-            {aberta ? 'Recolher' : 'Mostrar'}
-          </button>
-        </header>
-        {aberta && (
-          // w-max + mx-auto: centraliza quando cabe e rola sem cortar quando a família cresce
-          <div className="overflow-x-auto pb-1">
-            <div className="mx-auto flex w-max flex-col items-center px-1">{children}</div>
-          </div>
-        )}
-      </section>
+      <div className="pointer-events-auto max-w-[min(470px,calc(100vw_-_24px))] pt-3.5">
+        <Moldura className={aberta ? '' : 'min-w-[220px] pb-1.5'}>
+          <Moldura.Placa>{titulo}</Moldura.Placa>
+          <Moldura.Acao onClick={() => setAberta(a => !a)}>{aberta ? 'Recolher' : 'Mostrar'}</Moldura.Acao>
+          <Moldura.Corpo>
+            {aberta && (
+              // w-max + mx-auto: centraliza quando cabe e rola sem cortar quando a família cresce
+              <div className="sem-barra overflow-x-auto pt-2 pb-1">
+                <div className="mx-auto flex w-max flex-col items-center px-1">{children}</div>
+              </div>
+            )}
+          </Moldura.Corpo>
+        </Moldura>
+      </div>
     </ArvoreContext.Provider>
   );
 }
 
-// Casal lado a lado com um coração no meio e a linha que desce para os filhos
+// Casal lado a lado com um coração no meio e a corda que desce para os filhos
 function Casal({ children, comFilhos }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="flex items-center gap-1">{children}</div>
-      {comFilhos && <span className={`h-3 border-l ${LINHA}`} />}
+      <div className="flex items-center gap-1.5">{children}</div>
+      {comFilhos && <span className={`h-3 w-[3px] rounded-full ${CORDA}`} />}
     </div>
   );
 }
 
+// Coração num medalhão de ouro entre o casal
 function Coracao() {
-  return <span className="text-sm text-amor">❤</span>;
+  return (
+    <span className="ouro flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-[13px] leading-none text-[#c2185b] shadow-[0_2px_0_#3b2210]">
+      ❤
+    </span>
+  );
 }
 
-// Filhos lado a lado, cada um pendurado na linha horizontal
+// Filhos lado a lado, cada um pendurado na corda horizontal
 function Filhos({ children }) {
   const lista = Array.isArray(children) ? children.flat().filter(Boolean) : [children];
   return (
@@ -68,8 +73,8 @@ function Filhos({ children }) {
         const horizontal = unico ? '' : i === 0 ? 'left-1/2 right-0' : i === lista.length - 1 ? 'left-0 right-1/2' : 'left-0 right-0';
         return (
           <div key={filho.key ?? i} className="relative flex flex-col items-center px-1 pt-3">
-            {!unico && <span className={`absolute top-0 border-t ${LINHA} ${horizontal}`} />}
-            <span className={`absolute top-0 left-1/2 h-3 border-l ${LINHA}`} />
+            {!unico && <span className={`absolute top-0 h-[3px] ${CORDA} ${horizontal}`} />}
+            <span className={`absolute top-0 left-1/2 h-3 w-[3px] -translate-x-1/2 ${CORDA}`} />
             {filho}
           </div>
         );
@@ -78,25 +83,47 @@ function Filhos({ children }) {
   );
 }
 
-// Um membro da família. "alvo" é o que abre o painel ao tocar; "pendente" desenha tracejado.
-function Membro({ icone, nome, detalhe, cor = 'border-white/30', alvo, aoTocar, pendente = false }) {
+// Um membro da família: retrato num medalhão (aro na cor da fase), nome dourado e o que
+// está fazendo. "alvo" é o que abre o painel ao tocar; "pendente" desenha tracejado;
+// "selo" é um emblema pequeno no canto do retrato.
+function Membro({ icone, nome, detalhe, aro = '#d9a441', fase, selo, alvo, aoTocar, pendente = false }) {
   const { selecionado } = useContext(ArvoreContext);
   const ativo = alvo && selecionado === alvo;
   const conteudo = (
     <>
-      <span className="text-xl leading-none">{icone}</span>
-      <span className="mt-0.5 text-[11px] leading-tight font-semibold whitespace-nowrap">{nome}</span>
-      {detalhe && <span className="text-[10px] leading-tight whitespace-nowrap opacity-75">{detalhe}</span>}
+      <span
+        className={`relative flex h-9 w-9 items-center justify-center rounded-full border-[3px] text-xl leading-none ${pendente ? 'border-dashed bg-black/20' : 'medalhao'}`}
+        style={{ borderColor: pendente ? '#d9a44180' : aro }}
+      >
+        <span className={pendente ? 'opacity-60' : 'drop-shadow-[0_1px_0_rgb(0_0_0/0.5)]'}>{icone}</span>
+        {selo && (
+          <span className="ouro absolute -right-1.5 -bottom-1 flex h-[18px] w-[18px] items-center justify-center rounded-full border text-[10px] leading-none shadow-[0_1px_0_#3b2210]">
+            {selo}
+          </span>
+        )}
+      </span>
+      <span className="texto-ouro mt-1 text-[13px] leading-tight font-normal whitespace-nowrap">{nome}</span>
+      {fase && (
+        <span className="mt-0.5 rounded-full px-1.5 text-[9px] leading-[14px] font-semibold tracking-wide text-white uppercase shadow-[0_1px_0_#3b2210]" style={{ backgroundColor: aro }}>
+          {fase}
+        </span>
+      )}
+      {detalhe && <span className="mt-0.5 max-w-full truncate text-[10px] leading-tight text-[#f3dcae] opacity-85">{detalhe}</span>}
     </>
   );
   const classe = [
-    'flex w-[76px] flex-col items-center rounded-md border-2 px-1 py-1 text-center text-white',
-    pendente ? 'border-dashed border-white/30 bg-transparent' : `${cor} bg-white/8`,
-    ativo ? 'ring-2 ring-white' : '',
+    'flex w-[80px] flex-col items-center rounded-lg border-2 px-1 pt-1.5 pb-1 text-center transition',
+    pendente ? 'border-dashed border-[#d9a441]/50 bg-black/15' : 'carta-madeira border-[#9a7040]',
+    ativo ? 'border-[#ffd75e] shadow-[0_0_0_2px_#ffd75e,0_0_12px_rgb(255_215_94/0.7)]' : '',
   ].join(' ');
-  if (!aoTocar) return <div className={classe}>{conteudo}</div>;
+  if (!aoTocar) return <div className={classe} title={detalhe}>{conteudo}</div>;
   return (
-    <button type="button" onClick={aoTocar} className={`${classe} cursor-pointer hover:bg-white/15`}>
+    <button
+      type="button"
+      onClick={aoTocar}
+      title={detalhe}
+      className={`${classe} cursor-pointer hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+    >
       {conteudo}
     </button>
   );
@@ -108,7 +135,9 @@ ArvoreFamilia.Filhos = Filhos;
 ArvoreFamilia.Membro = Membro;
 
 // Árvore montada a partir do mundo do jogo
-const COR_FASE = { crianca: 'border-[#4aa3d9]', adolescente: 'border-[#2e9c84]', adulto: 'border-[#2b5fa8]' };
+const ARO_FASE = { crianca: '#4aa3d9', adolescente: '#2e9c84', adulto: '#2b5fa8' };
+const NOME_FASE = { crianca: 'Criança', adolescente: 'Adolescente', adulto: 'Adulto' };
+const SELO_RECURSO = { pedra: '🪨', barro: '🧱' };
 
 export function FamiliaDoJogo() {
   const { agentes, esposa } = useMundo();
@@ -120,14 +149,14 @@ export function FamiliaDoJogo() {
   return (
     <ArvoreFamilia>
       <ArvoreFamilia.Casal comFilhos={temFilhos}>
-        <ArvoreFamilia.Membro icone="🧑‍🦰" nome={NOME_PAI} detalhe="Você" cor="border-[#d9822b]" />
+        <ArvoreFamilia.Membro icone="🧑‍🦰" nome={NOME_PAI} detalhe="Você" aro="#d9822b" />
         <ArvoreFamilia.Coracao />
         {esposa ? (
           <ArvoreFamilia.Membro
             icone="👩"
             nome={NOME_MAE}
             detalhe={atividadeDe(esposa)}
-            cor="border-amor"
+            aro="#e0609d"
             alvo="esposa"
             aoTocar={() => abrirPainel('esposa')}
           />
@@ -142,13 +171,15 @@ export function FamiliaDoJogo() {
               key={f.nome}
               icone={FASES[f.tipo].icone}
               nome={f.nome}
+              fase={NOME_FASE[f.tipo]}
               detalhe={atividadeDe(f)}
-              cor={COR_FASE[f.tipo]}
+              aro={ARO_FASE[f.tipo]}
+              selo={f.tipo === 'adulto' ? SELO_RECURSO[recursoPreferido(f)] : null}
               alvo={f}
               aoTocar={() => abrirPainel('filho', f)}
             />
           ))}
-          {bebe && <ArvoreFamilia.Membro key="bebe" icone="👶" nome="Bebê" detalhe={`criança em ${Math.ceil(esposa.cuidado)}s`} cor="border-white/60" />}
+          {bebe && <ArvoreFamilia.Membro key="bebe" icone="👶" nome="Bebê" detalhe={`criança em ${Math.ceil(esposa.cuidado)}s`} aro="#f3dcae" />}
           {gravida && <ArvoreFamilia.Membro key="gravidez" icone="🤰" nome="A caminho" detalhe={`nasce em ${Math.ceil(esposa.gravidez)}s`} pendente />}
         </ArvoreFamilia.Filhos>
       )}

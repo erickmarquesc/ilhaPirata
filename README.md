@@ -28,6 +28,7 @@ src/
 │   ├── familia.js        # esposa, filhos e a IA da família
 │   ├── animais.js, trigo.js, jangada.js, cardumes.js, arvores.js
 │   ├── fogueira.js       # churrasco/peixada e pedidos de comida da família
+│   ├── oferenda.js       # oferecer o espeto aos deuses e trocar recursos na fogueira
 │   ├── ilha.js, espaco.js, movimento.js, estruturas.js, inventario.js
 │   ├── ui.js             # modo plantar/construir, menu e painel aberto
 │   └── expansao.js       # aterrar o mar para aumentar a ilha
@@ -40,6 +41,7 @@ src/
     ├── CartasConstrucao.jsx # cartas de construção que brilham quando dá para construir/evoluir
     ├── PainelInteracao.jsx  # escolhe o painel pelo tipo
     ├── paineis/          # Totem, Esposa, Filho, Animal, Campo, Jangada, Fogueira, Estrutura
+    ├── Conquista.jsx     # aviso de construção concluída (placa pirata; pausa o jogo)
     ├── Dica.jsx
     └── cena/             # tudo que é 3D
         ├── Cena.jsx      # <Canvas>, loop do jogo e ordem da cena

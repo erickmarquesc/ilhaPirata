@@ -11,13 +11,16 @@ export const mundo = {
   jogador: null,
   esposa: null,
   contadorFilhos: 0,
-  comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera }
+  pausas: null,      // produção da família pausada pelo jogador: { carne, peixe, madeira, pedra, tijolo, trigo }
+  favor: 0,          // favor dos deuses: pedaços oferecidos na fogueira (cada um deixa uma troca 1 → 1)
+  comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera, torrando }
   animais: [],
   cardumes: [],
   relogioCardume: 0,
   textos: [],
   efeitos: [],
   teclas: {},
+  visao: null,       // câmera solta (setas / WASD): ponto do mapa onde ela olha; null = segue o jogador
   ponteiro: { x: -999, y: -999 },
   ui: null,
 };
@@ -33,18 +36,22 @@ export function limparMundo() {
     jogador: null,
     esposa: null,
     contadorFilhos: 0,
-    comida: { conhece: false, servido: null, pedidos: [], espera: 0 },
+    favor: 0,
+    pausas: { carne: false, peixe: false, madeira: false, pedra: false, tijolo: false, trigo: false },
+    comida: { conhece: false, servido: null, pedidos: [], espera: 0, torrando: null },
     animais: [],
     cardumes: [],
     relogioCardume: 0,
     textos: [],
     efeitos: [],
     teclas: {},
+    visao: null,
     ponteiro: { x: -999, y: -999 },
     ui: {
       modo: { tipo: null, construcao: null },
       cartasAbertas: true, // cartas de construção (tecla C recolhe/mostra)
       painel: null,      // { tipo, alvo }
+      conquista: null,   // construção recém-concluída: { construcao } (modal)
       piscar: {},        // recurso -> contador (cada ganho/gasto incrementa)
     },
   });

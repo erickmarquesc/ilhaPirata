@@ -1,7 +1,7 @@
-import { ILHA } from './config.js';
+import { ILHA, TEMPO_TRAVADO } from './config.js';
 import { dentroDaIlha, pontoAreia } from './ilha.js';
 import { mundo } from './mundo.js';
-import { podeFicar } from './espaco.js';
+import { mioloDe, podeFicar } from './espaco.js';
 
 // ===== Rotas inteligentes =====
 // Compara o caminho reto pelo meio da ilha com o caminho pela faixa de areia.
@@ -15,7 +15,7 @@ function custoSegmento(a, b) {
   // andar pelo meio da ilha (grama, mato) é mais "caro" que pela areia
   let custo = Math.hypot(b.x - a.x, b.y - a.y) * 1.3;
   for (const t of mundo.arvores) if (distPontoSegmento(t.x, t.y, a, b) < 26) custo += 60;
-  for (const s of mundo.estruturas) if (!s.area && distPontoSegmento(s.x, s.y, a, b) < s.raio + 12) custo += 400;
+  for (const s of mundo.estruturas) if (!s.area && distPontoSegmento(s.x, s.y, a, b) < mioloDe(s) + 8) custo += 400;
   return custo;
 }
 function planejarRota(a, alvo) {
@@ -51,8 +51,16 @@ export function mover(a, dx, dy, dt, velocidade = a.velocidade) {
   if (!len) return true;
   const passo = velocidade * dt;
   const mx = dx / len * passo, my = dy / len * passo;
+  // Rede de segurança: se ficou quase parado tentando andar (ex.: indo e voltando entre
+  // duas construções), atravessa por cima de árvores e construções por um instante
+  if (!a.ancora || a.ancora.t >= TEMPO_TRAVADO) {
+    if (a.ancora && Math.hypot(a.x - a.ancora.x, a.y - a.ancora.y) < 20) a.fantasma = 1;
+    a.ancora = { x: a.x, y: a.y, t: 0 };
+  }
+  a.ancora.t += dt;
+  if (a.fantasma > 0) a.fantasma -= dt;
   // Se estiver preso dentro de algo (ex.: plantaram em cima), deixa sair
-  const preso = !podeFicar(a.x, a.y, a.raio);
+  const preso = a.fantasma > 0 || !podeFicar(a.x, a.y, a.raio);
   const ok = (x, y) => podeFicar(x, y, a.raio) || (preso && dentroDaIlha(x, y, a.raio));
   // Contornando um obstáculo: mantém o desvio por um instante para não ficar indo e voltando
   if (a.desvio && a.desvio.t > 0) {

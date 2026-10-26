@@ -16,6 +16,13 @@ export const DISTANCIA_MIN_ARVORES = 45;   // entre os centros de duas árvores
 export const DISTANCIA_MIN_PLANTIO = 6;    // folga entre a muda e construções / montes
 export const RECUO_GRAMA = 45;             // a grama começa a essa distância da costa
 export const DISTANCIA_MIN_CONSTRUCAO = 12; // folga mínima entre construções e entre construção e monte
+// Colisão de quem anda: construções bloqueiam só o miolo (raio × FATOR_MIOLO) e as pessoas
+// colidem pelo pé (min(raio, 10) × FATOR_PE). Para sempre sobrar passagem entre duas construções:
+//   DISTANCIA_MIN_CONSTRUCAO + (1 − FATOR_MIOLO) × (rA + rB) ≥ 2 × pé + margem
+// No par mais apertado (fogueira 14 + totem 16): 12 + 0,4 × 30 = 24 de folga contra 8 do pé.
+export const FATOR_MIOLO = 0.6;
+export const FATOR_PE = 0.4;
+export const TEMPO_TRAVADO = 1.5; // quase parado tentando andar por esse tempo: atravessa por cima
 export const RESERVA_SEMENTES = 4;    // a família não planta se isso deixar você com menos que isso
 export const TEMPO_CACAR = 3;
 export const TEMPO_EMPURRAR = 3;      // segundos empurrando a jangada para a água
@@ -51,6 +58,11 @@ export const TEMPO_COZINHAR = 5;              // segundos por prato
 export const PEDACOS_POR_PRATO = 5;           // quantos pedidos um prato atende
 export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
 export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
+// Se mais da metade da família está pedindo outro prato, o do espeto torra e se perde
+export const TEMPO_TORRAR = 10;               // segundos de aviso antes de torrar
+// Troca com os deuses na fogueira: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
+export const TAXA_TROCA = 2;
+export const LOTES_TROCA = [10, 50, 100];
 
 // Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
 export const QTD_POR_MONTE = 500;
@@ -78,11 +90,11 @@ export const ESPECIES = {
 export const ICONES = { madeira: '🪵', sementes: '🌱', carne: '🍖', peixe: '🐟', trigo: '🌾', sementesTrigo: '🌾 sem.', tijolo: '🧱', pedra: '🪨' };
 
 export const DICAS = {
-  normal: 'Ande com setas / WASD ou tocando. Toque em árvores, construções, família ou animais.',
+  normal: 'Toque no mapa para andar. Setas / WASD movem a câmera; tocar no chão ou Espaço volta para o Jones. Toque em árvores, construções, família ou animais.',
   plantar: 'Toque num lugar da grama para plantar. P ou Esc para sair.',
   construir: 'Toque num lugar da ilha para construir. Esc para cancelar.',
   expandir: 'Toque no mar, perto da praia, para aterrar um pedaço de terra. X ou Esc para sair.',
-  navegando: 'Navegando: setas / WASD ou toque no mar. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
+  navegando: 'Navegando: toque no mar para ir até lá. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
 };
 
 // Nomes da família

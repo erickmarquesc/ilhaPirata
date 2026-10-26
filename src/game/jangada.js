@@ -8,6 +8,7 @@ import { emObra, estruturaDoTipo } from './estruturas.js';
 import { dentroDaIlha, podeNavegar, pontoTerraPerto, terraLivrePerto } from './ilha.js';
 import { cabeNoEstoque, ganhar } from './inventario.js';
 import { mundo } from './mundo.js';
+import { pausado } from './pausas.js';
 import { iniciarTarefa } from './tarefas.js';
 import { atualizarInventario, definirModo } from './ui.js';
 
@@ -100,7 +101,7 @@ export function alternarEmbarque() {
 // ----- Filhos adultos saem sozinhos para pescar -----
 export function tentarViagemDePesca(a) {
   const est = estruturaDoTipo('jangada');
-  if (!est || !jangadaLivre(est) || est.descansoViagem > 0) return false;
+  if (!est || !jangadaLivre(est) || est.descansoViagem > 0 || pausado('peixe')) return false;
   if (!mundo.cardumes.some(c => c.peixes > 0)) return false;
   if (!cabeNoEstoque(PEIXES_POR_PESCA)) return false; // estoque cheio: nem saem
   const outros = adultosLivres([a]);
@@ -133,11 +134,12 @@ function rumoPara(est, alvo, dt) {
   moverJangada(est, -Math.sin(a1) * sentido + Math.cos(a1) * 0.3, Math.cos(a1) * sentido + Math.sin(a1) * 0.3, dt);
 }
 
-export function navegar(dt, dx, dy) {
+export function navegar(dt) {
   const { jogador } = mundo;
   const est = jogador.embarcado;
   if (est.tripulacao.length < 2) { chamarTripulante(est); jogador.destino = null; return; } // espera o filho
-  if (!dx && !dy && jogador.destino) {
+  let dx = 0, dy = 0;
+  if (jogador.destino) {
     const vx = jogador.destino.x - est.x, vy = jogador.destino.y - est.y;
     if (Math.hypot(vx, vy) < 4) jogador.destino = null;
     else { dx = vx; dy = vy; }
@@ -149,7 +151,7 @@ export function navegar(dt, dx, dy) {
 function viagemDosFilhos(est, dt) {
   if (!est.viagem) est.viagem = { fase: 'ir', pescas: 0 };
   const v = est.viagem;
-  if (v.pescas >= PESCAS_POR_VIAGEM || !cabeNoEstoque(PEIXES_POR_PESCA)) v.fase = 'voltar';
+  if (v.pescas >= PESCAS_POR_VIAGEM || !cabeNoEstoque(PEIXES_POR_PESCA) || pausado('peixe')) v.fase = 'voltar';
   if (v.fase === 'ir') {
     const alvo = cardumeMaisProximo(est);
     if (!alvo) v.fase = 'voltar';

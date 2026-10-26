@@ -25,9 +25,10 @@ function Hud({ children }) {
 function Topo({ children }) {
   return <div className="pointer-events-auto shrink-0">{children}</div>;
 }
-// O meio ocupa o espaço que sobra e centraliza a árvore entre os dois menus
+// O meio ocupa o espaço que sobra e centraliza a árvore entre os dois menus.
+// Só rola na vertical (sem barra); a folga lateral deixa as cantoneiras da moldura aparecerem.
 function Meio({ children }) {
-  return <div className="flex min-h-0 flex-1 flex-col justify-center overflow-y-auto">{children}</div>;
+  return <div className="sem-barra -mx-1 flex min-h-0 flex-1 flex-col justify-center overflow-x-hidden overflow-y-auto px-1">{children}</div>;
 }
 function Base({ children }) {
   return <div className="shrink-0">{children}</div>;

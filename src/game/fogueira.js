@@ -1,4 +1,4 @@
-import { PEDACOS_POR_PRATO, TEMPO_ENTRE_PEDIDOS, TEMPO_PRIMEIRO_PEDIDO } from './config.js';
+import { PEDACOS_POR_PRATO, TEMPO_ENTRE_PEDIDOS, TEMPO_PRIMEIRO_PEDIDO, TEMPO_TORRAR } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar } from './agentes.js';
 import { textoFlutuante } from './efeitos.js';
@@ -16,6 +16,8 @@ import { atualizarInventario, definirModo } from './ui.js';
 // a esposa ou um filho para o que está fazendo, vai até a fogueira e pede um prato.
 // Se o prato no espeto for o pedido, come um pedaço e volta ao trabalho; se for outro,
 // fica esperando ele acabar para Jones fazer o que pediu.
+// Se mais da metade da família está esperando outro prato, o do espeto torra
+// depois de alguns segundos e se perde, para ninguém ficar travado esperando.
 export const PRATOS = {
   churrasco: { nome: 'Churrasco', icone: '🍖', recurso: 'carne', pronto: 'Churrasco pronto!' },
   peixada: { nome: 'Peixada', icone: '🐟', recurso: 'peixe', pronto: 'Peixada pronta!' },
@@ -90,7 +92,9 @@ function novoPedido(s) {
   const candidatos = mundo.agentes.filter(podePedir);
   if (!candidatos.length) return;
   const quem = candidatos[Math.floor(Math.random() * candidatos.length)];
-  const prato = Math.random() < 0.5 ? 'churrasco' : 'peixada';
+  // só pede peixada se der para conseguir peixe (tem peixe ou já tem a jangada)
+  const temPeixe = mundo.inventario.peixe > 0 || !!estruturaDoTipo('jangada');
+  const prato = temPeixe && Math.random() < 0.5 ? 'peixada' : 'churrasco';
   const p = lugarDoPedido(s);
   cancelar(quem);
   iniciarTarefa(quem, { tipo: 'pedirComida', prato, x: p.x, y: p.y, raio: 4 });
@@ -122,6 +126,26 @@ function servirPedidos() {
   }
 }
 
+// Mais da metade da família (esposa e filhos) na fogueira querendo outro prato:
+// conta o tempo e, se continuar assim, o prato do espeto torra
+function verificarTorra(dt, s) {
+  const comida = mundo.comida, servido = comida.servido;
+  const familia = mundo.agentes.filter(a => a !== mundo.jogador).length;
+  const querOutro = servido ? comida.pedidos.filter(p => p.quem.acao && p.prato !== servido.prato).length : 0;
+  if (!servido || querOutro <= familia / 2) { comida.torrando = null; return; }
+  const p = PRATOS[servido.prato];
+  if (comida.torrando === null) {
+    comida.torrando = TEMPO_TORRAR;
+    textoFlutuante(s.x, s.y - 50, `${p.nome} está torrando! 🔥`, '#ffb0a0');
+  }
+  comida.torrando -= dt;
+  if (comida.torrando > 0) return;
+  comida.servido = null;
+  comida.torrando = null;
+  textoFlutuante(s.x, s.y - 50, `${p.nome} torrou! Os pedaços se perderam`, '#ffb0a0');
+  atualizarInventario();
+}
+
 export function atualizarPedidosDeComida(dt) {
   const comida = mundo.comida;
   const s = fogueira();
@@ -129,6 +153,7 @@ export function atualizarPedidosDeComida(dt) {
   // quem pediu e foi chamado para outra coisa (obra, cabana, cresceu...) desiste do pedido
   comida.pedidos = comida.pedidos.filter(({ quem }) => mundo.agentes.includes(quem) && quem.tarefa?.tipo === 'pedirComida');
   servirPedidos();
+  verificarTorra(dt, s);
   comida.espera -= dt;
   if (comida.espera <= 0) {
     const antes = comida.pedidos.length;

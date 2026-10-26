@@ -22,7 +22,7 @@ import { podeNamorar } from './familia.js';
 import { mover, proximoPonto } from './movimento.js';
 import { criarCanteiros } from './trigo.js';
 import { mundo } from './mundo.js';
-import { atualizarInventario } from './ui.js';
+import { abrirConquista, atualizarInventario } from './ui.js';
 
 // ===================== Tarefas =====================
 export function iniciarTarefa(a, tarefa) {
@@ -173,6 +173,7 @@ const CONCLUIR = {
     }
     mundo.estruturas.push(est);
     textoFlutuante(t.x, t.y - c.altura - 20, c.concluido);
+    abrirConquista(t.construcao);
   },
   evoluir(a, t) {
     const est = t.estrutura, c = CONSTRUCOES[est.tipo];
@@ -210,7 +211,7 @@ const CONCLUIR = {
     textoFlutuante(an.x, an.y - 25, '+' + carne + ' 🍖');
   },
   coletar(a, t) {
-    return coletarUma(t.monte);
+    return coletarUma(t.monte, a);
   },
   aterrar(a, t) {
     concluirAterro(t);
@@ -242,9 +243,9 @@ function concluirAcao(a) {
   atualizarInventario();
 }
 
-// Executa tarefa/ação/movimento de qualquer personagem. dx/dy = entrada manual (só do jogador)
-export function executar(a, dt, dx = 0, dy = 0) {
-  if (a.embarcado) { if (a === mundo.jogador) navegar(dt, dx, dy); return; }
+// Executa tarefa/ação/movimento de qualquer personagem
+export function executar(a, dt) {
+  if (a.embarcado) { if (a === mundo.jogador) navegar(dt); return; }
   if (!tarefaValida(a)) {
     if (a === mundo.jogador && a.tarefa && semEspaco(a.tarefa)) {
       textoFlutuante(a.x, a.y - 30, 'Estoque cheio! Gaste recursos ou melhore o moinho', '#ffb0a0');
@@ -275,7 +276,8 @@ export function executar(a, dt, dx = 0, dy = 0) {
   if (t && t.alvo) { t.x = t.alvo.x; t.y = t.alvo.y; a.destino = { x: t.x, y: t.y }; } // alvo que se move
   if (t && pertoDe(a, t.x, t.y, t.raio)) { comecarAcao(a); return; }
 
-  if (!dx && !dy && a.destino) {
+  let dx = 0, dy = 0;
+  if (a.destino) {
     const alvo = proximoPonto(a);
     const vx = alvo.x - a.x, vy = alvo.y - a.y;
     if (alvo === a.destino && Math.hypot(vx, vy) < 4) { a.destino = null; a.rota = null; }

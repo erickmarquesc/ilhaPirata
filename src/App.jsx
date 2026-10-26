@@ -1,4 +1,5 @@
 import Cena from './components/cena/Cena.jsx';
+import Conquista from './components/Conquista.jsx';
 import Dica from './components/Dica.jsx';
 import { HudPadrao } from './components/Hud.jsx';
 import PainelInteracao from './components/PainelInteracao.jsx';
@@ -12,6 +13,7 @@ export default function App() {
       <HudPadrao />
       <PainelInteracao />
       <Dica />
+      <Conquista />
     </>
   );
 }

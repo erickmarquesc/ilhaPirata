@@ -39,6 +39,16 @@ export function fecharPainel() {
   mundo.ui.painel = null;
   notificar();
 }
+// Aviso de construção concluída (modal). Enquanto aberto, o jogo fica pausado.
+export function abrirConquista(construcao) {
+  mundo.ui.conquista = { construcao };
+  notificar();
+}
+export function fecharConquista() {
+  mundo.ui.conquista = null;
+  notificar();
+}
+
 export function cancelarTudo() {
   definirModo(null);
   fecharPainel();
