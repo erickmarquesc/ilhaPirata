@@ -1,5 +1,6 @@
 import { Cabana } from './Cabana.jsx';
 import { Cercado, MODELOS_CERCADO } from './Cercados.jsx';
+import { Fogueira } from './Fogueira.jsx';
 import { Jangada } from './Embarcacoes.jsx';
 import { Moinho } from './Moinho.jsx';
 import { Totem } from './Totem.jsx';
@@ -23,6 +24,7 @@ export const MODELOS = {
   cabana: Cabana,
   jangada: Jangada,
   moinho: Moinho,
+  fogueira: Fogueira,
   ...MODELOS_CERCADO,
   campoTrigo: CampoTrigo,
 };

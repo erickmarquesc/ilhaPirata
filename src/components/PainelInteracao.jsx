@@ -4,6 +4,7 @@ import PainelAnimal from './paineis/PainelAnimal.jsx';
 import PainelCampo from './paineis/PainelCampo.jsx';
 import PainelEsposa from './paineis/PainelEsposa.jsx';
 import PainelEstrutura from './paineis/PainelEstrutura.jsx';
+import PainelFogueira from './paineis/PainelFogueira.jsx';
 import PainelFilho from './paineis/PainelFilho.jsx';
 import PainelJangada from './paineis/PainelJangada.jsx';
 import PainelMonte from './paineis/PainelMonte.jsx';
@@ -19,6 +20,7 @@ const PAINEIS = {
   monte: PainelMonte,
   campo: PainelCampo,
   jangada: PainelJangada,
+  fogueira: PainelFogueira,
   estrutura: PainelEstrutura,
 };
 

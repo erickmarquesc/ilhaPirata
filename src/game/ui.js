@@ -30,7 +30,7 @@ export function alternarCartas(abrir = !mundo.ui.cartasAbertas) {
   notificar();
 }
 
-// tipo: 'totem' | 'esposa' | 'filho' | 'animal' | 'monte' | 'campo' | 'jangada' | 'estrutura'
+// tipo: 'totem' | 'esposa' | 'filho' | 'animal' | 'monte' | 'campo' | 'jangada' | 'fogueira' | 'estrutura'
 export function abrirPainel(tipo, alvo = null) {
   mundo.ui.painel = { tipo, alvo };
   notificar();
@@ -39,6 +39,16 @@ export function fecharPainel() {
   mundo.ui.painel = null;
   notificar();
 }
+// Aviso de construção concluída (modal). Enquanto aberto, o jogo fica pausado.
+export function abrirConquista(construcao) {
+  mundo.ui.conquista = { construcao };
+  notificar();
+}
+export function fecharConquista() {
+  mundo.ui.conquista = null;
+  notificar();
+}
+
 export function cancelarTudo() {
   definirModo(null);
   fecharPainel();

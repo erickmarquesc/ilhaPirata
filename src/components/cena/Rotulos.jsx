@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { CORES_ACAO, ICONES, ILHA, MONTES, NOMES_ACAO, TEMPO_PESCAR } from '../../game/config.js';
 import { CONSTRUCOES } from '../../game/construcoes.js';
 import { crescimento } from '../../game/arvores.js';
+import { PEDACOS_POR_PRATO } from '../../game/config.js';
+import { PRATOS } from '../../game/fogueira.js';
 import { filhosParaNivel, filhosQuePodemAjudar, nivelAlvoDaObra } from '../../game/estruturas.js';
 import { mundo } from '../../game/mundo.js';
 import { ajudantesTrabalhando, precisaAjuda } from '../../game/tarefas.js';
@@ -21,6 +23,25 @@ function rotulo(ctx, x, y, msg, cor = '#fff') {
   ctx.fillStyle = cor;
   ctx.fillText(msg, x, y);
 }
+// Balão de fala com um ícone grande (ex.: o prato que alguém da família quer)
+function balao(ctx, x, y, icone, msg) {
+  const sobe = Math.sin(performance.now() / 250) * 2;
+  y += sobe;
+  ctx.font = 'bold 11px system-ui, sans-serif';
+  const w = Math.max(ctx.measureText(msg).width + 14, 40), h = 40;
+  ctx.fillStyle = 'rgba(255,250,235,0.95)';
+  ctx.strokeStyle = '#5a3a1c';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - w / 2, y - h, w, h, 8);
+  ctx.moveTo(x - 5, y); ctx.lineTo(x, y + 7); ctx.lineTo(x + 5, y);
+  ctx.fill(); ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#5a2e0c';
+  ctx.fillText(msg, x, y - 5);
+  ctx.font = '20px system-ui, sans-serif';
+  ctx.fillText(icone, x, y - 19);
+}
 function barra(ctx, cx, y, larg, alt, prog, cor) {
   const x = cx - larg / 2;
   ctx.fillStyle = 'rgba(0,0,0,0.6)';
@@ -32,7 +53,7 @@ function barra(ctx, cx, y, larg, alt, prog, cor) {
 // Altura (no 3D) de onde fica a barra de cada tarefa
 function alturaDaBarra(t) {
   if (t.tipo === 'serrar') return 40 * (t.raio / 16) + 6;
-  if (t.tipo === 'construir' || t.tipo === 'evoluir') return CONSTRUCOES[t.construcao].altura + 6;
+  if (t.tipo === 'construir' || t.tipo === 'evoluir' || t.tipo === 'cozinhar') return CONSTRUCOES[t.construcao].altura + 6;
   return 34;
 }
 
@@ -59,6 +80,13 @@ function desenhar(ctx, proj) {
   for (const s of estruturas) {
     const base = proj(s.x, 0, s.area ? s.y + s.raio : s.y);
     if (base) rotulo(ctx, base.x, base.y + 18, 'Nv ' + s.nivel, '#ffe9b0');
+    if (s.tipo === 'fogueira' && mundo.comida.servido) {
+      // prato no espeto: quantos pedaços ainda restam
+      const { prato, pedacos } = mundo.comida.servido;
+      const topo = proj(s.x, 26, s.y);
+      if (topo) rotulo(ctx, topo.x, topo.y, `${PRATOS[prato].icone} ${pedacos}/${PEDACOS_POR_PRATO}`, '#ffe9b0');
+      if (topo && mundo.comida.torrando !== null) rotulo(ctx, topo.x, topo.y - 20, `🔥 torrando em ${Math.ceil(mundo.comida.torrando)}s`, '#ffb0a0');
+    }
     if (s.tipo !== 'jangada') continue;
     const topo = proj(s.x, 60, s.y);
     if (!topo) continue;
@@ -88,6 +116,14 @@ function desenhar(ctx, proj) {
     if (!a.acao) continue;
     const t = a.acao.tarefa;
     if (t.tipo === 'esperarNaCabana' || t.tipo === 'cuidarNaCabana') continue; // sem barra: o tempo aparece no rótulo da esposa
+    if (t.tipo === 'pedirComida') {
+      // chegou na fogueira: mostra o que quer comer
+      const p = proj(a.x, 30, a.y), prato = PRATOS[t.prato], servido = mundo.comida.servido;
+      if (!p) continue;
+      balao(ctx, p.x, p.y - 4, prato.icone, `Quero ${prato.nome.toLowerCase()}!`);
+      if (servido && servido.prato !== t.prato) rotulo(ctx, p.x, p.y + 22, `esperando o ${PRATOS[servido.prato].nome.toLowerCase()} acabar`, '#e8e8e8');
+      continue;
+    }
     if (t.tipo === 'ajudar') {
       const p = proj(a.x, 30, a.y);
       if (p) rotulo(ctx, p.x, p.y, '🔨 ajudando', '#ffe9b0');

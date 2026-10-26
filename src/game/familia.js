@@ -11,6 +11,7 @@ import { tentarViagemDePesca } from './jangada.js';
 import { monteLivreParaColetar, tarefaColetar } from './montes.js';
 import { mundo } from './mundo.js';
 import { PEDIDOS } from './pedidos.js';
+import { algumaPausa, pausado } from './pausas.js';
 import { executar, iniciarTarefa, rendimentoDe } from './tarefas.js';
 import { cuidarDoCampo } from './trigo.js';
 import { atualizarInventario, fecharPainel } from './ui.js';
@@ -58,7 +59,7 @@ function virarAdolescente(f) {
 function nascerCrianca(mae) {
   mundo.contadorFilhos++;
   const pos = lugarLivrePerto(mae.x, mae.y, 24);
-  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: nomeDoFilho(mundo.contadorFilhos), espera: 1 });
+  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: nomeDoFilho(mundo.contadorFilhos), ordem: mundo.contadorFilhos, espera: 1 });
   mundo.agentes.push(c);
   textoFlutuante(mae.x, mae.y - 40, `${c.nome} virou criança!`, '#c8e8ff');
 }
@@ -79,7 +80,7 @@ const ATIVIDADES = {
   serrar: 'Cortando árvore', plantar: 'Plantando', cacar: 'Caçando', coletar: 'Coletando',
   ajudar: 'Ajudando na obra', embarcar: 'Indo à jangada', plantarTrigo: 'Plantando trigo',
   colher: 'Colhendo trigo', namorar: 'Namorando', construir: 'Construindo', evoluir: 'Evoluindo obra',
-  aterrar: 'Aterrando',
+  aterrar: 'Aterrando', cozinhar: 'Cozinhando',
 };
 export function atividadeDe(a) {
   if (a.dentro) return a === mundo.esposa && a.cuidado > 0 ? 'Cuidando do bebê' : 'Na cabana';
@@ -90,10 +91,11 @@ export function atividadeDe(a) {
   }
   if (a.tarefa) {
     const t = a.tarefa;
+    if (t.tipo === 'pedirComida') return t.prato === 'churrasco' ? 'Pedindo churrasco' : 'Pedindo peixada';
     if (t.tipo === 'coletar') return t.monte.tipo === 'barro' ? 'Coletando barro' : 'Coletando pedra';
     return ATIVIDADES[t.tipo] || 'Trabalhando';
   }
-  return a.destino ? 'Andando' : 'Descansando';
+  return a.destino && !a.semTrabalho ? 'Andando' : 'Descansando';
 }
 
 // ===================== Inteligência da família =====================
@@ -144,8 +146,10 @@ function presaMaisProxima(a) {
   return melhor;
 }
 function escolherTarefa(a) {
-  // Obrigação do filho adulto: coletar barro/pedra num monte livre (um filho por monte)
-  // (com o estoque cheio, nada que rende recursos é escolhido)
+  // Obrigação do filho adulto: coletar barro/pedra num monte livre (um filho por monte;
+  // o 1º adulto prefere a pedra e o 2º o barro, ver montes.js)
+  // (com o estoque cheio, nada que rende recursos é escolhido; recurso pausado pelo jogador também não)
+  a.semTrabalho = false;
   if (a.tipo === 'adulto') {
     const monte = monteLivreParaColetar(a);
     if (monte && cabeNoEstoque(1)) { iniciarTarefa(a, tarefaColetar(monte)); return; }
@@ -153,7 +157,7 @@ function escolherTarefa(a) {
   // Filhos adultos: com outro irmão adulto, pegam a jangada para pescar
   if (a.tipo === 'adulto' && tentarViagemDePesca(a)) return;
   // Adolescente e adulto caçam (a criança só planta)
-  if (a.tipo === 'adolescente' || a.tipo === 'adulto') {
+  if ((a.tipo === 'adolescente' || a.tipo === 'adulto') && !pausado('carne')) {
     const presa = presaMaisProxima(a);
     const caca = presa && { tipo: 'cacar', alvo: presa, x: presa.x, y: presa.y, raio: presa.raio };
     if (caca && cabeNoEstoque(rendimentoDe(caca))) { iniciarTarefa(a, caca); return; }
@@ -161,7 +165,7 @@ function escolherTarefa(a) {
   if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') {
     // Depois de cortar uma árvore, planta uma semente
     if (a.plantarProximo) { a.plantarProximo = false; if (tentarPlantar(a)) return; }
-    const t = arvoreMaisProxima(a);
+    const t = !pausado('madeira') && arvoreMaisProxima(a);
     const serrar = t && { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t };
     if (serrar && cabeNoEstoque(rendimentoDe(serrar))) { iniciarTarefa(a, serrar); return; }
   }
@@ -171,6 +175,8 @@ function escolherTarefa(a) {
     if (campo) { cuidarDoCampo(a, campo); return; }
     if (tentarPlantar(a)) return;
   }
+  // sem nada para fazer por causa de uma pausa: aparece como "Descansando"
+  a.semTrabalho = algumaPausa();
   passear(a);
 }
 
