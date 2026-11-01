@@ -11,12 +11,13 @@ import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js'
 import {
   carneDe, custoEvolucao, filhosParaNivel, nivelAlvoDaObra, podeAjudarObra, requisitosDaConstrucao, tempoDoNivel,
 } from './estruturas.js';
+import { devAtivo, pagarObra, podePagarObra } from './dev.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
 import { concluirCozinhar, fogueira, pedidoDe } from './fogueira.js';
 import { coletarUma } from './montes.js';
 import { raioIlha } from './ilha.js';
-import { cabeNoEstoque, gastarRecursos, ganhar, temRecursos } from './inventario.js';
+import { cabeNoEstoque, ganhar } from './inventario.js';
 import { embarcar, jangadaNaAgua, navegar } from './jangada.js';
 import { podeNamorar } from './familia.js';
 import { mover, proximoPonto } from './movimento.js';
@@ -37,6 +38,7 @@ export function iniciarTarefa(a, tarefa) {
 // A obra só avança quando todos os ajudantes necessários estão trabalhando nela.
 function ajudantesNecessarios(t) {
   if (t.tipo !== 'construir' && t.tipo !== 'evoluir') return 0;
+  if (devAtivo()) return 0;
   return filhosParaNivel(t.construcao, nivelAlvoDaObra(t));
 }
 export function precisaAjuda(t) { return ajudantesNecessarios(t) > 0; }
@@ -82,7 +84,7 @@ function duracaoDe(a, t) {
     case 'coletar': return TEMPO_COLETAR;
     case 'cozinhar': return TEMPO_COZINHAR;
     case 'pedirComida': return Infinity; // espera na fogueira até ter o prato que pediu
-    default: return tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir
+    default: return devAtivo() ? 0 : tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir (dev: na hora)
   }
 }
 function comecarAcao(a) {
@@ -147,9 +149,9 @@ const CONCLUIR = {
   },
   construir(a, t) {
     const c = CONSTRUCOES[t.construcao];
-    if (!temRecursos(c.custo)) { textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0'); return; }
+    if (!podePagarObra(c.custo)) { textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0'); return; }
     if (!podeConstruirEm(t.construcao, t)) { textoFlutuante(t.x, t.y - 20, 'Não dá para construir aqui', '#ffb0a0'); return; }
-    gastarRecursos(c.custo);
+    pagarObra(c.custo);
     // derruba as árvores do terreno, sem ganhar madeira nem sementes
     const derrubadas = arvoresAfetadas(t.construcao, t);
     if (derrubadas.length) {
@@ -179,13 +181,13 @@ const CONCLUIR = {
     const est = t.estrutura, c = CONSTRUCOES[est.tipo];
     const custo = custoEvolucao(est);
     if (!custo) return; // já está no nível máximo
-    if (!mundo.estruturas.includes(est) || !temRecursos(custo)) {
+    if (!mundo.estruturas.includes(est) || !podePagarObra(custo)) {
       textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
       return;
     }
     const totem = requisitosDaConstrucao(est.tipo).find(r => r.chave === 'totem' && !r.ok);
     if (totem) { textoFlutuante(t.x, t.y - 20, totem.dica, '#ffb0a0'); return; }
-    gastarRecursos(custo);
+    pagarObra(custo);
     est.nivel += 1;
     textoFlutuante(t.x, t.y - c.altura - 20, `${c.nome} evoluiu para o nível ${est.nivel}!`);
   },

@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import { escolherConstrucao } from '../game/acoes.js';
 import { CONSTRUCOES } from '../game/construcoes.js';
 import { custoEvolucao, emObra, estruturaDoTipo, noNivelMaximo, requisitosDaConstrucao, requisitosOk } from '../game/estruturas.js';
-import { temRecursos } from '../game/inventario.js';
+import { podePagarObra } from '../game/dev.js';
 import { alternarCartas, definirModo } from '../game/ui.js';
 import { useMundo } from '../hooks/useMundo.js';
 import { useMiniatura } from './cena/Miniaturas.jsx';
@@ -50,7 +50,7 @@ function estadoDaCarta(id, modo) {
   const obra = emObra(id);
   const maximo = !!existente && noNivelMaximo(existente);
   const custo = existente ? custoEvolucao(existente) : c.custo;
-  const temCusto = !!custo && temRecursos(custo);
+  const temCusto = !!custo && podePagarObra(custo);
   const temAjuda = requisitosOk(id);
   const selecionada = !existente && modo.tipo === 'construir' && modo.construcao === id;
   return {

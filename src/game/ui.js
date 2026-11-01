@@ -1,5 +1,6 @@
 import { CUSTO_EXPANSAO } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
+import { podePagarObra } from './dev.js';
 import { requisitosOk } from './estruturas.js';
 import { temRecursos } from './inventario.js';
 import { mundo, notificar } from './mundo.js';
@@ -13,7 +14,7 @@ export function definirModo(tipo, construcao = null) {
   if (tipo && jogador.embarcado) return; // navegando não planta nem constrói
   if (tipo === 'plantar' && inventario.sementes <= 0) return;
   if (tipo === 'expandir' && !temRecursos(CUSTO_EXPANSAO)) return;
-  if (tipo === 'construir' && (!temRecursos(CONSTRUCOES[construcao].custo) || !requisitosOk(construcao))) return;
+  if (tipo === 'construir' && (!podePagarObra(CONSTRUCOES[construcao].custo) || !requisitosOk(construcao))) return;
   ui.modo = { tipo, construcao };
   if (tipo) fecharPainel();
   notificar();
@@ -74,7 +75,7 @@ export function validarPainel() {
 export function atualizarInventario() {
   const { modo } = mundo.ui;
   if (modo.tipo === 'plantar' && mundo.inventario.sementes <= 0) definirModo(null);
-  if (modo.tipo === 'construir' && !temRecursos(CONSTRUCOES[modo.construcao].custo)) definirModo(null);
+  if (modo.tipo === 'construir' && !podePagarObra(CONSTRUCOES[modo.construcao].custo)) definirModo(null);
   if (modo.tipo === 'expandir' && !temRecursos(CUSTO_EXPANSAO)) definirModo(null);
   notificar();
 }

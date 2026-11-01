@@ -3,6 +3,7 @@ import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
 import { adulta, arvoreEm, atualizarArvores, gerarArvores } from './arvores.js';
+import { atualizarCanhoes, dispararCanhoes } from './canhoes.js';
 import { atualizarCardumes, novoCardume } from './cardumes.js';
 import { atualizarEfeitos, textoFlutuante } from './efeitos.js';
 import { motivoNaoPlantar, podeConstruirEm } from './espaco.js';
@@ -61,6 +62,7 @@ export function atualizar(dt) {
   atualizarCanteiros(dt);
   atualizarMontes(dt);
   atualizarPedidosDeComida(dt);
+  atualizarCanhoes(dt);
   atualizarEfeitos(dt);
 }
 
@@ -86,7 +88,7 @@ export function teclaPressionada(tecla) {
   if (k === 'x') { alternarExpandir(); return; }
   if (k === 'e') { alternarEmbarque(); return; }
   if (k === 'escape') { cancelarTudo(); return; }
-  if (k === ' ') { centralizarCamera(); return; }
+  if (k === ' ') { if (!dispararCanhoes()) centralizarCamera(); return; } // no barco pirata, Espaço atira
   mundo.teclas[k] = true;
 }
 export function teclaSolta(tecla) {

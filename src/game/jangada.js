@@ -219,8 +219,22 @@ function empurrarParaAgua(est, dt) {
   if (est.empurrar >= 1) textoFlutuante(est.x, est.y - 60, 'A jangada está na água! 🌊', '#c8e8ff');
 }
 
+// O barco vira (suave) para o rumo em que se move. A cena, a tripulação e os canhões usam est.rumoVisual
+// (ângulo da proa: aponta para (cos, −sin) no mapa).
+function atualizarRumo(est) {
+  const ant = est.posAnterior ?? est;
+  const dx = est.x - ant.x, dy = est.y - ant.y;
+  est.posAnterior = { x: est.x, y: est.y };
+  if (est.rumoVisual === undefined) est.rumoVisual = 0;
+  if (Math.hypot(dx, dy) > 0.05) {
+    const alvo = -Math.atan2(dy, dx);
+    est.rumoVisual += Math.atan2(Math.sin(alvo - est.rumoVisual), Math.cos(alvo - est.rumoVisual)) * 0.08;
+  }
+}
+
 export function atualizarEstruturas(dt) {
   for (const est of mundo.estruturas) {
+    if (est.tipo === 'jangada') atualizarRumo(est);
     if (est.tipo === 'jangada' && jangadaNaAgua(est)) atualizarJangada(est, dt);
     if (est.empurrar !== undefined && est.empurrar < 1) empurrarParaAgua(est, dt);
   }

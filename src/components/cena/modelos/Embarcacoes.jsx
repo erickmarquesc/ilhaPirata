@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { CANHOES } from '../../../game/config.js';
 import { useBrilho, useMaterial } from '../materiais.jsx';
 import Peca from '../Peca.jsx';
 
@@ -200,9 +201,10 @@ function Chalupa() {
 }
 
 // ---------- Nível 5: barco pirata ----------
+// Posições em config.js (CANHOES): a engine usa as mesmas para soltar as bolas
 function Canhoes() {
-  return [-1, 1].map(l => [-18, -2, 14].map(x => (
-    <group key={`${l}${x}`} position={[x, 7.4, l * 15.4]}>
+  return [-1, 1].map(l => CANHOES.xs.map(x => (
+    <group key={`${l}${x}`} position={[x, CANHOES.altura, l * CANHOES.lateral]}>
       <Peca cor="#2a1a10" s={[4.6, 3.4, 1.2]} sombra={false} />
       <Peca geo="cilindro" cor="#2b2b2b" p={[0, 0, l * 2.4]} s={[1.1, 4.2, 1.1]} r={[Math.PI / 2, 0, 0]} />
     </group>

@@ -3,7 +3,7 @@ import { cancelar } from './agentes.js';
 import { custoEvolucao, estruturaDoTipo, requisitosOk } from './estruturas.js';
 import { estaNoMar, prepararJangada } from './jangada.js';
 import { pontoTerraPerto } from './ilha.js';
-import { temRecursos } from './inventario.js';
+import { podePagarObra } from './dev.js';
 import { mundo } from './mundo.js';
 import { iniciarTarefa } from './tarefas.js';
 import { definirModo } from './ui.js';
@@ -13,7 +13,7 @@ export function evoluir(id) {
   const { jogador } = mundo;
   const s = estruturaDoTipo(id);
   const custo = s && custoEvolucao(s);
-  if (!custo || !temRecursos(custo) || !requisitosOk(id)) return; // custo null: nível máximo
+  if (!custo || !podePagarObra(custo) || !requisitosOk(id)) return; // custo null: nível máximo
   definirModo(null);
   cancelar(jogador);
   if (jogador.embarcado) return;
