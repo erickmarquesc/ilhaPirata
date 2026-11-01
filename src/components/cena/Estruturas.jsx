@@ -18,7 +18,6 @@ const matMarola = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: t
 const Estrutura = memo(function Estrutura({ s }) {
   const ref = useRef();
   const ondinha = useRef();
-  const anterior = useRef({ x: s.x, y: s.y });
   const c = CONSTRUCOES[s.tipo];
   const Modelo = MODELOS[s.tipo];
   useFrame(({ clock }) => {
@@ -27,16 +26,9 @@ const Estrutura = memo(function Estrutura({ s }) {
     const h = noMar ? ALTURA.agua + Math.sin(t * 2) * 1.2 : alturaDoChao(s.x, s.y);
     ref.current.position.set(s.x - ILHA.x, h, s.y - ILHA.y);
     if (s.tipo === 'jangada') {
-      // o barco vira (suave) para o rumo em que navega; a tripulação usa s.rumoVisual
-      const dx = s.x - anterior.current.x, dy = s.y - anterior.current.y;
-      anterior.current = { x: s.x, y: s.y };
-      if (s.rumoVisual === undefined) s.rumoVisual = 0;
-      if (Math.hypot(dx, dy) > 0.05) {
-        const alvo = -Math.atan2(dy, dx);
-        s.rumoVisual += Math.atan2(Math.sin(alvo - s.rumoVisual), Math.cos(alvo - s.rumoVisual)) * 0.08;
-      }
+      // o rumo é calculado na engine (jangada.js), a cena só aplica
       ref.current.rotation.order = 'YXZ'; // gira no rumo e depois balança de lado
-      ref.current.rotation.y = s.rumoVisual;
+      ref.current.rotation.y = s.rumoVisual ?? 0;
     }
     // balança no mar (de lado, em relação ao barco)
     ref.current.rotation.x = noMar ? Math.sin(t * 1.6) * 0.03 : 0;

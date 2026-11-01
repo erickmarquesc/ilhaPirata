@@ -1,7 +1,7 @@
 import { ICONES } from '../../game/config.js';
 import { useMundo } from '../../hooks/useMundo.js';
 
-const NOMES = { madeira: 'Madeira', sementes: 'Sementes', carne: 'Carne', peixe: 'Peixe', trigo: 'Trigo', sementesTrigo: 'Sem. trigo', tijolo: 'Tijolo', pedra: 'Pedra' };
+export const NOMES = { madeira: 'Madeira', sementes: 'Sementes', carne: 'Carne', peixe: 'Peixe', trigo: 'Trigo', sementesTrigo: 'Sem. trigo', tijolo: 'Tijolo', pedra: 'Pedra' };
 
 // Custo listado um embaixo do outro: ícone, nome e quantidade (vermelho quando falta).
 // "requisitos" entram como linhas iguais (ex.: 🧑 Filho 1).

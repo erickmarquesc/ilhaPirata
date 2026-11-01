@@ -1,5 +1,6 @@
 import { CONSTRUCOES } from './construcoes.js';
 import { ESPECIES, MAX_COM_ABRIGO, MAX_POR_ESPECIE } from './config.js';
+import { devAtivo } from './dev.js';
 import { mundo } from './mundo.js';
 
 // ===================== Estruturas =====================
@@ -94,6 +95,7 @@ export function nivelDoTotem() { return estruturaDoTipo('totem')?.nivel ?? 0; }
 // Construir: só o filho ajudante (jangada). Evoluir: também o nível do totem.
 export function requisitosDaConstrucao(id) {
   const lista = [];
+  if (devAtivo()) return lista; // modo dev: sem totem nem filhos
   const existente = estruturaDoTipo(id);
   if (existente && noNivelMaximo(existente)) return lista;
   if (existente && id !== 'totem') {

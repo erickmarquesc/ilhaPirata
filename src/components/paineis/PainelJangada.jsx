@@ -1,3 +1,4 @@
+import { dispararCanhoes } from '../../game/canhoes.js';
 import {
   adultosLivres, desembarcar, irEmbarcar, jangadaLivre, jangadaNaAgua, podeDesembarcar, prepararJangada,
 } from '../../game/jangada.js';
@@ -13,6 +14,16 @@ function BotaoDesembarcar({ jangada }) {
   );
 }
 
+// Barco pirata (nível 5) com o Jones a bordo: os 6 canhões disparam juntos
+function BotaoFogo({ jangada }) {
+  if (jangada.nivel < 5) return null;
+  return (
+    <Botao cor="obra" onClick={dispararCanhoes}>
+      💥 Fogo! (Espaço)
+    </Botao>
+  );
+}
+
 function Conteudo({ jangada }) {
   const { jogador } = useMundo();
   prepararJangada(jangada);
@@ -22,7 +33,7 @@ function Conteudo({ jangada }) {
       return (
         <>
           <Painel.Texto>Esperando o filho adulto embarcar...</Painel.Texto>
-          <Painel.Acoes><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
+          <Painel.Acoes><BotaoFogo jangada={jangada} /><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
         </>
       );
     }
@@ -32,7 +43,7 @@ function Conteudo({ jangada }) {
         <Painel.Texto>
           {podeDesembarcar(jangada) ? 'Vocês estão perto da praia.' : 'Cheguem perto da praia para desembarcar.'}
         </Painel.Texto>
-        <Painel.Acoes><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
+        <Painel.Acoes><BotaoFogo jangada={jangada} /><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
       </>
     );
   }

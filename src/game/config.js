@@ -34,6 +34,13 @@ export const PEIXES_POR_PESCA = 2;        // um peixe para cada adulto na jangad
 export const TEMPO_NOVO_CARDUME = 20;     // segundos para surgir um cardume novo
 export const PESCAS_POR_VIAGEM = 3;       // filhos voltam depois de pescar isso
 export const DESCANSO_VIAGEM = 30;        // segundos entre viagens dos filhos
+export const RECARGA_CANHOES = 1.5;       // segundos entre disparos do barco pirata
+export const VELOCIDADE_BALA = 220;       // bola de canhão: velocidade para o lado...
+export const SUBIDA_BALA = 60;            // ...e para cima, na saída do canhão
+export const GRAVIDADE_BALA = 160;
+// Canhões do barco pirata (nível 5) no referencial do barco: proa para +X, origem na linha d'água.
+// xs: posição ao longo do casco | lateral: onde fica o canhão | boca: onde a bola sai
+export const CANHOES = { xs: [-18, -2, 14], lateral: 15.4, boca: 19.9, altura: 7.4 };
 export const TEMPO_CRIA_ANIMAL = 45;     // segundos entre filhotes de um casal
 export const TEMPO_CRESCER_ANIMAL = 60;  // segundos para o filhote virar adulto
 export const MAX_POR_ESPECIE = 6;        // limite de animais de cada espécie na ilha
@@ -60,7 +67,7 @@ export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
 export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
 // Se mais da metade da família está pedindo outro prato, o do espeto torra e se perde
 export const TEMPO_TORRAR = 10;               // segundos de aviso antes de torrar
-// Troca com os deuses na fogueira: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
+// Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
 export const TAXA_TROCA = 2;
 export const LOTES_TROCA = [10, 50, 100];
 
@@ -95,6 +102,7 @@ export const DICAS = {
   construir: 'Toque num lugar da ilha para construir. Esc para cancelar.',
   expandir: 'Toque no mar, perto da praia, para aterrar um pedaço de terra. X ou Esc para sair.',
   navegando: 'Navegando: toque no mar para ir até lá. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
+  navegandoPirata: 'Navegando: toque no mar para ir até lá. Espaço dispara os canhões. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
 };
 
 // Nomes da família

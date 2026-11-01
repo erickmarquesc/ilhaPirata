@@ -29,6 +29,14 @@ export default function PainelInteracao() {
   const { ui } = useMundo();
   if (!painelValido(ui.painel)) return null;
   const Conteudo = PAINEIS[ui.painel.tipo];
+  // Painéis com moldura própria de madeira e ouro (a placa do título sobe acima da borda)
+  if (Conteudo.moldura) {
+    return (
+      <div className="pointer-events-auto fixed top-[calc(26px_+_env(safe-area-inset-top,0px))] right-3 w-[min(300px,calc(100%_-_226px))] min-w-[250px]">
+        <Conteudo alvo={ui.painel.alvo} />
+      </div>
+    );
+  }
   return (
     <Painel
       destaque

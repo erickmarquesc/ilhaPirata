@@ -12,16 +12,19 @@ export const mundo = {
   esposa: null,
   contadorFilhos: 0,
   pausas: null,      // produção da família pausada pelo jogador: { carne, peixe, madeira, pedra, tijolo, trigo }
-  favor: 0,          // favor dos deuses: pedaços oferecidos na fogueira (cada um deixa uma troca 1 → 1)
+  favor: 0,          // favor dos deuses: pedaços oferecidos na fogueira (cada um deixa uma troca 1 → 1 no totem)
   comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera, torrando }
   animais: [],
   cardumes: [],
   relogioCardume: 0,
   textos: [],
   efeitos: [],
+  balas: [],         // bolas de canhão do barco pirata (ver canhoes.js)
+  estouros: [],      // clarão, fumaça e respingo dos disparos
   teclas: {},
   visao: null,       // câmera solta (setas / WASD): ponto do mapa onde ela olha; null = segue o jogador
   ponteiro: { x: -999, y: -999 },
+  dev: false,        // modo dev (só no npm run dev, ver dev.js)
   ui: null,
 };
 
@@ -44,9 +47,12 @@ export function limparMundo() {
     relogioCardume: 0,
     textos: [],
     efeitos: [],
+    balas: [],
+    estouros: [],
     teclas: {},
     visao: null,
     ponteiro: { x: -999, y: -999 },
+    dev: mundo.dev,    // o modo dev continua ligado ao reiniciar
     ui: {
       modo: { tipo: null, construcao: null },
       cartasAbertas: true, // cartas de construção (tecla C recolhe/mostra)

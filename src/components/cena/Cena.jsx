@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { passo } from '../../game/jogo.js';
 import Arvores from './Arvores.jsx';
 import Camera from './Camera.jsx';
+import Disparos from './Disparos.jsx';
 import Estruturas from './Estruturas.jsx';
 import Montes from './Montes.jsx';
 import { Cardumes, Efeitos } from './Mar.jsx';
@@ -35,6 +36,7 @@ export default function Cena() {
         <Pessoas />
         <Animais />
         <Efeitos />
+        <Disparos />
         <Previas />
         <Rotulos canvasRef={rotulos} />
       </Canvas>
