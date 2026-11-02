@@ -4,8 +4,8 @@ import { mundo } from './mundo.js';
 
 // ===================== Dentro da cabana =====================
 // Quem está dentro some do mapa (a.dentro = cabana) e fica parado na porta.
-// Namorar e cuidar do bebê acontecem lá dentro.
-export const TAREFAS_NA_CABANA = ['namorar', 'esperarNaCabana', 'cuidarNaCabana'];
+// Namorar e cuidar do bebê acontecem lá dentro, e a família se abriga lá na chuva.
+export const TAREFAS_NA_CABANA = ['namorar', 'esperarNaCabana', 'cuidarNaCabana', 'abrigarNaCabana'];
 
 export function cabanaDaFamilia() { return estruturaDoTipo('cabana'); }
 
@@ -37,5 +37,5 @@ export function temMotivoParaFicar(a) {
   return !!a.tarefa && TAREFAS_NA_CABANA.includes(a.tarefa.tipo);
 }
 export function sairSemMotivo(a) {
-  if (a.dentro && !temMotivoParaFicar(a)) { cancelar(a); sairDaCabana(a); }
+  if (a.dentro && !temMotivoParaFicar(a)) { cancelar(a); sairDaCabana(a, (Math.random() - 0.5) * 24); } // espalha quem sai junto
 }

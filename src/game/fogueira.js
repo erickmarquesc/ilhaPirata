@@ -1,6 +1,7 @@
 import { PEDACOS_POR_PRATO, TEMPO_ENTRE_PEDIDOS, TEMPO_PRIMEIRO_PEDIDO, TEMPO_TORRAR } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar } from './agentes.js';
+import { chovendo } from './chuva.js';
 import { textoFlutuante } from './efeitos.js';
 import { estruturaDoTipo, linhaDoNivel } from './estruturas.js';
 import { gastarRecursos, temRecursos } from './inventario.js';
@@ -75,7 +76,7 @@ export function concluirCozinhar(t) {
 // Quem pode parar o que está fazendo para pedir: a esposa (fora da cabana e sem bebê)
 // e qualquer filho que não esteja na jangada, ajudando numa obra ou já pedindo comida.
 function podePedir(a) {
-  if (a === mundo.jogador || a.embarcado || a.dentro || pedidoDe(a)) return false;
+  if (a === mundo.jogador || a.embarcado || a.dentro || chovendo() || pedidoDe(a)) return false;
   if (a.tarefa && ['ajudar', 'embarcar', 'esperarNaCabana', 'cuidarNaCabana'].includes(a.tarefa.tipo)) return false;
   if (a === mundo.esposa) return a.cuidado <= 0 && mundo.jogador.tarefa?.tipo !== 'namorar';
   return true;

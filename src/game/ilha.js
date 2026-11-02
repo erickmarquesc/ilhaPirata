@@ -1,4 +1,4 @@
-import { ILHA, MUNDO, ANEL_AREIA, RECUO_GRAMA } from './config.js';
+import { ILHA, MUNDO, ANEL_AREIA, FIM_DO_MAR, RECUO_GRAMA } from './config.js';
 import { podeFicar } from './espaco.js';
 import { mundo } from './mundo.js';
 
@@ -50,6 +50,8 @@ export function terraLivrePerto(x, y, deslocamento = 0) {
   }
   return null;
 }
+// Algum pedaço (raio r) já passou do fim do mar, no mar profundo?
+export function noMarProfundo(x, y, r = 0) { return !dentroDaIlha(x, y, -(FIM_DO_MAR - r)); }
 export function podeNavegar(x, y, r) {
   if (x < r || y < r || x > MUNDO.w - r || y > MUNDO.h - r) return false;
   const ang = Math.atan2(y - ILHA.y, x - ILHA.x);

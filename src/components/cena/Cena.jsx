@@ -3,6 +3,8 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { passo } from '../../game/jogo.js';
 import Arvores from './Arvores.jsx';
 import Camera from './Camera.jsx';
+import Chuva from './Chuva.jsx';
+import Cursor from './Cursor.jsx';
 import Disparos from './Disparos.jsx';
 import Estruturas from './Estruturas.jsx';
 import Montes from './Montes.jsx';
@@ -25,9 +27,10 @@ export default function Cena() {
     <div className="fixed inset-0">
       <Canvas shadows flat dpr={[1, 1.5]} camera={{ fov: 35, near: 5, far: 6000 }}>
         <Loop />
-        <color attach="background" args={['#2a7fc4']} />
-        <fog attach="fog" args={['#2a7fc4', 1400, 3200]} />
+        <color attach="background" args={['#2068a6']} />
+        <fog attach="fog" args={['#2068a6', 1400, 3200]} />
         <Camera />
+        <Cursor />
         <Terreno />
         <Cardumes />
         <Arvores />
@@ -37,6 +40,7 @@ export default function Cena() {
         <Animais />
         <Efeitos />
         <Disparos />
+        <Chuva />
         <Previas />
         <Rotulos canvasRef={rotulos} />
       </Canvas>

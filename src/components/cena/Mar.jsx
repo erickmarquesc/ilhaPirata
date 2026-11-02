@@ -12,6 +12,7 @@ import { GEO } from './Peca.jsx';
 // Peixinho low-poly: corpo oval, rabo em leque, nadadeira nas costas e olhos.
 // Tudo numa geometria só (com cor por vértice: o olho fica escuro, o resto pega a cor do peixe).
 const MAX_PEIXES = 8;
+const MAX_PEIXES_PROFUNDO = 20; // cardume do mar profundo: mais peixes e maiores
 const CORES_PEIXE = ['#f2a03d', '#e9e4cf', '#f7c948', '#ef7f4a'];
 
 function parte(geo, cor) {
@@ -39,12 +40,14 @@ const Cardume = memo(function Cardume({ c }) {
   const anel = useRef();
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
-    const qtd = c.peixes + 3;
+    const qtd = Math.min(c.peixes + 3, peixes.current.length);
+    const tam = c.profundo ? 1.7 : 1;
     anel.current.position.set(c.x - ILHA.x, 0.3, c.y - ILHA.y);
     anel.current.scale.setScalar(c.raio * (1 + Math.sin(t * 1.5) * 0.04));
     peixes.current.forEach((m, i) => {
       if (!m) return;
       m.visible = i < qtd;
+      m.scale.setScalar(tam);
       const a = c.fase * 0.8 + i / qtd * Math.PI * 2;
       const r = c.raio * (0.35 + 0.5 * ((i * 37) % 10) / 10);
       // nada em círculo, virado para onde vai, com o corpo balançando
@@ -65,7 +68,7 @@ const Cardume = memo(function Cardume({ c }) {
   return (
     <>
       <mesh ref={anel} geometry={geoAnelCardume} material={matAnelCardume} />
-      {Array.from({ length: MAX_PEIXES }, (_, i) => (
+      {Array.from({ length: c.profundo ? MAX_PEIXES_PROFUNDO : MAX_PEIXES }, (_, i) => (
         <mesh key={i} ref={el => { peixes.current[i] = el; }} geometry={geoPeixe} material={matsPeixe[i % matsPeixe.length]} castShadow />
       ))}
     </>

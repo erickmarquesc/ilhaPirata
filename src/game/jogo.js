@@ -1,9 +1,10 @@
-import { CARDUMES_MAX, ILHA, NOME_PAI, TEMPO_CRESCER } from './config.js';
+import { CARDUMES_MAX, CARDUMES_PROFUNDOS_MAX, ILHA, NOME_PAI } from './config.js';
 import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
-import { adulta, arvoreEm, atualizarArvores, gerarArvores } from './arvores.js';
+import { adulta, arvoreEm, atualizarArvores, gerarArvores, tempoCrescer } from './arvores.js';
 import { atualizarCanhoes, dispararCanhoes } from './canhoes.js';
+import { atualizarChuva } from './chuva.js';
 import { atualizarCardumes, novoCardume } from './cardumes.js';
 import { atualizarEfeitos, textoFlutuante } from './efeitos.js';
 import { motivoNaoPlantar, podeConstruirEm } from './espaco.js';
@@ -13,6 +14,7 @@ import { expansaoPara, tarefaAterrar } from './expansao.js';
 import { atualizarFamiliar } from './familia.js';
 import { atualizarPedidosDeComida } from './fogueira.js';
 import { alternarEmbarque, atualizarEstruturas } from './jangada.js';
+import { atualizarFavor } from './oferenda.js';
 import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
@@ -28,6 +30,7 @@ export function criarMundo() {
   gerarArvores(12);
   gerarMontes();
   for (let i = 0; i < CARDUMES_MAX; i++) novoCardume();
+  for (let i = 0; i < CARDUMES_PROFUNDOS_MAX; i++) novoCardume(true);
   atualizarInventario();
 }
 
@@ -51,6 +54,7 @@ export function centralizarCamera() {
 // ===================== Atualização =====================
 
 export function atualizar(dt) {
+  atualizarChuva(dt);
   atualizarArvores(dt);
   atualizarEstruturas(dt);
 
@@ -62,6 +66,7 @@ export function atualizar(dt) {
   atualizarCanteiros(dt);
   atualizarMontes(dt);
   atualizarPedidosDeComida(dt);
+  atualizarFavor(dt);
   atualizarCanhoes(dt);
   atualizarEfeitos(dt);
 }
@@ -162,7 +167,7 @@ export function clicar(p) {
   const t = arvoreEm(p);
   if (t) {
     if (!adulta(t)) {
-      textoFlutuante(t.x, t.y - 30, 'Ainda crescendo (' + Math.ceil(TEMPO_CRESCER - t.idade) + 's)', '#c8f0b0');
+      textoFlutuante(t.x, t.y - 30, 'Ainda crescendo (' + Math.ceil(tempoCrescer(t) - t.idade) + 's)', '#c8f0b0');
       return;
     }
     // Se alguém da família ia cortar essa, deixa para o jogador

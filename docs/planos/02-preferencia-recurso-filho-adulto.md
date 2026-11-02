@@ -1,6 +1,6 @@
 # Plano 2 — Preferência de recurso para filho adulto
 
-> **Status:** implementado em 2026-10-25 (aguardando teste no jogo).
+> **Status:** implementado em 2026-10-25; testado e aprovado no jogo em 2026-11-01.
 
 ## Objetivo
 
@@ -52,6 +52,7 @@ Filhos adultos coletam nos montes de pedra e de barro (tijolo). Cada um passa a 
 - 3º adulto: pega o monte livre restante ou segue para pesca/caça como hoje.
 - Estoque cheio (`cabeNoEstoque`): ninguém coleta, como hoje.
 
-## Decisões pendentes
-- Com o preferido esgotado, o filho deve ir para o outro monte (proposta) ou esperar/fazer outra tarefa?
-- O 3º adulto em diante fica sem preferência (proposta) ou alterna pedra/tijolo?
+## Decisões tomadas (2026-11-01)
+- **Preferido esgotado (ou pausado):** o filho vai para o outro monte livre, para não ficar parado, e volta para o preferido quando ele ficar livre.
+- **Prioridade do filho adulto:** a obrigação dele é coletar pedra ou tijolo. Se os dois montes já têm um adulto coletando, ele faz as outras coisas (pesca, caça, corte, plantio). Do 3º adulto em diante não há tipo preferido: pega o monte livre mais perto, se houver.
+- Já era o comportamento do código (`monteLivreParaColetar` em [montes.js](../../src/game/montes.js) e `escolherTarefa` em [familia.js](../../src/game/familia.js)); nada mudou.

@@ -1,5 +1,6 @@
 import { TEMPO_TRIGO_CRESCER } from './config.js';
 import { cancelar } from './agentes.js';
+import { ritmoDasPlantas } from './chuva.js';
 import { textoFlutuante } from './efeitos.js';
 import { mundo } from './mundo.js';
 import { pausado } from './pausas.js';
@@ -26,11 +27,12 @@ function canteiroEm(est, p) {
 export function contarCanteiros(est, estado) { return est.canteiros.filter(k => k.estado === estado).length; }
 
 export function atualizarCanteiros(dt) {
+  const passo = dt * ritmoDasPlantas(); // na chuva cresce mais rápido
   for (const est of mundo.estruturas) {
     if (!est.canteiros) continue;
     for (const k of est.canteiros) {
       if (k.estado !== 'crescendo') continue;
-      k.idade += dt;
+      k.idade += passo;
       if (k.idade >= TEMPO_TRIGO_CRESCER) k.estado = 'maduro';
     }
   }

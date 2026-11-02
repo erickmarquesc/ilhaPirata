@@ -77,7 +77,7 @@ export const CONSTRUCOES = {
     descricao: 'O coração da ilha: aqui os deuses ouvem os seus pedidos.',
     uso: [
       'Toque no totem e faça uma oferenda para pedir uma esposa ou animais',
-      'Troque um recurso por outro com os deuses (2 por 1; com ✨ favor, 1 por 1)',
+      'Troque um recurso por outro com os deuses (2 por 1; com o ✨ favor ativo, 1 por 1)',
       'O nível do totem libera o mesmo nível em todas as outras construções',
     ],
   },
@@ -139,7 +139,7 @@ export const CONSTRUCOES = {
       'Toque na fogueira para fazer churrasco 🍖 ou peixada 🐟',
       'Cada prato fica no espeto e rende 5 pedaços para a família',
       'Depois do 1º churrasco, a família vem até aqui pedir comida',
-      'Ofereça aos deuses o que sobrou no espeto: cada pedaço vira ✨ favor para a troca no totem',
+      'Ofereça aos deuses o que sobrou no espeto: ✨ favor por 15 s, com a troca no totem 1 por 1',
     ],
   },
   // Abrigos de animais: área cercada (não bloqueia a passagem das pessoas)

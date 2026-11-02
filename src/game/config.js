@@ -22,6 +22,9 @@ export const DISTANCIA_MIN_CONSTRUCAO = 12; // folga mínima entre construções
 // No par mais apertado (fogueira 14 + totem 16): 12 + 0,4 × 30 = 24 de folga contra 8 do pé.
 export const FATOR_MIOLO = 0.6;
 export const FATOR_PE = 0.4;
+// Borda macia: entre o miolo e o raio cheio da construção dá para entrar, mas quem anda
+// é empurrado para fora a essa velocidade (raspa na quina e escorrega em vez de parar)
+export const EMPURRAO_BORDA = 70;
 export const TEMPO_TRAVADO = 1.5; // quase parado tentando andar por esse tempo: atravessa por cima
 export const RESERVA_SEMENTES = 4;    // a família não planta se isso deixar você com menos que isso
 export const TEMPO_CACAR = 3;
@@ -32,6 +35,11 @@ export const PEIXES_POR_CARDUME = 5;      // quantas pescas cada cardume aguenta
 export const TEMPO_PESCAR = 4;            // segundos por pesca
 export const PEIXES_POR_PESCA = 2;        // um peixe para cada adulto na jangada
 export const TEMPO_NOVO_CARDUME = 20;     // segundos para surgir um cardume novo
+// Cardumes do mar profundo (só a jangada nível 4+ chega): 3x maiores, mais peixe e pesca mais rápida.
+// A pesca de cada cardume: { pescas que ele aguenta, peixes por pesca, segundos por pesca }
+export const CARDUMES_PROFUNDOS_MAX = 2;
+export const PESCA_NO_MAR = { raio: 30, pescas: PEIXES_POR_CARDUME, peixes: PEIXES_POR_PESCA, tempo: TEMPO_PESCAR };
+export const PESCA_NO_PROFUNDO = { raio: 90, pescas: 15, peixes: 4, tempo: 2 };
 export const PESCAS_POR_VIAGEM = 3;       // filhos voltam depois de pescar isso
 export const DESCANSO_VIAGEM = 30;        // segundos entre viagens dos filhos
 export const RECARGA_CANHOES = 1.5;       // segundos entre disparos do barco pirata
@@ -67,7 +75,17 @@ export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
 export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
 // Se mais da metade da família está pedindo outro prato, o do espeto torra e se perde
 export const TEMPO_TORRAR = 10;               // segundos de aviso antes de torrar
-// Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
+// Chuva pedida no Totem da Vida: durante esse tempo árvores e trigo crescem mais rápido
+export const TEMPO_CHUVA = 60;            // segundos de chuva
+export const CRESCIMENTO_NA_CHUVA = 3;    // crescem 3x mais rápido
+// Árvores da chuva: nascem quando começa a chover. Comparadas ao pinheiro,
+// levam FATOR_ARVORE_CHUVA vezes mais para crescer e para serrar e dão isso vezes mais madeira e sementes.
+export const ARVORES_POR_CHUVA = 5;
+export const FATOR_ARVORE_CHUVA = 2;
+// Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1.
+// Oferecer o espeto na fogueira dá o favor dos deuses: por TEMPO_FAVOR segundos a troca é 1 por 1
+// (não acumula: com o favor ativo não dá para oferecer de novo)
+export const TEMPO_FAVOR = 15;
 export const TAXA_TROCA = 2;
 export const LOTES_TROCA = [10, 50, 100];
 
@@ -85,6 +103,14 @@ export const CUSTO_EXPANSAO = { madeira: 50 };
 export const TEMPO_ATERRAR = 4;          // segundos aterrando
 export const ALCANCE_EXPANSAO = 90;      // distância máxima da costa até o ponto clicado
 export const LARGURA_EXPANSAO = 0.18;    // largura do pedaço de terra (em radianos)
+// Faixas do mar em volta da costa: espuma até ESPUMA, mar raso (azul-claro) até FIM_DO_RASO,
+// mar até FIM_DO_MAR e dali para fora o mar profundo (azul mais escuro).
+// Os cardumes ficam sempre no mar, a pelo menos FOLGA_CARDUME_RASO do raso e do mar profundo.
+export const ESPUMA = 7;
+export const FIM_DO_RASO = 48;
+export const FIM_DO_MAR = 230;
+export const FOLGA_CARDUME_RASO = 5;
+export const NIVEL_MAR_PROFUNDO = 4; // só a jangada desse nível para cima entra no mar profundo
 export const ANEL_AREIA = 22; // distância da beira do mar até o meio da faixa de areia
 
 // Espécies: f = fêmea, m = macho

@@ -1,6 +1,6 @@
 # Plano 3 — Fogueira sem travar e oferenda aos deuses
 
-> **Status:** implementado em 2026-10-25 (aguardando teste no jogo).
+> **Status:** implementado em 2026-10-25; testado e aprovado no jogo em 2026-11-01. Nova regra do favor (15 s, sem acumular) implementada em 2026-11-01; testada e aprovada no jogo.
 
 ## Problema (o travamento)
 
@@ -40,7 +40,7 @@ No [PainelFogueira](../../src/components/paineis/PainelFogueira.jsx), quando há
 
 - Esvazia o espeto na hora (`comida.servido = null`), sem esperar a Parte A.
 - Efeito visual: `luzDivina` (já usado no totem) sobre a fogueira e o texto "Os deuses aceitaram a oferenda!".
-- Os pedaços entregues viram **Favor dos deuses** (ver Parte C): cada pedaço = 1 favor. É isso que diferencia oferecer de deixar torrar, porque oferecer rende algo e torrar não.
+- A oferenda dá o **Favor dos deuses** (ver Parte C): 15 s de troca 1 → 1 (decisão de 2026-11-01; antes era 1 favor por pedaço). É isso que diferencia oferecer de deixar torrar, porque oferecer rende algo e torrar não.
 
 ### Parte C — Troca com os deuses (escambo)
 
@@ -57,12 +57,12 @@ Como fica na tela:
   - os dois recursos forem iguais;
   - o resultado não couber no estoque (`cabeNoEstoque`).
 
-**Favor dos deuses (opcional, liga B e C):** cada favor melhora a taxa de uma troca, de 2 → 1 para 1 → 1. Assim o espeto oferecido não é desperdiçado.
+**Favor dos deuses (liga B e C):** por 15 s depois da oferenda, todas as trocas saem 1 → 1 em vez de 2 → 1 (não acumula). Assim o espeto oferecido não é desperdiçado.
 
 Onde fica o código:
 - `trocarComDeuses(dar, receber, qtd)` em um arquivo novo `src/game/oferenda.js`, usando `gastarRecursos`, `ganhar` e `cabeNoEstoque` de [inventario.js](../../src/game/inventario.js).
 - `TAXA_TROCA = 2` e `LOTES_TROCA = [10, 50, 100]` em [config.js](../../src/game/config.js).
-- `mundo.favor` (número) em [mundo.js](../../src/game/mundo.js), no estado inicial e no reinício.
+- `mundo.favor` (segundos de favor que faltam) em [mundo.js](../../src/game/mundo.js), no estado inicial e no reinício.
 
 **Isso também resolve a falta de peixe:** sem jangada, o jogador troca madeira por peixe e atende a peixada.
 
@@ -80,13 +80,13 @@ Em `novoPedido`, só sortear peixada se o jogador tem peixe **ou** já tem janga
 ## Testes
 - Espeto com 1 churrasco e 4 de 6 familiares pedindo peixada: depois de 10 s o churrasco torra e o espeto fica livre.
 - Durante a contagem, alguém pede churrasco e come o último pedaço: o espeto acaba normalmente e não aparece mensagem de "torrou".
-- Oferecer com 3 pedaços: espeto vazio, +3 favor, luz divina.
-- Trocar 20 madeira → 10 pedra; trocar com favor → 1:1; tentar com estoque cheio → botão desabilitado.
+- Oferecer: espeto vazio, favor por 15 s, luz divina; com o favor ativo o botão fica bloqueado.
+- Trocar 20 madeira → 10 pedra; trocar com o favor ativo → 1:1 (várias trocas nos 15 s); tentar com estoque cheio → botão desabilitado.
 - Sem jangada e sem peixe: ninguém pede peixada.
 
-## Decisões pendentes
-- **Torrar:** 10 s de aviso está bom, ou deve ser imediato?
-- **"50% da família":** contar a família toda (proposta) ou só quem está na fogueira?
-- **Taxa:** 2 → 1 fixa para tudo, ou cada recurso com um valor próprio (pedra e tijolo mais caros que madeira)?
-- **Favor dos deuses:** entra agora, ou a oferenda só limpa o espeto?
-- **Onde trocar:** só na fogueira (proposta), ou também no totem, que já é o lugar dos deuses?
+## Decisões tomadas (2026-11-01)
+- **Torrar:** 10 s de aviso (`TEMPO_TORRAR`), como está.
+- **"Mais da metade da família":** conta a família toda (Syrena e filhos, sem o Jones), como está.
+- **Taxa:** 2 → 1 fixa para todos os recursos. Martelo batido por agora; pode mudar ao longo do jogo no futuro.
+- **Favor dos deuses — mudou:** oferecer o espeto dá o favor por **15 s** (`TEMPO_FAVOR`), em vez de 1 favor por pedaço. Enquanto dura, toda troca no totem sai 1 → 1 (dá 10, ganha 10). Não acumula: com o favor ativo o botão de oferecer fica bloqueado. Depois dos 15 s volta a 2 → 1. Implementado em 2026-11-01 ([oferenda.js](../../src/game/oferenda.js), painéis da fogueira e do totem; testado e aprovado no jogo).
+- **Onde:** oferenda na fogueira, troca no Totem da Vida, como está.

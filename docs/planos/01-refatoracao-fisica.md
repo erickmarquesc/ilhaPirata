@@ -1,6 +1,6 @@
 # Plano 1 — Refatoração da física (passagem entre construções)
 
-> **Status:** itens 1, 2, 4 e 5 implementados em 2026-10-25 (aguardando teste no jogo). Itens 3 (borda macia) e 6 (overlay) ficaram para depois.
+> **Status:** itens 1, 2, 4 e 5 implementados em 2026-10-25; testado e aprovado no jogo em 2026-11-01. Item 3 (borda macia) implementado em 2026-11-01; testado e aprovado no jogo. Item 6 (overlay) fica para depois.
 
 ## Problema
 
@@ -28,10 +28,12 @@ DISTANCIA_MIN_CONSTRUCAO + (1 − FATOR_MIOLO) × (rA + rB) ≥ 2 × pé + marge
 
 Par mais apertado (fogueira 14 + totem 16, fator 0,6): folga real = 12 + 0,4 × 30 = 24, contra 8 necessários. Os montes (`0,8 / 0,5`) também cabem na regra.
 
-### 3. Borda macia ("um pouco por cima") — opcional, depois
+### 3. Borda macia ("um pouco por cima") — implementado em 2026-11-01
 - O miolo bloqueia como hoje.
 - Na faixa entre o miolo e o raio cheio, o personagem pode entrar, mas é empurrado de leve para fora a cada quadro, em `mover` ([src/game/movimento.js](../../src/game/movimento.js)).
 - Resultado: ele raspa na quina e escorrega, em vez de parar.
+- **Como ficou:** `saidaDaBorda` ([espaco.js](../../src/game/espaco.js)) diz quanto e para onde sair; `escorregarDaBorda` ([movimento.js](../../src/game/movimento.js)) empurra a `EMPURRAO_BORDA` = 70 por segundo, só depois de andar e só se o lugar novo estiver livre (nunca para outro obstáculo nem para o mar). Com a rede de segurança ligada, não empurra. Vale para pessoas e animais.
+- **Teste (simulação):** no vão entre fogueira e totem encostados o personagem passa no mesmo tempo; rente à cabana fica 15 longe do miolo (antes 10); de frente contra a cabana contorna em 1,73 s (antes 1,67) e nunca precisou atravessar por cima.
 
 ### 4. Rede de segurança contra travar
 - Contar o tempo seguido em que `mover` devolve `false`.
@@ -53,9 +55,9 @@ Uma tecla que desenha no chão o miolo, o raio cheio e o pé de cada personagem,
 ## Ordem de execução
 1. Itens 1, 2, 4 e 5 (poucas linhas em `espaco.js`, `movimento.js` e `config.js`).
 2. Testar no jogo: construir fogueira, totem e cabana encostados e atravessar entre eles.
-3. Decidir sobre a borda macia (item 3) e o overlay (item 6).
+3. Borda macia (item 3): feita em 2026-11-01. Overlay (item 6): fica para depois.
 
-## Decisões pendentes
-- Um `FATOR_MIOLO` único ou um valor por construção?
-- A borda macia vale a pena, ou basta reduzir o miolo?
-- A rede de segurança pode atravessar construções, ou nunca?
+## Decisões tomadas (2026-11-01)
+- **`FATOR_MIOLO`:** valor único 0,6 para todas as construções. O campo `miolo` por construção continua disponível, só para quando alguma precisar.
+- **Borda macia:** sim. Miolo menor + borda macia (item 3) para o personagem andar bem perto das construções.
+- **Rede de segurança:** pode atravessar construções e árvores, nunca o mar.

@@ -1,5 +1,6 @@
 import { ALCANCE_EXPANSAO, CUSTO_EXPANSAO, ILHA, LARGURA_EXPANSAO, MUNDO } from './config.js';
 import { textoFlutuante } from './efeitos.js';
+import { cardumeNoLugar } from './cardumes.js';
 import { dentroDaIlha, pontoTerraPerto, raioIlha } from './ilha.js';
 import { gastarRecursos, temRecursos } from './inventario.js';
 import { mundo } from './mundo.js';
@@ -36,7 +37,8 @@ export function concluirAterro(t) {
   if (!nova) { textoFlutuante(t.x, t.y - 20, 'Não dá para aterrar aqui', '#ffb0a0'); return; }
   gastarRecursos(CUSTO_EXPANSAO);
   mundo.expansoes.push(nova);
-  // cardumes que ficaram em terra somem (outros aparecem com o tempo)
-  mundo.cardumes = mundo.cardumes.filter(c => !dentroDaIlha(c.x, c.y, -c.raio));
+  // as faixas do mar avançaram junto com a costa: cardumes que ficaram fora da faixa deles somem
+  // (outros aparecem com o tempo)
+  mundo.cardumes = mundo.cardumes.filter(cardumeNoLugar);
   textoFlutuante(t.ponto.x, t.ponto.y - 10, 'Terra nova! 🏝️', '#f5e6a0');
 }
