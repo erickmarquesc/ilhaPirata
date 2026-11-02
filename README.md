@@ -35,9 +35,10 @@ src/
 │   ├── familia.js        # esposa, filhos e a IA da família
 │   ├── cabana.js         # dentro da cabana: namorar e cuidar do bebê
 │   ├── montes.js         # montes de barro e pedra (500 unidades, recarga em 60 s)
-│   ├── jangada.js        # embarque, pesca, empurrar para a água e rumo do barco (rumoVisual)
+│   ├── jangada.js        # embarque, pesca, empurrar para a água, rumo do barco (rumoVisual) e limite do mar profundo
+│   ├── cardumes.js       # cardumes do mar e cardumes grandes do mar profundo
 │   ├── arvores.js        # pinheiros e árvores da chuva (2× tempo e 2× recursos)
-│   ├── animais.js, trigo.js, cardumes.js
+│   ├── animais.js, trigo.js
 │   ├── fogueira.js       # churrasco/peixada e pedidos de comida da família
 │   ├── chuva.js          # chuva pedida no totem: plantas crescem 3× mais rápido, família na cabana, brotam árvores da chuva
 │   ├── oferenda.js       # oferecer o espeto aos deuses (fogueira) e trocar recursos (totem)
@@ -65,7 +66,7 @@ src/
         ├── Cena.jsx      # <Canvas>, loop do jogo e ordem da cena
         ├── Camera.jsx    # segue o Jones, câmera livre (setas/WASD, Espaço volta; no barco pirata, Espaço atira),
         │                 # zoom (roda/pinça), sol e sombras
-        ├── Terreno.jsx   # mar, raso, espuma, areia, grama, rochas, tufos
+        ├── Terreno.jsx   # mar profundo, mar, raso, espuma, areia, grama, rochas, tufos
         ├── Cursor.jsx    # cursor de machado sobre árvore adulta
         ├── Arvores.jsx, Estruturas.jsx, Montes.jsx, Mar.jsx (cardumes, luz divina)
         ├── Disparos.jsx  # bolas de canhão, clarão, fumaça e respingo

@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import * as THREE from 'three';
-import { ILHA } from '../../game/config.js';
+import { ESPUMA, FIM_DO_MAR, FIM_DO_RASO, ILHA } from '../../game/config.js';
 import { clicar, moverPonteiro } from '../../game/jogo.js';
 import { dentroDaIlha, raioIlha } from '../../game/ilha.js';
 import { useMundo } from '../../hooks/useMundo.js';
@@ -13,6 +13,10 @@ import { GEO } from './Peca.jsx';
 // Forma no plano XY → deitada no chão (Y do shape vira Z da cena; a extrusão desce).
 // Formas planas ficam com a face para baixo, por isso usam material de dois lados.
 const DEITAR = [Math.PI / 2, 0, 0];
+
+// Cores do mar, da costa para fora. O mar profundo (só jangada nível 4+) é um pouco mais escuro.
+const COR_MAR = { raso: '#3d9ad6', mar: '#2a7fc4', profundo: '#2068a6' };
+const TRANSICAO_MAR = 14; // faixa de cor intermediária entre o mar e o profundo
 
 function extrudar(forma, profundidade) {
   return new THREE.ExtrudeGeometry(forma, { depth: profundidade, bevelEnabled: false, curveSegments: 1 });
@@ -72,17 +76,21 @@ export default function Terreno() {
   const geo = useMemo(() => ({
     areia: extrudar(formaIlha(0), 14),
     grama: extrudar(formaIlha(RECUO_GRAMA), 1.5),
-    espuma: new THREE.ShapeGeometry(formaIlha(-7, 0)),
-    raso: new THREE.ShapeGeometry(formaIlha(-48, -7)),
+    espuma: new THREE.ShapeGeometry(formaIlha(-ESPUMA, 0)),
+    raso: new THREE.ShapeGeometry(formaIlha(-FIM_DO_RASO, -ESPUMA)),
+    mar: new THREE.ShapeGeometry(formaIlha(-FIM_DO_MAR, -FIM_DO_RASO)),
+    transicao: new THREE.ShapeGeometry(formaIlha(-(FIM_DO_MAR + TRANSICAO_MAR), -FIM_DO_MAR)),
   }), [qtdExpansoes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pontoDoEvento = e => doMundo(e.point.x, e.point.z);
 
   return (
     <group>
-      {/* mar */}
-      <mesh geometry={GEO.quadrado} material={material('#2a7fc4')} scale={[8000, 1, 8000]} position={[0, -0.2, 0]} receiveShadow />
-      <mesh geometry={geo.raso} material={material('#3d9ad6', false, true)} rotation={DEITAR} position={[0, 0.05, 0]} receiveShadow />
+      {/* mar profundo (o resto), mar e raso */}
+      <mesh geometry={GEO.quadrado} material={material(COR_MAR.profundo)} scale={[8000, 1, 8000]} position={[0, -0.2, 0]} receiveShadow />
+      <mesh geometry={geo.transicao} material={material('#2574b6', false, true)} rotation={DEITAR} position={[0, -0.12, 0]} receiveShadow />
+      <mesh geometry={geo.mar} material={material(COR_MAR.mar, false, true)} rotation={DEITAR} position={[0, -0.05, 0]} receiveShadow />
+      <mesh geometry={geo.raso} material={material(COR_MAR.raso, false, true)} rotation={DEITAR} position={[0, 0.05, 0]} receiveShadow />
       <mesh geometry={geo.espuma} material={material('#f4fbff', false, true)} rotation={DEITAR} position={[0, 0.3, 0]} />
       {/* areia e grama */}
       <mesh geometry={geo.areia} material={material('#ecd193')} rotation={DEITAR} position={[0, ALTURA.areia, 0]} receiveShadow />

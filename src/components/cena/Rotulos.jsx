@@ -92,7 +92,7 @@ function desenhar(ctx, proj) {
     if (!topo) continue;
     if (s.empurrar !== undefined && s.empurrar < 1) rotulo(ctx, topo.x, topo.y, 'Empurrando para a água...', '#c8e8ff');
     else if (s.pesca > 0) {
-      barra(ctx, topo.x, topo.y, 44, 5, s.pesca / TEMPO_PESCAR, '#7ec8f0');
+      barra(ctx, topo.x, topo.y, 44, 5, s.pesca / (s.tempoPesca || TEMPO_PESCAR), '#7ec8f0');
       rotulo(ctx, topo.x, topo.y - 8, '🎣 Pescando...', '#c8e8ff');
     } else if (s.estoqueCheio) {
       rotulo(ctx, topo.x, topo.y, 'Estoque cheio! Não dá para pescar', '#ffb0a0');

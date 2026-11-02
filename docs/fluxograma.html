@@ -138,7 +138,7 @@
 
   <!-- ===================================================== -->
   <h2 id="ciclo">1. Ciclo principal</h2>
-  <p>O jogo começa com Jones sozinho, 12 árvores, 2 montes (barro e pedra) e 4 cardumes no mar. Tudo gira em torno de juntar recursos, aumentar a família e evoluir as construções.</p>
+  <p>O jogo começa com Jones sozinho, 12 árvores, 2 montes (barro e pedra), 4 cardumes no mar e 2 cardumes grandes no mar profundo. Tudo gira em torno de juntar recursos, aumentar a família e evoluir as construções.</p>
   <div class="fluxo">
     <div class="no verde"><b>🪓 Jones corta árvores</b><small>5 s por árvore → 20 🪵 + 2 🌱</small></div>
     <div class="seta">→</div>
@@ -172,7 +172,7 @@
       <tr><td>🪵 Madeira</td><td>Cortar árvore adulta: <b>20</b> por árvore (5 s); árvore da chuva: <b>40</b> (10 s). Jones, Syrena, adolescentes e adultos.</td><td>Quase todas as construções e evoluções · pedidos no totem · expandir a ilha (50)</td></tr>
       <tr><td>🌱 Sementes</td><td>Cortar árvore: <b>2</b> por árvore (árvore da chuva: <b>4</b>).</td><td>Plantar árvore (1 cada; muda vira adulta em 60 s) · totem · pedidos · nível 1 dos abrigos</td></tr>
       <tr><td>🍖 Carne</td><td>Caçar animal adulto que não seja do casal (3 s): 🐔 5 · 🐑 15 · 🐄 30 — <b>dobro</b> com o abrigo da espécie.</td><td>Evolução dos abrigos (níveis 2–5) · jangada nível 3</td></tr>
-      <tr><td>🐟 Peixe</td><td>Pescar com a jangada parada sobre um cardume: <b>2</b> por pesca (4 s).</td><td>Jangada níveis 2 e 5</td></tr>
+      <tr><td>🐟 Peixe</td><td>Pescar com a jangada parada sobre um cardume: <b>2</b> por pesca (4 s). Cardume grande do mar profundo (jangada nível 4+): <b>4</b> por pesca (2 s).</td><td>Jangada níveis 2 e 5</td></tr>
       <tr><td>🌾 Trigo</td><td>Colher canteiro maduro no campo de trigo: <b>5</b> por canteiro (2 s).</td><td>Moinho níveis 4–5 · jangada níveis 4–5</td></tr>
       <tr><td>🌾 Sementes de trigo</td><td><b>1</b> ao construir o campo · <b>2</b> por canteiro colhido.</td><td>Plantar trigo (1 por canteiro)</td></tr>
       <tr><td>🧱 Tijolo</td><td>Monte de barro: <b>1</b> por coleta (2 s), só filho adulto.</td><td>Cabana 2–5 · moinho 2–5 · jangada 2–5 · abrigos nível 5</td></tr>
@@ -230,6 +230,13 @@
     <div class="no azul"><b>🐟 Cardume</b><small>5 pescas · até 4 no mar</small></div>
     <div class="seta" data-t="4 s">→</div>
     <div class="no"><b>+2 🐟</b></div>
+  </div>
+  <div class="fluxo">
+    <div class="no azul"><b>⛵ Jangada nível 4+ no mar profundo</b><small>2 adultos a bordo</small></div>
+    <div class="seta">→</div>
+    <div class="no azul"><b>🐟 Cardume grande</b><small>15 pescas · até 2 no profundo</small></div>
+    <div class="seta" data-t="2 s">→</div>
+    <div class="no"><b>+4 🐟</b></div>
   </div>
 
   <!-- ===================================================== -->
@@ -461,6 +468,7 @@
   </table></div>
 
   <h3>🛶 Jangada → barco pirata</h3>
+  <p class="nota">Faixas do mar, da costa para fora: espuma branca (até 7), mar raso azul-claro (até 48), mar (até 230 da costa) e, dali para fora, o <b>mar profundo</b>, num azul um pouco mais escuro. Só a jangada a partir do <b>nível 4</b> entra no mar profundo; antes disso ela para na borda com o aviso “Mar profundo!”. Os cardumes ficam sempre no mar, a pelo menos 5 do raso e do mar profundo. No mar profundo há até <b>2 cardumes grandes</b> (3× maiores, peixes maiores): aguentam <b>15 pescas</b> (contra 5), dão <b>4 🐟 por pesca</b> (contra 2) e cada pesca leva <b>2 s</b> (contra 4). Ficam inteiros no profundo, a pelo menos 5 da borda do mar. Os filhos só vão até eles com a jangada nível 4+.</p>
   <p class="nota">Só na faixa de areia; depois de pronta é empurrada para a água (3 s). Navega com 2 adultos.</p>
   <p class="nota">💥 <b>Canhões do barco pirata (nível 5):</b> com o Jones a bordo e o barco na água, Espaço ou o botão “💥 Fogo!” do painel disparam os 6 canhões juntos (3 de cada lado, para fora do casco, de acordo com o rumo do barco). Recarga de 1,5 s. Cada disparo tem clarão e fumaça na boca do canhão; a bola faz um arco e cai no mar com um respingo, ou na ilha levantando poeira. É só efeito visual: não gasta recurso nem acerta nada.</p>
   <div class="rolagem"><table>
@@ -544,7 +552,7 @@
     <div class="seta" data-t="4 s">→</div>
     <div class="no"><b>+2 🐟</b><small>cardume perde 1 de 5</small></div>
   </div>
-  <p class="nota">Até 4 cardumes no mar; um novo surge a cada 20 s. Viagem dos filhos: 3 pescas e voltam; esperam 30 s antes da próxima.</p>
+  <p class="nota">Até 4 cardumes no mar e até 2 cardumes grandes no mar profundo (raio 3× maior, 15 pescas, +4 🐟 a cada 2 s; só jangada nível 4+). Um novo surge a cada 20 s (primeiro os do mar, depois os do profundo). Os cardumes nunca entram no raso: ficam a pelo menos 5 do fim do raso e do começo do mar profundo; os grandes ficam inteiros no profundo. Ao aterrar a ilha, os cardumes que ficarem fora da faixa deles somem. Viagem dos filhos: 3 pescas e voltam; esperam 30 s antes da próxima. Com a jangada abaixo do nível 4, os filhos ignoram os cardumes do profundo.</p>
   <h3>Trigo</h3>
   <p>Campo com 16 canteiros. Plantar gasta 1 semente de trigo (1,5 s), amadurece em 45 s, colher (2 s) rende 5 🌾 + 2 sementes. Com o campo pronto, as crianças cuidam só dele.</p>
 
@@ -596,7 +604,7 @@
       <tr><td>Travado até atravessar por cima</td><td class="n">1,5 s</td></tr>
       <tr><td>Plantar trigo / colher trigo</td><td class="n">1,5 s / 2 s</td></tr>
       <tr><td>Trigo amadurecer</td><td class="n">45 s</td></tr>
-      <tr><td>Pescar (por pesca)</td><td class="n">4 s</td></tr>
+      <tr><td>Pescar (por pesca)</td><td class="n">4 s (mar profundo: 2 s)</td></tr>
       <tr><td>Novo cardume</td><td class="n">20 s</td></tr>
       <tr><td>Descanso entre viagens dos filhos</td><td class="n">30 s</td></tr>
       <tr><td>Empurrar a jangada para a água</td><td class="n">3 s</td></tr>

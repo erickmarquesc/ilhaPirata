@@ -32,6 +32,11 @@ export const PEIXES_POR_CARDUME = 5;      // quantas pescas cada cardume aguenta
 export const TEMPO_PESCAR = 4;            // segundos por pesca
 export const PEIXES_POR_PESCA = 2;        // um peixe para cada adulto na jangada
 export const TEMPO_NOVO_CARDUME = 20;     // segundos para surgir um cardume novo
+// Cardumes do mar profundo (só a jangada nível 4+ chega): 3x maiores, mais peixe e pesca mais rápida.
+// A pesca de cada cardume: { pescas que ele aguenta, peixes por pesca, segundos por pesca }
+export const CARDUMES_PROFUNDOS_MAX = 2;
+export const PESCA_NO_MAR = { raio: 30, pescas: PEIXES_POR_CARDUME, peixes: PEIXES_POR_PESCA, tempo: TEMPO_PESCAR };
+export const PESCA_NO_PROFUNDO = { raio: 90, pescas: 15, peixes: 4, tempo: 2 };
 export const PESCAS_POR_VIAGEM = 3;       // filhos voltam depois de pescar isso
 export const DESCANSO_VIAGEM = 30;        // segundos entre viagens dos filhos
 export const RECARGA_CANHOES = 1.5;       // segundos entre disparos do barco pirata
@@ -92,6 +97,14 @@ export const CUSTO_EXPANSAO = { madeira: 50 };
 export const TEMPO_ATERRAR = 4;          // segundos aterrando
 export const ALCANCE_EXPANSAO = 90;      // distância máxima da costa até o ponto clicado
 export const LARGURA_EXPANSAO = 0.18;    // largura do pedaço de terra (em radianos)
+// Faixas do mar em volta da costa: espuma até ESPUMA, mar raso (azul-claro) até FIM_DO_RASO,
+// mar até FIM_DO_MAR e dali para fora o mar profundo (azul mais escuro).
+// Os cardumes ficam sempre no mar, a pelo menos FOLGA_CARDUME_RASO do raso e do mar profundo.
+export const ESPUMA = 7;
+export const FIM_DO_RASO = 48;
+export const FIM_DO_MAR = 230;
+export const FOLGA_CARDUME_RASO = 5;
+export const NIVEL_MAR_PROFUNDO = 4; // só a jangada desse nível para cima entra no mar profundo
 export const ANEL_AREIA = 22; // distância da beira do mar até o meio da faixa de areia
 
 // Espécies: f = fêmea, m = macho

@@ -1,4 +1,4 @@
-import { CARDUMES_MAX, ILHA, NOME_PAI } from './config.js';
+import { CARDUMES_MAX, CARDUMES_PROFUNDOS_MAX, ILHA, NOME_PAI } from './config.js';
 import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
@@ -29,6 +29,7 @@ export function criarMundo() {
   gerarArvores(12);
   gerarMontes();
   for (let i = 0; i < CARDUMES_MAX; i++) novoCardume();
+  for (let i = 0; i < CARDUMES_PROFUNDOS_MAX; i++) novoCardume(true);
   atualizarInventario();
 }
 

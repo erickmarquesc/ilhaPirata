@@ -1,12 +1,12 @@
 import {
-  DESCANSO_VIAGEM, ILHA, PEIXES_POR_PESCA, PESCAS_POR_VIAGEM, TEMPO_EMPURRAR, TEMPO_PESCAR, VELOCIDADE_JANGADA,
+  DESCANSO_VIAGEM, ILHA, NIVEL_MAR_PROFUNDO, PEIXES_POR_PESCA, PESCAS_POR_VIAGEM, TEMPO_EMPURRAR, VELOCIDADE_JANGADA,
 } from './config.js';
 import { cancelar } from './agentes.js';
 import { chovendo } from './chuva.js';
-import { cardumeMaisProximo, cardumeSob, removerCardume } from './cardumes.js';
+import { cardumeMaisProximo, cardumeSob, pescaDe, removerCardume } from './cardumes.js';
 import { textoFlutuante } from './efeitos.js';
 import { emObra, estruturaDoTipo } from './estruturas.js';
-import { dentroDaIlha, podeNavegar, pontoTerraPerto, terraLivrePerto } from './ilha.js';
+import { dentroDaIlha, noMarProfundo, podeNavegar, pontoTerraPerto, terraLivrePerto } from './ilha.js';
 import { cabeNoEstoque, ganhar } from './inventario.js';
 import { mundo } from './mundo.js';
 import { pausado } from './pausas.js';
@@ -115,14 +115,23 @@ export function tentarViagemDePesca(a) {
 }
 
 // ----- Movimento no mar -----
+// Mar profundo: só a jangada do nível NIVEL_MAR_PROFUNDO para cima entra.
+// (Se já estiver lá dentro, por ex. o nível baixou no modo dev, pode sair.)
+export function podeIrAoMarProfundo(est) { return est.nivel >= NIVEL_MAR_PROFUNDO; }
+function barradaNoFundo(est, x, y) {
+  return !podeIrAoMarProfundo(est) && noMarProfundo(x, y, est.raio) && !noMarProfundo(est.x, est.y, est.raio);
+}
+function podeIr(est, x, y) { return podeNavegar(x, y, est.raio) && !barradaNoFundo(est, x, y); }
+
 function moverJangada(est, dx, dy, dt) {
   const len = Math.hypot(dx, dy);
   if (!len) return false;
   const passo = VELOCIDADE_JANGADA * dt;
   const mx = dx / len * passo, my = dy / len * passo;
   let moveu = false;
-  if (podeNavegar(est.x + mx, est.y, est.raio)) { est.x += mx; moveu = true; }
-  if (podeNavegar(est.x, est.y + my, est.raio)) { est.y += my; moveu = true; }
+  if (mx && podeIr(est, est.x + mx, est.y)) { est.x += mx; moveu = true; }
+  if (my && podeIr(est, est.x, est.y + my)) { est.y += my; moveu = true; }
+  if (!moveu && barradaNoFundo(est, est.x + mx, est.y + my)) est.barradaNoFundo = true;
   if (moveu) est.moveu = true;
   return moveu;
 }
@@ -145,7 +154,11 @@ export function navegar(dt) {
     if (Math.hypot(vx, vy) < 4) jogador.destino = null;
     else { dx = vx; dy = vy; }
   }
-  if ((dx || dy) && !moverJangada(est, dx, dy, dt)) jogador.destino = null;
+  if ((dx || dy) && !moverJangada(est, dx, dy, dt)) {
+    jogador.destino = null;
+    if (est.barradaNoFundo) textoFlutuante(est.x, est.y - 50, `Mar profundo! Só a jangada nível ${NIVEL_MAR_PROFUNDO} navega aqui`, '#ffb0a0');
+  }
+  est.barradaNoFundo = false;
 }
 
 // ----- Atualização da jangada (a cada quadro) -----
@@ -154,7 +167,7 @@ function viagemDosFilhos(est, dt) {
   const v = est.viagem;
   if (v.pescas >= PESCAS_POR_VIAGEM || !cabeNoEstoque(PEIXES_POR_PESCA) || pausado('peixe') || chovendo()) v.fase = 'voltar';
   if (v.fase === 'ir') {
-    const alvo = cardumeMaisProximo(est);
+    const alvo = cardumeMaisProximo(est, podeIrAoMarProfundo(est));
     if (!alvo) v.fase = 'voltar';
     else if (Math.hypot(alvo.x - est.x, alvo.y - est.y) < 8) v.fase = 'pescar'; // chega no meio do cardume
     else rumoPara(est, alvo, dt);
@@ -173,16 +186,19 @@ function viagemDosFilhos(est, dt) {
 
 function pescar(est, dt) {
   // Pesca: dois adultos a bordo, jangada parada em cima de um cardume
+  // (cardume do mar profundo: mais peixe por pesca e mais rápido, ver pescaDe)
   const c = est.tripulacao.length === 2 && !est.moveu ? cardumeSob(est) : null;
-  est.estoqueCheio = !!c && !cabeNoEstoque(PEIXES_POR_PESCA);
+  const pesca = c && pescaDe(c);
+  est.estoqueCheio = !!c && !cabeNoEstoque(pesca.peixes);
   if (!c || est.estoqueCheio) { est.pesca = 0; return; }
   c.parado = 0.3;   // cardume fica parado enquanto estão pescando nele
+  est.tempoPesca = pesca.tempo; // para a barra de progresso
   est.pesca += dt;
-  if (est.pesca < TEMPO_PESCAR) return;
+  if (est.pesca < pesca.tempo) return;
   est.pesca = 0;
   c.peixes -= 1;
-  ganhar('peixe', PEIXES_POR_PESCA);
-  textoFlutuante(est.x, est.y - 55, '+' + PEIXES_POR_PESCA + ' 🐟', '#c8e8ff');
+  ganhar('peixe', pesca.peixes);
+  textoFlutuante(est.x, est.y - 55, '+' + pesca.peixes + ' 🐟', '#c8e8ff');
   if (est.viagem) est.viagem.pescas += 1;
   if (c.peixes <= 0) removerCardume(c);
   atualizarInventario();
