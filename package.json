@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.1",
@@ -17,8 +20,16 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
     "vite": "^6.4.3",
     "vitest": "^3.2.7"
@@ -27,6 +38,6 @@
     "@tailwindcss/oxide-linux-x64-gnu": "^4.3.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=18.18"
   }
 }
