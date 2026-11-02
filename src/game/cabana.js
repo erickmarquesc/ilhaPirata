@@ -1,7 +1,6 @@
 import { entre } from './aleatorio.js';
 import { cancelar } from './agentes.js';
 import { estruturaDoTipo } from './estruturas.js';
-import { mundo } from './mundo.js';
 
 // ===================== Dentro da cabana =====================
 // Quem está dentro some do mapa (a.dentro = cabana) e fica parado na porta.

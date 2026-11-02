@@ -84,8 +84,8 @@ const Rochas = memo(function Rochas({ qtdExpansoes }) {
         if (dentroDaIlha(x, y, -r.tam)) return [];
         return [{ p: [x - ILHA.x, r.tam * 0.25, y - ILHA.y], s: [r.tam, r.tam * 0.7, r.tam], r: [0, r.giro, 0], cor: i % 3 ? '#e4e8ec' : '#c9d0d6' }];
       }),
-    [qtdExpansoes],
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+    [qtdExpansoes], // eslint-disable-line react-hooks/exhaustive-deps
+  );
   return <Instancias geometria={GEO.rocha} itens={itens} sombra />;
 });
 
@@ -103,8 +103,8 @@ export default function Terreno() {
       mar: new THREE.ShapeGeometry(formaIlha(-FIM_DO_MAR, -FIM_DO_RASO)),
       transicao: new THREE.ShapeGeometry(formaIlha(-(FIM_DO_MAR + TRANSICAO_MAR), -FIM_DO_MAR)),
     }),
-    [qtdExpansoes],
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+    [qtdExpansoes], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const pontoDoEvento = e => doMundo(e.point.x, e.point.z);
 
