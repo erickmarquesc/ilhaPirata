@@ -1,4 +1,5 @@
 import { ILHA, MONTES, QTD_POR_MONTE, TEMPO_RECARGA_MONTE } from './config.js';
+import { entre, sortear } from './aleatorio.js';
 import { textoFlutuante } from './efeitos.js';
 import { dentroDaIlha } from './ilha.js';
 import { ganhar } from './inventario.js';
@@ -12,7 +13,7 @@ export function gerarMontes() {
   for (const tipo of Object.keys(MONTES)) {
     const { raio } = MONTES[tipo];
     for (let i = 0; i < 300; i++) {
-      const a = Math.random() * Math.PI * 2, d = ILHA.raio * (0.35 + Math.random() * 0.3);
+      const a = sortear() * Math.PI * 2, d = ILHA.raio * entre(0.35, 0.65);
       const x = ILHA.x + Math.cos(a) * d, y = ILHA.y + Math.sin(a) * d;
       if (!dentroDaIlha(x, y, 80)) continue;
       if (mundo.montes.some(m => Math.hypot(m.x - x, m.y - y) < 160)) continue;

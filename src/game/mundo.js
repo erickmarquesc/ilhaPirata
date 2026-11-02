@@ -2,6 +2,7 @@
 // Todo o estado mutável do jogo fica neste objeto. A engine altera direto
 // e avisa a interface (React) chamando notificar().
 export const mundo = {
+  semente: 0,        // semente dos sorteios desta partida (ver aleatorio.js)
   inventario: null,
   arvores: [],
   estruturas: [],
@@ -31,6 +32,7 @@ export const mundo = {
 
 export function limparMundo() {
   Object.assign(mundo, {
+    semente: 0,
     inventario: { madeira: 0, sementes: 0, carne: 0, peixe: 0, trigo: 0, sementesTrigo: 0, tijolo: 0, pedra: 0 },
     arvores: [],
     estruturas: [],

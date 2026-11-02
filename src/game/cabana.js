@@ -1,3 +1,4 @@
+import { entre } from './aleatorio.js';
 import { cancelar } from './agentes.js';
 import { estruturaDoTipo } from './estruturas.js';
 import { mundo } from './mundo.js';
@@ -37,5 +38,5 @@ export function temMotivoParaFicar(a) {
   return !!a.tarefa && TAREFAS_NA_CABANA.includes(a.tarefa.tipo);
 }
 export function sairSemMotivo(a) {
-  if (a.dentro && !temMotivoParaFicar(a)) { cancelar(a); sairDaCabana(a, (Math.random() - 0.5) * 24); } // espalha quem sai junto
+  if (a.dentro && !temMotivoParaFicar(a)) { cancelar(a); sairDaCabana(a, entre(-12, 12)); } // espalha quem sai junto
 }

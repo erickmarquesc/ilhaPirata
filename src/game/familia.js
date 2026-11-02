@@ -1,4 +1,5 @@
 import { DISTANCIA_MIN_ARVORES, NOME_MAE, RESERVA_SEMENTES, TEMPO_CUIDAR_BEBE, TEMPO_DESCANSO, nomeDoFilho } from './config.js';
+import { entre, sortear } from './aleatorio.js';
 import { cancelar, novoAgente } from './agentes.js';
 import { adulta } from './arvores.js';
 import { cacavel } from './animais.js';
@@ -115,7 +116,7 @@ function arvoreMaisProxima(a) {
 }
 function acharLugarPlantio(a) {
   for (let i = 0; i < 40; i++) {
-    const ang = Math.random() * Math.PI * 2, d = 40 + Math.random() * 120;
+    const ang = sortear() * Math.PI * 2, d = entre(40, 160);
     const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
     if (!podePlantarEm(p)) continue;
     // evita dois plantando no mesmo lugar
@@ -125,10 +126,10 @@ function acharLugarPlantio(a) {
   return null;
 }
 function passear(a) {
-  const ang = Math.random() * Math.PI * 2, d = 30 + Math.random() * 50;
+  const ang = sortear() * Math.PI * 2, d = entre(30, 80);
   const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
   if (podeFicar(p.x, p.y, a.raio)) a.destino = p;
-  a.espera = 1.5 + Math.random() * 1.5;
+  a.espera = entre(1.5, 3);
 }
 function tentarPlantar(a) {
   if (mundo.inventario.sementes <= RESERVA_SEMENTES) return false;

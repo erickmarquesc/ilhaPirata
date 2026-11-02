@@ -1,4 +1,5 @@
 import { FATOR_ARVORE_CHUVA, ILHA, MADEIRA_POR_ARVORE, SEMENTES_POR_ARVORE, TEMPO_CRESCER, TEMPO_SERRAR } from './config.js';
+import { entre, sortear } from './aleatorio.js';
 import { ritmoDasPlantas } from './chuva.js';
 import { dentroDaIlha } from './ilha.js';
 import { mundo } from './mundo.js';
@@ -6,7 +7,7 @@ import { mundo } from './mundo.js';
 // ===================== Árvores =====================
 // tipo: 'pinheiro' (comum) ou 'chuva' (nasce quando chove; vale FATOR_ARVORE_CHUVA vezes mais)
 export function novaArvore(x, y, adulta, tipo = 'pinheiro') {
-  const t = { x, y, tipo, raio: 14 + Math.random() * 6, idade: 0 };
+  const t = { x, y, tipo, raio: entre(14, 20), idade: 0 };
   if (adulta) t.idade = tempoCrescer(t);
   return t;
 }
@@ -23,7 +24,7 @@ export function gerarArvores(qtd) {
   let tentativas = 0;
   while (arvores.length < qtd && tentativas < 2000) {
     tentativas++;
-    const a = Math.random() * Math.PI * 2, d = Math.random() * ILHA.raio * 0.75;
+    const a = sortear() * Math.PI * 2, d = sortear() * ILHA.raio * 0.75;
     const x = ILHA.x + Math.cos(a) * d, y = ILHA.y + Math.sin(a) * d;
     if (!dentroDaIlha(x, y, 70)) continue;
     if (Math.hypot(x - ILHA.x, y - ILHA.y) < 60) continue;
