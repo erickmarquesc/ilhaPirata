@@ -36,8 +36,10 @@ src/
 │   ├── cabana.js         # dentro da cabana: namorar e cuidar do bebê
 │   ├── montes.js         # montes de barro e pedra (500 unidades, recarga em 60 s)
 │   ├── jangada.js        # embarque, pesca, empurrar para a água e rumo do barco (rumoVisual)
-│   ├── animais.js, trigo.js, cardumes.js, arvores.js
+│   ├── arvores.js        # pinheiros e árvores da chuva (2× tempo e 2× recursos)
+│   ├── animais.js, trigo.js, cardumes.js
 │   ├── fogueira.js       # churrasco/peixada e pedidos de comida da família
+│   ├── chuva.js          # chuva pedida no totem: plantas crescem 3× mais rápido, família na cabana, brotam árvores da chuva
 │   ├── oferenda.js       # oferecer o espeto aos deuses (fogueira) e trocar recursos (totem)
 │   ├── pausas.js         # pausar/retomar a produção da família por recurso
 │   ├── canhoes.js        # canhões do barco pirata (Espaço, só efeito visual)
@@ -66,6 +68,7 @@ src/
         ├── Terreno.jsx   # mar, raso, espuma, areia, grama, rochas, tufos
         ├── Arvores.jsx, Estruturas.jsx, Montes.jsx, Mar.jsx (cardumes, luz divina)
         ├── Disparos.jsx  # bolas de canhão, clarão, fumaça e respingo
+        ├── Chuva.jsx     # pingos caindo em volta da câmera e o sol escurecendo
         ├── Seres.jsx     # pessoas e animais (perto: AnimalAnimado; longe: AnimaisSimples)
         ├── Previas.jsx   # prévias de plantar/construir/expandir e marcadores
         ├── Rotulos.jsx   # camada 2D por cima: níveis, barras e textos flutuantes
@@ -76,7 +79,7 @@ src/
         ├── clique.js, gestos.js # toque em objetos e estado da pinça
         └── modelos/      # Totem, Cabana, Moinho, Fogueira, Embarcacoes (jangada → barco pirata),
                           # Cercados, Construcoes (campo de trigo), Trigal, Montes,
-                          # Natureza (pinheiro), Seres (pessoa), Animais
+                          # Natureza (pinheiro, árvore da chuva), Seres (pessoa), Animais
 ```
 
 📋 **Planos:** [docs/planos/](docs/planos/) guarda o plano de cada mudança, com status no topo.

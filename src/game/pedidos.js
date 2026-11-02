@@ -1,4 +1,5 @@
 import { especiesIncompletas, pedirAnimal } from './animais.js';
+import { chovendo, pedirChuva } from './chuva.js';
 import { pedirEsposa } from './familia.js';
 import { mundo } from './mundo.js';
 
@@ -17,5 +18,12 @@ export const PEDIDOS = {
     disponivel: () => especiesIncompletas().length > 0,
     motivo: 'Todos os casais já estão completos',
     realizar: pedirAnimal,
+  },
+  chuva: {
+    nome: 'Chuva', icone: '🌧️',
+    custo: { madeira: 20, sementes: 2 },
+    disponivel: () => !chovendo(),
+    motivo: 'Já está chovendo',
+    realizar: pedirChuva,
   },
 };

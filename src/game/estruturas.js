@@ -1,3 +1,4 @@
+import { chovendo } from './chuva.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { ESPECIES, MAX_COM_ABRIGO, MAX_POR_ESPECIE } from './config.js';
 import { devAtivo } from './dev.js';
@@ -80,7 +81,7 @@ export function emObra(id) {
 // ===================== Requisitos =====================
 // Quem pode ajudar numa obra: filho adolescente ou adulto (ou só adulto, se a construção pedir)
 export function podeAjudarObra(a, id = null) {
-  if (a.embarcado) return false;
+  if (a.embarcado || chovendo()) return false; // na chuva a família fica na cabana
   if (id && CONSTRUCOES[id].soAdultos) return a.tipo === 'adulto';
   return a.tipo === 'adolescente' || a.tipo === 'adulto';
 }

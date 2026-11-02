@@ -1,9 +1,10 @@
-import { CARDUMES_MAX, ILHA, NOME_PAI, TEMPO_CRESCER } from './config.js';
+import { CARDUMES_MAX, ILHA, NOME_PAI } from './config.js';
 import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
-import { adulta, arvoreEm, atualizarArvores, gerarArvores } from './arvores.js';
+import { adulta, arvoreEm, atualizarArvores, gerarArvores, tempoCrescer } from './arvores.js';
 import { atualizarCanhoes, dispararCanhoes } from './canhoes.js';
+import { atualizarChuva } from './chuva.js';
 import { atualizarCardumes, novoCardume } from './cardumes.js';
 import { atualizarEfeitos, textoFlutuante } from './efeitos.js';
 import { motivoNaoPlantar, podeConstruirEm } from './espaco.js';
@@ -51,6 +52,7 @@ export function centralizarCamera() {
 // ===================== Atualização =====================
 
 export function atualizar(dt) {
+  atualizarChuva(dt);
   atualizarArvores(dt);
   atualizarEstruturas(dt);
 
@@ -162,7 +164,7 @@ export function clicar(p) {
   const t = arvoreEm(p);
   if (t) {
     if (!adulta(t)) {
-      textoFlutuante(t.x, t.y - 30, 'Ainda crescendo (' + Math.ceil(TEMPO_CRESCER - t.idade) + 's)', '#c8f0b0');
+      textoFlutuante(t.x, t.y - 30, 'Ainda crescendo (' + Math.ceil(tempoCrescer(t) - t.idade) + 's)', '#c8f0b0');
       return;
     }
     // Se alguém da família ia cortar essa, deixa para o jogador

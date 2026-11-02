@@ -1,12 +1,13 @@
 import {
-  ILHA, MADEIRA_POR_ARVORE, SEMENTES_POR_ARVORE, SEMENTES_TRIGO_INICIAIS, SEMENTES_TRIGO_POR_COLHEITA,
+  ILHA, SEMENTES_TRIGO_INICIAIS, SEMENTES_TRIGO_POR_COLHEITA,
   TEMPO_CACAR, TEMPO_COLHER_TRIGO, TEMPO_GRAVIDEZ, TEMPO_NAMORAR, TEMPO_PLANTAR, TEMPO_PLANTAR_CRIANCA,
-  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_COZINHAR, TEMPO_PLANTAR_TRIGO, TEMPO_SERRAR, TRIGO_POR_COLHEITA,
+  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_COZINHAR, TEMPO_PLANTAR_TRIGO, TRIGO_POR_COLHEITA,
 } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
 import { entrarNaCabana, sairDaCabana, sairSemMotivo } from './cabana.js';
-import { novaArvore, removerArvores } from './arvores.js';
+import { madeiraDe, novaArvore, removerArvores, sementesDe, tempoSerrar } from './arvores.js';
+import { chovendo } from './chuva.js';
 import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js';
 import {
   carneDe, custoEvolucao, filhosParaNivel, nivelAlvoDaObra, podeAjudarObra, requisitosDaConstrucao, tempoDoNivel,
@@ -70,13 +71,14 @@ function chamarAjudante(t) {
 
 function duracaoDe(a, t) {
   switch (t.tipo) {
-    case 'serrar': return TEMPO_SERRAR;
+    case 'serrar': return tempoSerrar(t.arvore);
     case 'plantar': return a.tipo === 'crianca' ? TEMPO_PLANTAR_CRIANCA : TEMPO_PLANTAR;
     case 'namorar': return TEMPO_NAMORAR;
     case 'cacar': return TEMPO_CACAR;
     case 'ajudar': return Infinity; // fica ajudando até a obra acabar
     case 'esperarNaCabana': return Infinity; // até o namoro acabar
     case 'cuidarNaCabana': return Infinity;  // até o bebê virar criança
+    case 'abrigarNaCabana': return Infinity; // até a chuva parar
     case 'embarcar': return 0.3;
     case 'plantarTrigo': return TEMPO_PLANTAR_TRIGO;
     case 'colher': return TEMPO_COLHER_TRIGO;
@@ -94,7 +96,7 @@ function comecarAcao(a) {
 // Quanto uma tarefa vai render no estoque (para só começar se couber tudo)
 export function rendimentoDe(t) {
   switch (t.tipo) {
-    case 'serrar': return MADEIRA_POR_ARVORE + SEMENTES_POR_ARVORE;
+    case 'serrar': return madeiraDe(t.arvore) + sementesDe(t.arvore);
     case 'cacar': return carneDe(t.alvo.especie);
     case 'coletar': return 1;
     case 'colher': return TRIGO_POR_COLHEITA + SEMENTES_TRIGO_POR_COLHEITA;
@@ -113,6 +115,7 @@ function tarefaValida(a) {
     case 'namorar': return podeNamorar() || !!a.dentro; // depois de entrar, segue até o fim
     case 'esperarNaCabana': return mundo.jogador.tarefa?.tipo === 'namorar';
     case 'cuidarNaCabana': return !!mundo.esposa && mundo.esposa.cuidado > 0;
+    case 'abrigarNaCabana': return chovendo();
     case 'cacar': return animais.includes(t.alvo);
     case 'evoluir': return estruturas.includes(t.estrutura);
     case 'ajudar': return jogador.tarefa === t.obra;
@@ -131,10 +134,11 @@ function tarefaValida(a) {
 const CONCLUIR = {
   serrar(a, t) {
     if (!mundo.arvores.includes(t.arvore)) return;
+    const madeira = madeiraDe(t.arvore), sementes = sementesDe(t.arvore);
     removerArvores([t.arvore]);
-    ganhar('madeira', MADEIRA_POR_ARVORE);
-    ganhar('sementes', SEMENTES_POR_ARVORE);
-    textoFlutuante(t.x, t.y - 30, '+' + MADEIRA_POR_ARVORE + ' 🪵  +' + SEMENTES_POR_ARVORE + ' 🌱');
+    ganhar('madeira', madeira);
+    ganhar('sementes', sementes);
+    textoFlutuante(t.x, t.y - 30, '+' + madeira + ' 🪵  +' + sementes + ' 🌱');
     if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') a.plantarProximo = true;
   },
   plantar(a, t) {
@@ -265,7 +269,7 @@ export function executar(a, dt) {
       entrarNaCabana(a, t.cabana);
       entrarNaCabana(esposa, t.cabana);
     }
-    if (t.tipo === 'cuidarNaCabana' && !a.dentro) entrarNaCabana(a, t.cabana);
+    if ((t.tipo === 'cuidarNaCabana' || t.tipo === 'abrigarNaCabana') && !a.dentro) entrarNaCabana(a, t.cabana);
     if (precisaAjuda(t) && !ajudantesTrabalhando(t)) {
       chamarAjudante(t);   // garante que alguém está vindo
       return;              // espera o adolescente chegar

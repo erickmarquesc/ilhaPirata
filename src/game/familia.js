@@ -2,6 +2,7 @@ import { DISTANCIA_MIN_ARVORES, NOME_MAE, RESERVA_SEMENTES, TEMPO_CUIDAR_BEBE, T
 import { cancelar, novoAgente } from './agentes.js';
 import { adulta } from './arvores.js';
 import { cacavel } from './animais.js';
+import { chovendo } from './chuva.js';
 import { cabanaDaFamilia, sairDaCabana, tarefaNaPorta } from './cabana.js';
 import { textoFlutuante, luzDivina } from './efeitos.js';
 import { lugarLivrePerto, podeFicar, podePlantarEm } from './espaco.js';
@@ -80,7 +81,7 @@ const ATIVIDADES = {
   serrar: 'Cortando árvore', plantar: 'Plantando', cacar: 'Caçando', coletar: 'Coletando',
   ajudar: 'Ajudando na obra', embarcar: 'Indo à jangada', plantarTrigo: 'Plantando trigo',
   colher: 'Colhendo trigo', namorar: 'Namorando', construir: 'Construindo', evoluir: 'Evoluindo obra',
-  aterrar: 'Aterrando', cozinhar: 'Cozinhando',
+  aterrar: 'Aterrando', cozinhar: 'Cozinhando', abrigarNaCabana: 'Fugindo da chuva',
 };
 export function atividadeDe(a) {
   if (a.dentro) return a === mundo.esposa && a.cuidado > 0 ? 'Cuidando do bebê' : 'Na cabana';
@@ -89,6 +90,7 @@ export function atividadeDe(a) {
     if (a.cuidado > 0) return 'Cuidando do bebê';
     if (mundo.jogador.tarefa?.tipo === 'namorar') return 'Namorando';
   }
+  if (a !== mundo.jogador && chovendo() && !a.tarefa) return 'Esperando a chuva passar';
   if (a.tarefa) {
     const t = a.tarefa;
     if (t.tipo === 'pedirComida') return t.prato === 'churrasco' ? 'Pedindo churrasco' : 'Pedindo peixada';
@@ -228,9 +230,23 @@ function cicloDaEsposa(a, dt) {
   return false;
 }
 
+// Chuva: ninguém trabalha, a família toda corre para a cabana e só sai quando parar.
+// Sem cabana, cada um para onde está e espera a chuva passar.
+function abrigarDaChuva(a, dt) {
+  const cabana = cabanaDaFamilia();
+  if (!cabana) {
+    if (a.tarefa || a.destino) cancelar(a);
+    a.semTrabalho = true;
+    return;
+  }
+  if (a.tarefa?.tipo !== 'abrigarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('abrigarNaCabana', cabana)); }
+  executar(a, dt);
+}
+
 export function atualizarFamiliar(a, dt) {
   if (a.embarcado) return; // na jangada: quem manda é a jangada
   if (a === mundo.esposa && cicloDaEsposa(a, dt)) return;
+  if (chovendo()) { abrigarDaChuva(a, dt); return; }
   if (!a.tarefa && !a.acao && !a.destino) {
     a.espera -= dt;
     if (a.espera <= 0) escolherTarefa(a);

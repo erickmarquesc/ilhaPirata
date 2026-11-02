@@ -67,6 +67,13 @@ export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
 export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
 // Se mais da metade da família está pedindo outro prato, o do espeto torra e se perde
 export const TEMPO_TORRAR = 10;               // segundos de aviso antes de torrar
+// Chuva pedida no Totem da Vida: durante esse tempo árvores e trigo crescem mais rápido
+export const TEMPO_CHUVA = 60;            // segundos de chuva
+export const CRESCIMENTO_NA_CHUVA = 3;    // crescem 3x mais rápido
+// Árvores da chuva: nascem quando começa a chover. Comparadas ao pinheiro,
+// levam FATOR_ARVORE_CHUVA vezes mais para crescer e para serrar e dão isso vezes mais madeira e sementes.
+export const ARVORES_POR_CHUVA = 5;
+export const FATOR_ARVORE_CHUVA = 2;
 // Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
 export const TAXA_TROCA = 2;
 export const LOTES_TROCA = [10, 50, 100];

@@ -1,11 +1,22 @@
-import { ILHA, TEMPO_CRESCER } from './config.js';
+import { FATOR_ARVORE_CHUVA, ILHA, MADEIRA_POR_ARVORE, SEMENTES_POR_ARVORE, TEMPO_CRESCER, TEMPO_SERRAR } from './config.js';
+import { ritmoDasPlantas } from './chuva.js';
 import { dentroDaIlha } from './ilha.js';
 import { mundo } from './mundo.js';
 
 // ===================== Árvores =====================
-export function novaArvore(x, y, adulta) { return { x, y, raio: 14 + Math.random() * 6, idade: adulta ? TEMPO_CRESCER : 0 }; }
-export function adulta(t) { return t.idade >= TEMPO_CRESCER; }
-export function crescimento(t) { return Math.min(t.idade / TEMPO_CRESCER, 1); }
+// tipo: 'pinheiro' (comum) ou 'chuva' (nasce quando chove; vale FATOR_ARVORE_CHUVA vezes mais)
+export function novaArvore(x, y, adulta, tipo = 'pinheiro') {
+  const t = { x, y, tipo, raio: 14 + Math.random() * 6, idade: 0 };
+  if (adulta) t.idade = tempoCrescer(t);
+  return t;
+}
+const fator = t => t.tipo === 'chuva' ? FATOR_ARVORE_CHUVA : 1;
+export function tempoCrescer(t) { return TEMPO_CRESCER * fator(t); }
+export function tempoSerrar(t) { return TEMPO_SERRAR * fator(t); }
+export function madeiraDe(t) { return MADEIRA_POR_ARVORE * fator(t); }
+export function sementesDe(t) { return SEMENTES_POR_ARVORE * fator(t); }
+export function adulta(t) { return t.idade >= tempoCrescer(t); }
+export function crescimento(t) { return Math.min(t.idade / tempoCrescer(t), 1); }
 
 export function gerarArvores(qtd) {
   const { arvores } = mundo;
@@ -34,5 +45,6 @@ export function removerArvores(lista) {
 }
 
 export function atualizarArvores(dt) {
-  for (const t of mundo.arvores) if (t.idade < TEMPO_CRESCER) t.idade += dt;
+  const passo = dt * ritmoDasPlantas(); // na chuva crescem mais rápido
+  for (const t of mundo.arvores) if (!adulta(t)) t.idade += passo;
 }

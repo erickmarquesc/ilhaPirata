@@ -169,8 +169,8 @@
   <table>
     <thead><tr><th>Recurso</th><th>De onde vem</th><th>Para que serve</th></tr></thead>
     <tbody>
-      <tr><td>🪵 Madeira</td><td>Cortar árvore adulta: <b>20</b> por árvore (5 s). Jones, Syrena, adolescentes e adultos.</td><td>Quase todas as construções e evoluções · pedidos no totem · expandir a ilha (50)</td></tr>
-      <tr><td>🌱 Sementes</td><td>Cortar árvore: <b>2</b> por árvore.</td><td>Plantar árvore (1 cada; muda vira adulta em 60 s) · totem · pedidos · nível 1 dos abrigos</td></tr>
+      <tr><td>🪵 Madeira</td><td>Cortar árvore adulta: <b>20</b> por árvore (5 s); árvore da chuva: <b>40</b> (10 s). Jones, Syrena, adolescentes e adultos.</td><td>Quase todas as construções e evoluções · pedidos no totem · expandir a ilha (50)</td></tr>
+      <tr><td>🌱 Sementes</td><td>Cortar árvore: <b>2</b> por árvore (árvore da chuva: <b>4</b>).</td><td>Plantar árvore (1 cada; muda vira adulta em 60 s) · totem · pedidos · nível 1 dos abrigos</td></tr>
       <tr><td>🍖 Carne</td><td>Caçar animal adulto que não seja do casal (3 s): 🐔 5 · 🐑 15 · 🐄 30 — <b>dobro</b> com o abrigo da espécie.</td><td>Evolução dos abrigos (níveis 2–5) · jangada nível 3</td></tr>
       <tr><td>🐟 Peixe</td><td>Pescar com a jangada parada sobre um cardume: <b>2</b> por pesca (4 s).</td><td>Jangada níveis 2 e 5</td></tr>
       <tr><td>🌾 Trigo</td><td>Colher canteiro maduro no campo de trigo: <b>5</b> por canteiro (2 s).</td><td>Moinho níveis 4–5 · jangada níveis 4–5</td></tr>
@@ -189,6 +189,13 @@
     <div class="seta">→</div>
     <div class="no verde"><b>🌱 Plantar</b><small>nova árvore em 60 s</small></div>
     <div class="seta">↺</div>
+  </div>
+  <div class="fluxo">
+    <div class="no rosa"><b>🗿 Pedir chuva</b><small>20 🪵 + 2 🌱</small></div>
+    <div class="seta" data-t="60 s">→</div>
+    <div class="no verde"><b>🌧️ Chuva</b><small>árvores e 🌾 trigo crescem 3× mais rápido · família na cabana</small></div>
+    <div class="seta">+</div>
+    <div class="no verde"><b>🌳 5 árvores da chuva</b><small>copa turquesa · 2× tempo de crescer e de serrar · 40 🪵 + 4 🌱</small></div>
   </div>
   <div class="fluxo">
     <div class="no rosa"><b>🗿 Pedir animal</b><small>30 🪵 + 2 🌱</small></div>
@@ -313,6 +320,7 @@
       </ol>
     </div>
   </div>
+  <p class="nota">🌧️ <b>Na chuva</b> (pedida no Totem da Vida), Syrena e os filhos param tudo e entram na cabana até ela passar (“Fugindo da chuva” → “Na cabana”); sem cabana, esperam parados (“Esperando a chuva passar”). A jangada dos filhos volta, ninguém ajuda em obras nem pede comida. Cuidar do bebê e namorar continuam. Só o Jones segue trabalhando.</p>
   <h3>Nomes dos filhos (ordem de nascimento)</h3>
   <p>Jack · Will · Salazar · Murtogg · Gibbs · Barbossa · Pintel · Ragetti · Mullroy · Cotton · Teague · Hector · depois Jack II, Will II…</p>
 
@@ -372,7 +380,7 @@
   <p>Nível máximo de todas = nível máximo do Totem da Vida (<b>5</b>). Para evoluir qualquer outra ao nível N, o totem precisa estar no nível N.</p>
 
   <h3>🗿 Totem da Vida</h3>
-  <p class="nota">Obra de 8 s em todos os níveis. Pedidos: 💍 esposa (40 🪵 + 4 🌱) · 🐾 animal (30 🪵 + 2 🌱). Também é onde se faz a 🔄 troca com os deuses (ver Fogueira).</p>
+  <p class="nota">Obra de 8 s em todos os níveis. Pedidos: 💍 esposa (40 🪵 + 4 🌱) · 🐾 animal (30 🪵 + 2 🌱) · 🌧️ chuva (20 🪵 + 2 🌱: chove por 60 s e mudas de árvore e trigo crescem 3× mais rápido; não dá para pedir de novo enquanto chove). Na chuva ninguém da família trabalha: todos param e vão para a cabana (sem cabana, esperam parados), a jangada dos filhos volta, ninguém ajuda em obras nem pede comida. Só o Jones continua. Ao começar a chover brotam <b>5 mudas de árvore da chuva</b> em lugares sorteados da grama: tronco claro e copa redonda turquesa; levam o dobro do tempo para crescer (120 s) e para serrar (10 s) e dão o dobro: 40 🪵 + 4 🌱. Também é onde se faz a 🔄 troca com os deuses (ver Fogueira).</p>
   <div class="rolagem"><table>
     <thead><tr><th>Nível</th><th>Custo</th><th>Filhos</th><th>Visual</th></tr></thead>
     <tbody>
@@ -547,7 +555,7 @@
     <tbody>
       <tr><td>Andar</td><td>Tocar / clicar no chão</td><td>—</td><td>Câmera segue; roda/pinça dá zoom</td></tr>
       <tr><td>Olhar o mapa</td><td>Setas / WASD (Espaço volta para o Jones; no barco pirata, Espaço atira)</td><td>—</td><td>Só a câmera se move, o personagem fica parado. Tocar para o Jones andar (chão, árvore, mar, plantar/expandir/construir) volta a seguir ele</td></tr>
-      <tr><td>Cortar árvore</td><td>Tocar na árvore adulta</td><td class="n">5 s</td><td>+20 🪵 +2 🌱</td></tr>
+      <tr><td>Cortar árvore</td><td>Tocar na árvore adulta</td><td class="n">5 s (árvore da chuva: 10 s)</td><td>+20 🪵 +2 🌱 (árvore da chuva: +40 🪵 +4 🌱)</td></tr>
       <tr><td>Churrasco / peixada</td><td>Tocar na fogueira</td><td class="n">5 s</td><td>−95 🍖 ou 🐟 (menos nos níveis altos) → 5 pedaços no espeto</td></tr>
       <tr><td>Pausar / retomar produção</td><td>Tocar no medalhão do recurso no inventário</td><td>—</td><td>A família para (ou volta) de produzir 🍖 🐟 🪵 🪨 🧱 🌾</td></tr>
       <tr><td>Oferecer aos deuses</td><td>Tocar na fogueira com comida no espeto</td><td>—</td><td>Espeto livre, +1 ✨ favor por pedaço</td></tr>
@@ -573,7 +581,8 @@
     <tbody>
       <tr><td>Cortar árvore</td><td class="n">5 s</td></tr>
       <tr><td>Plantar árvore (adulto / criança)</td><td class="n">2 s / 3 s</td></tr>
-      <tr><td>Árvore nova virar adulta</td><td class="n">60 s</td></tr>
+      <tr><td>Árvore nova virar adulta</td><td class="n">60 s (árvore da chuva: 120 s; na chuva tudo cresce 3× mais rápido)</td></tr>
+      <tr><td>Chuva (pedida no totem)</td><td class="n">60 s</td></tr>
       <tr><td>Caçar</td><td class="n">3 s</td></tr>
       <tr><td>Namorar</td><td class="n">3 s</td></tr>
       <tr><td>Gravidez</td><td class="n">30 s</td></tr>

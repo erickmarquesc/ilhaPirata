@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { ILHA, MUNDO } from '../../game/config.js';
 import { direcaoDoTeclado } from '../../game/jogo.js';
 import { mundo } from '../../game/mundo.js';
+import { clima } from './Chuva.jsx';
 import { gestos } from './gestos.js';
 
 const INCLINACAO = THREE.MathUtils.degToRad(52); // ângulo da câmera em relação ao chão
@@ -17,7 +18,7 @@ export default function Camera() {
   const { camera, gl } = useThree();
   const distancia = useRef(ZOOM_INICIAL);
   const alvo = useRef(null);
-  const sol = useRef(), alvoDoSol = useRef();
+  const sol = useRef(), alvoDoSol = useRef(), ceu = useRef();
 
   // ----- Zoom: roda do mouse e pinça com dois dedos -----
   useEffect(() => {
@@ -81,6 +82,10 @@ export default function Camera() {
     camera.position.set(a.x, a.y + d * Math.sin(INCLINACAO), a.z + d * Math.cos(INCLINACAO));
     camera.lookAt(a);
 
+    // na chuva o sol some atrás das nuvens
+    sol.current.intensity = 1.9 - clima.chuva * 1.1;
+    ceu.current.intensity = 1.1 - clima.chuva * 0.3;
+
     // sol e área de sombra acompanham a câmera
     sol.current.position.set(a.x + 260, 480, a.z + 160);
     alvoDoSol.current.position.copy(a);
@@ -93,7 +98,7 @@ export default function Camera() {
 
   return (
     <>
-      <hemisphereLight args={['#eaf6ff', '#6a8f4a', 1.1]} />
+      <hemisphereLight ref={ceu} args={['#eaf6ff', '#6a8f4a', 1.1]} />
       <directionalLight
         ref={sol}
         color="#fff1d6"
