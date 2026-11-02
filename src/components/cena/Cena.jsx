@@ -4,6 +4,7 @@ import { passo } from '../../game/jogo.js';
 import Arvores from './Arvores.jsx';
 import Camera from './Camera.jsx';
 import Chuva from './Chuva.jsx';
+import Cursor from './Cursor.jsx';
 import Disparos from './Disparos.jsx';
 import Estruturas from './Estruturas.jsx';
 import Montes from './Montes.jsx';
@@ -29,6 +30,7 @@ export default function Cena() {
         <color attach="background" args={['#2a7fc4']} />
         <fog attach="fog" args={['#2a7fc4', 1400, 3200]} />
         <Camera />
+        <Cursor />
         <Terreno />
         <Cardumes />
         <Arvores />

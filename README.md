@@ -66,6 +66,7 @@ src/
         ├── Camera.jsx    # segue o Jones, câmera livre (setas/WASD, Espaço volta; no barco pirata, Espaço atira),
         │                 # zoom (roda/pinça), sol e sombras
         ├── Terreno.jsx   # mar, raso, espuma, areia, grama, rochas, tufos
+        ├── Cursor.jsx    # cursor de machado sobre árvore adulta
         ├── Arvores.jsx, Estruturas.jsx, Montes.jsx, Mar.jsx (cardumes, luz divina)
         ├── Disparos.jsx  # bolas de canhão, clarão, fumaça e respingo
         ├── Chuva.jsx     # pingos caindo em volta da câmera e o sol escurecendo

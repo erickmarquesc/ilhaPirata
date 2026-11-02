@@ -4,6 +4,7 @@ import { crescimento } from '../../game/arvores.js';
 import { mundo } from '../../game/mundo.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import { aoTocarEntidade } from './clique.js';
+import { sobMouse } from './Cursor.jsx';
 import { alturaDoChao, idDe, paraCena } from './coords.js';
 import { material } from './materiais.jsx';
 import { ArvoreDaChuva, COR_COPA, COR_COPA_CHUVA, Pinheiro } from './modelos/Natureza.jsx';
@@ -32,6 +33,8 @@ const Arvore = memo(function Arvore({ t }) {
       position={paraCena(t.x, t.y, alturaDoChao(t.x, t.y))}
       rotation={[0, giro, 0]}
       onPointerDown={e => aoTocarEntidade(e, t.x, t.y)}
+      onPointerOver={e => { e.stopPropagation(); sobMouse.arvore = t; }}
+      onPointerOut={() => { if (sobMouse.arvore === t) sobMouse.arvore = null; }}
     >
       {daChuva ? <ArvoreDaChuva ref={copas} /> : <Pinheiro ref={copas} />}
     </group>
