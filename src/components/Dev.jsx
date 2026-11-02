@@ -32,11 +32,14 @@ function Niveis({ atual, onEscolher, desabilitado = false }) {
   );
 }
 
-function PainelDev() {
+function PainelDev({ semente }) {
   return (
     <Painel className="mb-2 w-[290px]">
       <Painel.Cabecalho><Painel.Titulo>🛠️ Modo dev</Painel.Titulo></Painel.Cabecalho>
       <Painel.Texto>Obras liberadas: sem custo, sem filhos, sem totem e prontas na hora.</Painel.Texto>
+      <div className="mt-1 text-[13px]" title="Abra com ?semente=… para repetir este mapa">
+        Semente: <span className="font-mono select-all">{semente}</span>
+      </div>
       <div className="mt-2 flex items-center justify-between gap-2 border-b border-white/20 pb-2 text-[13px]">
         <span className="font-semibold">Todas</span>
         <Niveis atual={null} onEscolher={definirNivelDeTodas} />
@@ -57,11 +60,11 @@ function PainelDev() {
 }
 
 export default function Dev() {
-  const { dev } = useMundo();
+  const { dev, semente } = useMundo();
   if (!import.meta.env.DEV) return null;
   return (
     <div className="pointer-events-auto fixed right-3 bottom-[calc(12px_+_env(safe-area-inset-bottom,0px))] z-40 flex flex-col items-end">
-      {dev && <PainelDev />}
+      {dev && <PainelDev semente={semente} />}
       <button
         type="button"
         onClick={alternarDev}
