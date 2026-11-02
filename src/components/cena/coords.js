@@ -6,8 +6,12 @@ import { dentroDaIlha, raioIlha } from '../../game/ilha.js';
 export const ALTURA = { agua: 0, areia: 2, grama: 3.5 };
 export { RECUO_GRAMA };
 
-export function paraCena(x, y, h = 0) { return [x - ILHA.x, h, y - ILHA.y]; }
-export function doMundo(X, Z) { return { x: X + ILHA.x, y: Z + ILHA.y }; }
+export function paraCena(x, y, h = 0) {
+  return [x - ILHA.x, h, y - ILHA.y];
+}
+export function doMundo(X, Z) {
+  return { x: X + ILHA.x, y: Z + ILHA.y };
+}
 
 // Altura do chão num ponto do mundo (mar, areia ou grama)
 export function alturaDoChao(x, y) {
@@ -20,7 +24,8 @@ export function alturaDoChao(x, y) {
 export function contornoIlha(recuo, extras = [], passos = 240) {
   const pts = [];
   for (let i = 0; i < passos; i++) {
-    const a = i / passos * Math.PI * 2, r = raioIlha(a, extras) - recuo;
+    const a = (i / passos) * Math.PI * 2,
+      r = raioIlha(a, extras) - recuo;
     pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r));
   }
   return pts;
@@ -36,11 +41,13 @@ export function formaExpansao(nova, passos = 48) {
   const pts = [];
   const abertura = nova.larg * 3;
   for (let i = 0; i <= passos; i++) {
-    const a = nova.ang - abertura + 2 * abertura * i / passos, r = raioIlha(a, [nova]);
+    const a = nova.ang - abertura + (2 * abertura * i) / passos,
+      r = raioIlha(a, [nova]);
     pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r));
   }
   for (let i = passos; i >= 0; i--) {
-    const a = nova.ang - abertura + 2 * abertura * i / passos, r = raioIlha(a) - 1;
+    const a = nova.ang - abertura + (2 * abertura * i) / passos,
+      r = raioIlha(a) - 1;
     pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r));
   }
   return new THREE.Shape(pts);
@@ -51,6 +58,9 @@ const ids = new WeakMap();
 let proximoId = 0;
 export function idDe(obj) {
   let id = ids.get(obj);
-  if (!id) { id = ++proximoId; ids.set(obj, id); }
+  if (!id) {
+    id = ++proximoId;
+    ids.set(obj, id);
+  }
   return id;
 }

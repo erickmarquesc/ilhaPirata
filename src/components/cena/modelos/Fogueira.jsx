@@ -14,8 +14,15 @@ import Peca from '../Peca.jsx';
 // 4 base de pedra e caldeirão · 5 churrasqueira de tijolo com chaminé e espeto dourado.
 // Obra em etapas: pedras → lenha → espeto → fogo.
 
-const MADEIRA = '#8b6a45', MADEIRA_ESCURA = '#5a3a1c', PEDRA = '#9aa0a6', PEDRA_ESCURA = '#6f757b';
-const FERRO = '#3a3a3a', TIJOLO = '#a5532f', OURO = '#f5c84c', CARNE = '#8a3b22', PEIXE = '#7fa8c0';
+const MADEIRA = '#8b6a45',
+  MADEIRA_ESCURA = '#5a3a1c',
+  PEDRA = '#9aa0a6',
+  PEDRA_ESCURA = '#6f757b';
+const FERRO = '#3a3a3a',
+  TIJOLO = '#a5532f',
+  OURO = '#f5c84c',
+  CARNE = '#8a3b22',
+  PEIXE = '#7fa8c0';
 
 const geoChama = new THREE.ConeGeometry(1, 1, 5);
 const ALTURA_ESPETO = 13;
@@ -50,7 +57,9 @@ function Chamas({ nivel }) {
 // Carne ou peixe no espeto: gira enquanto Jones cozinha nesta fogueira e, pronto,
 // fica parado e menor a cada pedaço comido
 function Comida({ est }) {
-  const giro = useRef(), carne = useRef(), peixe = useRef();
+  const giro = useRef(),
+    carne = useRef(),
+    peixe = useRef();
   useFrame((_, dt) => {
     const t = mundo.jogador?.acao?.tarefa;
     const cozinhando = !!est && t?.tipo === 'cozinhar' && t.estrutura === est;
@@ -61,7 +70,7 @@ function Comida({ est }) {
     carne.current.visible = prato === 'churrasco';
     peixe.current.visible = prato === 'peixada';
     if (cozinhando) giro.current.rotation.x += dt * 2.5;
-    giro.current.scale.setScalar(cozinhando ? 1 : 0.45 + 0.55 * servido.pedacos / PEDACOS_POR_PRATO);
+    giro.current.scale.setScalar(cozinhando ? 1 : 0.45 + (0.55 * servido.pedacos) / PEDACOS_POR_PRATO);
   });
   return (
     <group ref={giro} position={[0, ALTURA_ESPETO, 0]} visible={false}>
@@ -99,18 +108,31 @@ export function Fogueira({ progresso = 1, est = null }) {
       {nivel >= 4 && <Peca geo="octogono" cor={PEDRA_ESCURA} p={[0, 0.6, 0]} s={[13, 1.2, 13]} />}
       {/* roda de pedras (dupla a partir do nível 2) */}
       {Array.from({ length: qtdPedras }, (_, i) => {
-        const a = i / qtdPedras * Math.PI * 2;
-        return <Peca key={i} geo="rocha" cor={i % 2 ? PEDRA : PEDRA_ESCURA} p={[Math.cos(a) * 8, 1.4, Math.sin(a) * 8]} s={[2.2, 1.8, 2]} r={[0, a, 0]} />;
+        const a = (i / qtdPedras) * Math.PI * 2;
+        return (
+          <Peca key={i} geo="rocha" cor={i % 2 ? PEDRA : PEDRA_ESCURA} p={[Math.cos(a) * 8, 1.4, Math.sin(a) * 8]} s={[2.2, 1.8, 2]} r={[0, a, 0]} />
+        );
       })}
-      {nivel >= 2 && Array.from({ length: 14 }, (_, i) => {
-        const a = (i + 0.5) / 14 * Math.PI * 2;
-        return <Peca key={i} geo="rocha" cor={PEDRA_ESCURA} p={[Math.cos(a) * 10.5, 1, Math.sin(a) * 10.5]} s={[1.8, 1.3, 1.6]} r={[0, a, 0]} sombra={false} />;
-      })}
+      {nivel >= 2 &&
+        Array.from({ length: 14 }, (_, i) => {
+          const a = ((i + 0.5) / 14) * Math.PI * 2;
+          return (
+            <Peca
+              key={i}
+              geo="rocha"
+              cor={PEDRA_ESCURA}
+              p={[Math.cos(a) * 10.5, 1, Math.sin(a) * 10.5]}
+              s={[1.8, 1.3, 1.6]}
+              r={[0, a, 0]}
+              sombra={false}
+            />
+          );
+        })}
       {/* lenha cruzada e brasa */}
       {lenha && (
         <group position={[0, 1.4, 0]}>
           {[0, 1, 2, 3].map(i => (
-            <group key={i} rotation={[0, i * Math.PI / 4, 0]}>
+            <group key={i} rotation={[0, (i * Math.PI) / 4, 0]}>
               <Peca geo="cilindro" cor={i % 2 ? MADEIRA : MADEIRA_ESCURA} p={[0, 0.6 + i * 0.5, 0]} s={[0.9, 10, 0.9]} r={[Math.PI / 2, 0, 0]} />
             </group>
           ))}
@@ -122,16 +144,32 @@ export function Fogueira({ progresso = 1, est = null }) {
         <>
           <Forquilha x={-10} />
           <Forquilha x={10} />
-          <Peca geo="cilindro" cor={nivel >= 5 ? OURO : FERRO} p={[0, ALTURA_ESPETO, 0]} s={[0.35, 22, 0.35]} r={[0, 0, Math.PI / 2]} sombra={false} />
+          <Peca
+            geo="cilindro"
+            cor={nivel >= 5 ? OURO : FERRO}
+            p={[0, ALTURA_ESPETO, 0]}
+            s={[0.35, 22, 0.35]}
+            r={[0, 0, Math.PI / 2]}
+            sombra={false}
+          />
           <Comida est={est} />
         </>
       )}
       {/* grelha de ferro sobre o fogo */}
       {pronto && nivel >= 3 && (
         <group position={[0, 7, 0]}>
-          {[-4, -2, 0, 2, 4].map(z => <Peca key={z} cor={FERRO} p={[0, 0, z]} s={[11, 0.3, 0.3]} sombra={false} />)}
-          {[-5.5, 5.5].map(x => <Peca key={x} cor={FERRO} p={[x, 0, 0]} s={[0.4, 0.4, 10]} sombra={false} />)}
-          {[[-5.5, -4], [5.5, -4], [-5.5, 4], [5.5, 4]].map(([x, z]) => (
+          {[-4, -2, 0, 2, 4].map(z => (
+            <Peca key={z} cor={FERRO} p={[0, 0, z]} s={[11, 0.3, 0.3]} sombra={false} />
+          ))}
+          {[-5.5, 5.5].map(x => (
+            <Peca key={x} cor={FERRO} p={[x, 0, 0]} s={[0.4, 0.4, 10]} sombra={false} />
+          ))}
+          {[
+            [-5.5, -4],
+            [5.5, -4],
+            [-5.5, 4],
+            [5.5, 4],
+          ].map(([x, z]) => (
             <Peca key={`${x}${z}`} cor={FERRO} p={[x, -2.8, z]} s={[0.4, 5.6, 0.4]} sombra={false} />
           ))}
         </group>
@@ -142,7 +180,11 @@ export function Fogueira({ progresso = 1, est = null }) {
         <>
           <Peca geo="cilindro" cor={MADEIRA} p={[0, 2, -15]} s={[2, 14, 2]} r={[0, 0, Math.PI / 2]} />
           <group position={[-15, 0, 7]}>
-            {[[0, 1, 0], [2.2, 1, 0], [1.1, 2.9, 0]].map((p, i) => (
+            {[
+              [0, 1, 0],
+              [2.2, 1, 0],
+              [1.1, 2.9, 0],
+            ].map((p, i) => (
               <Peca key={i} geo="cilindro" cor={i === 2 ? MADEIRA_ESCURA : MADEIRA} p={p} s={[1, 6, 1]} r={[Math.PI / 2, 0, 0]} />
             ))}
           </group>

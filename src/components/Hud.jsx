@@ -61,7 +61,11 @@ function BotaoExpandir() {
       onClick={alternarExpandir}
       icone="🏝️"
       rotulo={expandindo ? 'Expandindo' : 'Expandir'}
-      detalhe={<>X · <Custo custo={CUSTO_EXPANSAO} /></>}
+      detalhe={
+        <>
+          X · <Custo custo={CUSTO_EXPANSAO} />
+        </>
+      }
     />
   );
 }

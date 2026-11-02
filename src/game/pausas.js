@@ -14,8 +14,12 @@ export const PAUSAVEIS = {
   trigo: { nome: 'Colheita de trigo', icone: '🌾' },
 };
 
-export function pausado(recurso) { return !!mundo.pausas[recurso]; }
-export function algumaPausa() { return Object.values(mundo.pausas).some(Boolean); }
+export function pausado(recurso) {
+  return !!mundo.pausas[recurso];
+}
+export function algumaPausa() {
+  return Object.values(mundo.pausas).some(Boolean);
+}
 
 export function alternarPausa(recurso) {
   const p = PAUSAVEIS[recurso];
@@ -23,7 +27,7 @@ export function alternarPausa(recurso) {
   mundo.pausas[recurso] = !mundo.pausas[recurso];
   const { jogador } = mundo;
   const feminino = !p.nome.startsWith('Corte');
-  const estado = mundo.pausas[recurso] ? (feminino ? 'pausada' : 'pausado') : (feminino ? 'retomada' : 'retomado');
+  const estado = mundo.pausas[recurso] ? (feminino ? 'pausada' : 'pausado') : feminino ? 'retomada' : 'retomado';
   textoFlutuante(jogador.x, jogador.y - 50, `${p.nome} ${estado} ${p.icone}`, mundo.pausas[recurso] ? '#ffd0a0' : '#c8f0b0');
   notificar();
 }

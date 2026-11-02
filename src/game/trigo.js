@@ -12,20 +12,28 @@ import { abrirPainel, fecharPainel } from './ui.js';
 // ===================== Campo de trigo =====================
 // O campo é uma grade de canteiros. Só ali dentro se planta trigo.
 export function criarCanteiros(est) {
-  const cols = 4, linhas = 4, passo = (est.raio * 2 - 12) / cols, lista = [];
-  for (let l = 0; l < linhas; l++) for (let c = 0; c < cols; c++) {
-    lista.push({
-      x: est.x - est.raio + 6 + passo * (c + 0.5),
-      y: est.y - est.raio + 6 + passo * (l + 0.5),
-      tam: passo - 4, estado: 'vazio', idade: 0,
-    });
-  }
+  const cols = 4,
+    linhas = 4,
+    passo = (est.raio * 2 - 12) / cols,
+    lista = [];
+  for (let l = 0; l < linhas; l++)
+    for (let c = 0; c < cols; c++) {
+      lista.push({
+        x: est.x - est.raio + 6 + passo * (c + 0.5),
+        y: est.y - est.raio + 6 + passo * (l + 0.5),
+        tam: passo - 4,
+        estado: 'vazio',
+        idade: 0,
+      });
+    }
   return lista;
 }
 function canteiroEm(est, p) {
   return est.canteiros.find(k => Math.abs(p.x - k.x) < k.tam / 2 + 1 && Math.abs(p.y - k.y) < k.tam / 2 + 1);
 }
-export function contarCanteiros(est, estado) { return est.canteiros.filter(k => k.estado === estado).length; }
+export function contarCanteiros(est, estado) {
+  return est.canteiros.filter(k => k.estado === estado).length;
+}
 
 export function atualizarCanteiros(dt) {
   const passo = dt * ritmoDasPlantas(); // na chuva cresce mais rápido
@@ -45,14 +53,19 @@ function sementesTrigoLivres(excluir = null) {
 export function clicarCampo(est, p) {
   const { jogador } = mundo;
   const k = canteiroEm(est, p);
-  if (!k) { abrirPainel('campo', est); return; }
+  if (!k) {
+    abrirPainel('campo', est);
+    return;
+  }
   fecharPainel();
   cancelar(jogador);
   if (k.estado === 'vazio') {
-    if (sementesTrigoLivres() <= 0) { textoFlutuante(k.x, k.y - 12, 'Sem sementes de trigo', '#ffb0a0'); return; }
+    if (sementesTrigoLivres() <= 0) {
+      textoFlutuante(k.x, k.y - 12, 'Sem sementes de trigo', '#ffb0a0');
+      return;
+    }
     iniciarTarefa(jogador, { tipo: 'plantarTrigo', canteiro: k, x: k.x, y: k.y, raio: 2 });
-  }
-  else if (k.estado === 'maduro') iniciarTarefa(jogador, { tipo: 'colher', canteiro: k, x: k.x, y: k.y, raio: 2 });
+  } else if (k.estado === 'maduro') iniciarTarefa(jogador, { tipo: 'colher', canteiro: k, x: k.x, y: k.y, raio: 2 });
   else textoFlutuante(k.x, k.y - 12, 'Trigo crescendo (' + Math.ceil(TEMPO_TRIGO_CRESCER - k.idade) + 's)', '#f5e6a0');
 }
 // Criança no campo: colhe o que está maduro, planta onde está vazio, senão espera no campo
@@ -62,9 +75,15 @@ export function cuidarDoCampo(a, campo) {
   const perto = lista => lista.sort((p, q) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(q.x - a.x, q.y - a.y))[0];
   const maduro = perto(campo.canteiros.filter(k => k.estado === 'maduro' && livre(k)));
   const colher = maduro && { tipo: 'colher', canteiro: maduro, x: maduro.x, y: maduro.y, raio: 2 };
-  if (colher && !a.semTrabalho && cabeNoEstoque(rendimentoDe(colher))) { iniciarTarefa(a, colher); return; }
+  if (colher && !a.semTrabalho && cabeNoEstoque(rendimentoDe(colher))) {
+    iniciarTarefa(a, colher);
+    return;
+  }
   const vazio = !a.semTrabalho && sementesTrigoLivres(a) > 0 ? perto(campo.canteiros.filter(k => k.estado === 'vazio' && livre(k))) : null;
-  if (vazio) { iniciarTarefa(a, { tipo: 'plantarTrigo', canteiro: vazio, x: vazio.x, y: vazio.y, raio: 2 }); return; }
+  if (vazio) {
+    iniciarTarefa(a, { tipo: 'plantarTrigo', canteiro: vazio, x: vazio.x, y: vazio.y, raio: 2 });
+    return;
+  }
   const m = campo.raio - 12;
   a.destino = { x: campo.x + entre(-m, m), y: campo.y + entre(-m, m) };
   a.espera = entre(2, 4);

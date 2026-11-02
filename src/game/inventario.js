@@ -3,9 +3,14 @@ import { estruturaDoTipo } from './estruturas.js';
 import { mundo } from './mundo.js';
 
 // ===================== Inventário =====================
-export function temRecursos(custo) { return Object.entries(custo).every(([r, q]) => mundo.inventario[r] >= q); }
+export function temRecursos(custo) {
+  return Object.entries(custo).every(([r, q]) => mundo.inventario[r] >= q);
+}
 export function gastarRecursos(custo) {
-  for (const [r, q] of Object.entries(custo)) { mundo.inventario[r] -= q; piscar(r); }
+  for (const [r, q] of Object.entries(custo)) {
+    mundo.inventario[r] -= q;
+    piscar(r);
+  }
 }
 // Ganhos nunca passam da capacidade do estoque (as tarefas já checam antes, com cabeNoEstoque)
 export function ganhar(recurso, qtd) {
@@ -27,5 +32,9 @@ export function totalNoEstoque() {
 export function capacidadeDoEstoque(nivelMoinho = estruturaDoTipo('moinho')?.nivel ?? 0) {
   return ESTOQUE_BASE + ESTOQUE_POR_NIVEL_MOINHO * nivelMoinho;
 }
-export function espacoNoEstoque() { return Math.max(0, capacidadeDoEstoque() - totalNoEstoque()); }
-export function cabeNoEstoque(qtd) { return qtd <= espacoNoEstoque(); }
+export function espacoNoEstoque() {
+  return Math.max(0, capacidadeDoEstoque() - totalNoEstoque());
+}
+export function cabeNoEstoque(qtd) {
+  return qtd <= espacoNoEstoque();
+}

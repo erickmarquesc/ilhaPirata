@@ -38,7 +38,15 @@ export function pedirEsposa(id) {
   if (!totem || !p.disponivel() || !temRecursos(p.custo)) return;
   gastarRecursos(p.custo);
   const pos = lugarLivrePerto(totem.x, totem.y, 38);
-  mundo.esposa = novoAgente('esposa', pos.x, pos.y, { nome: NOME_MAE, velocidade: 120, gravidez: 0, cuidado: 0, descanso: 0, plantarProximo: false, espera: 1.8 });
+  mundo.esposa = novoAgente('esposa', pos.x, pos.y, {
+    nome: NOME_MAE,
+    velocidade: 120,
+    gravidez: 0,
+    cuidado: 0,
+    descanso: 0,
+    plantarProximo: false,
+    espera: 1.8,
+  });
   mundo.agentes.push(mundo.esposa);
   luzDivina(pos.x, pos.y);
   textoFlutuante(totem.x, totem.y - 90, 'Os deuses atenderam!', '#fff3b0');
@@ -61,7 +69,13 @@ function virarAdolescente(f) {
 function nascerCrianca(mae) {
   mundo.contadorFilhos++;
   const pos = lugarLivrePerto(mae.x, mae.y, 24);
-  const c = novoAgente('crianca', pos.x, pos.y, { raio: 7, velocidade: 100, nome: nomeDoFilho(mundo.contadorFilhos), ordem: mundo.contadorFilhos, espera: 1 });
+  const c = novoAgente('crianca', pos.x, pos.y, {
+    raio: 7,
+    velocidade: 100,
+    nome: nomeDoFilho(mundo.contadorFilhos),
+    ordem: mundo.contadorFilhos,
+    espera: 1,
+  });
   mundo.agentes.push(c);
   textoFlutuante(mae.x, mae.y - 40, `${c.nome} virou criança!`, '#c8e8ff');
 }
@@ -79,10 +93,20 @@ export function resumoFilhos() {
 
 // O que cada um está fazendo agora (para a árvore genealógica)
 const ATIVIDADES = {
-  serrar: 'Cortando árvore', plantar: 'Plantando', cacar: 'Caçando', coletar: 'Coletando',
-  ajudar: 'Ajudando na obra', embarcar: 'Indo à jangada', plantarTrigo: 'Plantando trigo',
-  colher: 'Colhendo trigo', namorar: 'Namorando', construir: 'Construindo', evoluir: 'Evoluindo obra',
-  aterrar: 'Aterrando', cozinhar: 'Cozinhando', abrigarNaCabana: 'Fugindo da chuva',
+  serrar: 'Cortando árvore',
+  plantar: 'Plantando',
+  cacar: 'Caçando',
+  coletar: 'Coletando',
+  ajudar: 'Ajudando na obra',
+  embarcar: 'Indo à jangada',
+  plantarTrigo: 'Plantando trigo',
+  colher: 'Colhendo trigo',
+  namorar: 'Namorando',
+  construir: 'Construindo',
+  evoluir: 'Evoluindo obra',
+  aterrar: 'Aterrando',
+  cozinhar: 'Cozinhando',
+  abrigarNaCabana: 'Fugindo da chuva',
 };
 export function atividadeDe(a) {
   if (a.dentro) return a === mundo.esposa && a.cuidado > 0 ? 'Cuidando do bebê' : 'Na cabana';
@@ -106,27 +130,34 @@ function ocupadaPorOutro(a, arvore) {
   return mundo.agentes.some(o => o !== a && o.tarefa && o.tarefa.arvore === arvore);
 }
 function arvoreMaisProxima(a) {
-  let melhor = null, dist = Infinity;
+  let melhor = null,
+    dist = Infinity;
   for (const t of mundo.arvores) {
     if (!adulta(t) || ocupadaPorOutro(a, t)) continue;
     const d = Math.hypot(t.x - a.x, t.y - a.y);
-    if (d < dist) { dist = d; melhor = t; }
+    if (d < dist) {
+      dist = d;
+      melhor = t;
+    }
   }
   return melhor;
 }
 function acharLugarPlantio(a) {
   for (let i = 0; i < 40; i++) {
-    const ang = sortear() * Math.PI * 2, d = entre(40, 160);
+    const ang = sortear() * Math.PI * 2,
+      d = entre(40, 160);
     const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
     if (!podePlantarEm(p)) continue;
     // evita dois plantando no mesmo lugar
-    if (mundo.agentes.some(o => o.tarefa && o.tarefa.tipo === 'plantar' && Math.hypot(o.tarefa.x - p.x, o.tarefa.y - p.y) < DISTANCIA_MIN_ARVORES)) continue;
+    if (mundo.agentes.some(o => o.tarefa && o.tarefa.tipo === 'plantar' && Math.hypot(o.tarefa.x - p.x, o.tarefa.y - p.y) < DISTANCIA_MIN_ARVORES))
+      continue;
     return p;
   }
   return null;
 }
 function passear(a) {
-  const ang = sortear() * Math.PI * 2, d = entre(30, 80);
+  const ang = sortear() * Math.PI * 2,
+    d = entre(30, 80);
   const p = { x: a.x + Math.cos(ang) * d, y: a.y + Math.sin(ang) * d };
   if (podeFicar(p.x, p.y, a.raio)) a.destino = p;
   a.espera = entre(1.5, 3);
@@ -139,12 +170,16 @@ function tentarPlantar(a) {
   return true;
 }
 function presaMaisProxima(a) {
-  let melhor = null, dist = Infinity;
+  let melhor = null,
+    dist = Infinity;
   for (const an of mundo.animais) {
     if (!cacavel(an)) continue;
     if (mundo.agentes.some(o => o !== a && o.tarefa && o.tarefa.alvo === an)) continue;
     const d = Math.hypot(an.x - a.x, an.y - a.y);
-    if (d < dist) { dist = d; melhor = an; }
+    if (d < dist) {
+      dist = d;
+      melhor = an;
+    }
   }
   return melhor;
 }
@@ -155,7 +190,10 @@ function escolherTarefa(a) {
   a.semTrabalho = false;
   if (a.tipo === 'adulto') {
     const monte = monteLivreParaColetar(a);
-    if (monte && cabeNoEstoque(1)) { iniciarTarefa(a, tarefaColetar(monte)); return; }
+    if (monte && cabeNoEstoque(1)) {
+      iniciarTarefa(a, tarefaColetar(monte));
+      return;
+    }
   }
   // Filhos adultos: com outro irmão adulto, pegam a jangada para pescar
   if (a.tipo === 'adulto' && tentarViagemDePesca(a)) return;
@@ -163,19 +201,31 @@ function escolherTarefa(a) {
   if ((a.tipo === 'adolescente' || a.tipo === 'adulto') && !pausado('carne')) {
     const presa = presaMaisProxima(a);
     const caca = presa && { tipo: 'cacar', alvo: presa, x: presa.x, y: presa.y, raio: presa.raio };
-    if (caca && cabeNoEstoque(rendimentoDe(caca))) { iniciarTarefa(a, caca); return; }
+    if (caca && cabeNoEstoque(rendimentoDe(caca))) {
+      iniciarTarefa(a, caca);
+      return;
+    }
   }
   if (a.tipo === 'esposa' || a.tipo === 'adolescente' || a.tipo === 'adulto') {
     // Depois de cortar uma árvore, planta uma semente
-    if (a.plantarProximo) { a.plantarProximo = false; if (tentarPlantar(a)) return; }
+    if (a.plantarProximo) {
+      a.plantarProximo = false;
+      if (tentarPlantar(a)) return;
+    }
     const t = !pausado('madeira') && arvoreMaisProxima(a);
     const serrar = t && { tipo: 'serrar', x: t.x, y: t.y, raio: t.raio, arvore: t };
-    if (serrar && cabeNoEstoque(rendimentoDe(serrar))) { iniciarTarefa(a, serrar); return; }
+    if (serrar && cabeNoEstoque(rendimentoDe(serrar))) {
+      iniciarTarefa(a, serrar);
+      return;
+    }
   }
   if (a.tipo === 'crianca') {
     // Com o campo de trigo pronto, a criança passa a cuidar só dele
     const campo = estruturaDoTipo('campoTrigo');
-    if (campo) { cuidarDoCampo(a, campo); return; }
+    if (campo) {
+      cuidarDoCampo(a, campo);
+      return;
+    }
     if (tentarPlantar(a)) return;
   }
   // sem nada para fazer por causa de uma pausa: aparece como "Descansando"
@@ -214,17 +264,26 @@ function cicloDaEsposa(a, dt) {
       return true;
     }
     const cabana = cabanaDaFamilia();
-    if (cabana && a.tarefa?.tipo !== 'cuidarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('cuidarNaCabana', cabana)); }
+    if (cabana && a.tarefa?.tipo !== 'cuidarNaCabana') {
+      cancelar(a);
+      iniciarTarefa(a, tarefaNaPorta('cuidarNaCabana', cabana));
+    }
     if (a.tarefa) executar(a, dt);
     return true; // cuidando do bebê: não faz mais nada
   }
   if (a.descanso > 0) {
     a.descanso -= dt;
-    if (a.descanso <= 0) { a.descanso = 0; textoFlutuante(a.x, a.y - 40, 'Pronta para outro filho 💕', '#ffc0dd'); }
+    if (a.descanso <= 0) {
+      a.descanso = 0;
+      textoFlutuante(a.x, a.y - 40, 'Pronta para outro filho 💕', '#ffc0dd');
+    }
   }
   // O marido chamou para namorar: vai até a porta da cabana e espera por ele
   if (jogador.tarefa && jogador.tarefa.tipo === 'namorar') {
-    if (a.tarefa?.tipo !== 'esperarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('esperarNaCabana', jogador.tarefa.cabana)); }
+    if (a.tarefa?.tipo !== 'esperarNaCabana') {
+      cancelar(a);
+      iniciarTarefa(a, tarefaNaPorta('esperarNaCabana', jogador.tarefa.cabana));
+    }
     executar(a, dt);
     return true;
   }
@@ -240,14 +299,20 @@ function abrigarDaChuva(a, dt) {
     a.semTrabalho = true;
     return;
   }
-  if (a.tarefa?.tipo !== 'abrigarNaCabana') { cancelar(a); iniciarTarefa(a, tarefaNaPorta('abrigarNaCabana', cabana)); }
+  if (a.tarefa?.tipo !== 'abrigarNaCabana') {
+    cancelar(a);
+    iniciarTarefa(a, tarefaNaPorta('abrigarNaCabana', cabana));
+  }
   executar(a, dt);
 }
 
 export function atualizarFamiliar(a, dt) {
   if (a.embarcado) return; // na jangada: quem manda é a jangada
   if (a === mundo.esposa && cicloDaEsposa(a, dt)) return;
-  if (chovendo()) { abrigarDaChuva(a, dt); return; }
+  if (chovendo()) {
+    abrigarDaChuva(a, dt);
+    return;
+  }
   if (!a.tarefa && !a.acao && !a.destino) {
     a.espera -= dt;
     if (a.espera <= 0) escolherTarefa(a);

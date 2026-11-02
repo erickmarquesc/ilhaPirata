@@ -2,31 +2,31 @@
 // Todo o estado mutável do jogo fica neste objeto. A engine altera direto
 // e avisa a interface (React) chamando notificar().
 export const mundo = {
-  semente: 0,        // semente dos sorteios desta partida (ver aleatorio.js)
+  semente: 0, // semente dos sorteios desta partida (ver aleatorio.js)
   inventario: null,
   arvores: [],
   estruturas: [],
-  expansoes: [],     // pedaços de terra aterrados: { ang, alt, larg }
-  montes: [],        // montes de barro e pedra: { tipo, x, y, raio, restante, recarga }
+  expansoes: [], // pedaços de terra aterrados: { ang, alt, larg }
+  montes: [], // montes de barro e pedra: { tipo, x, y, raio, restante, recarga }
   agentes: [],
   jogador: null,
   esposa: null,
   contadorFilhos: 0,
-  pausas: null,      // produção da família pausada pelo jogador: { carne, peixe, madeira, pedra, tijolo, trigo }
-  favor: 0,          // favor dos deuses: segundos que faltam (oferenda na fogueira; enquanto isso a troca no totem é 1 → 1)
-  chuva: 0,          // segundos de chuva que faltam (pedida no totem, ver chuva.js)
-  comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera, torrando }
+  pausas: null, // produção da família pausada pelo jogador: { carne, peixe, madeira, pedra, tijolo, trigo }
+  favor: 0, // favor dos deuses: segundos que faltam (oferenda na fogueira; enquanto isso a troca no totem é 1 → 1)
+  chuva: 0, // segundos de chuva que faltam (pedida no totem, ver chuva.js)
+  comida: null, // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera, torrando }
   animais: [],
   cardumes: [],
   relogioCardume: 0,
   textos: [],
   efeitos: [],
-  balas: [],         // bolas de canhão do barco pirata (ver canhoes.js)
-  estouros: [],      // clarão, fumaça e respingo dos disparos
+  balas: [], // bolas de canhão do barco pirata (ver canhoes.js)
+  estouros: [], // clarão, fumaça e respingo dos disparos
   teclas: {},
-  visao: null,       // câmera solta (setas / WASD): ponto do mapa onde ela olha; null = segue o jogador
+  visao: null, // câmera solta (setas / WASD): ponto do mapa onde ela olha; null = segue o jogador
   ponteiro: { x: -999, y: -999 },
-  dev: false,        // modo dev (só no npm run dev, ver dev.js)
+  dev: false, // modo dev (só no npm run dev, ver dev.js)
   ui: null,
 };
 
@@ -56,13 +56,13 @@ export function limparMundo() {
     teclas: {},
     visao: null,
     ponteiro: { x: -999, y: -999 },
-    dev: mundo.dev,    // o modo dev continua ligado ao reiniciar
+    dev: mundo.dev, // o modo dev continua ligado ao reiniciar
     ui: {
       modo: { tipo: null, construcao: null },
       cartasAbertas: true, // cartas de construção (tecla C recolhe/mostra)
-      painel: null,      // { tipo, alvo }
-      conquista: null,   // construção recém-concluída: { construcao } (modal)
-      piscar: {},        // recurso -> contador (cada ganho/gasto incrementa)
+      painel: null, // { tipo, alvo }
+      conquista: null, // construção recém-concluída: { construcao } (modal)
+      piscar: {}, // recurso -> contador (cada ganho/gasto incrementa)
     },
   });
 }

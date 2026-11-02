@@ -29,23 +29,39 @@ const ROCHAS = Array.from({ length: 34 }, (_, i) => {
 });
 
 // Tufos de capim e arbustos espalhados pela grama (só enfeite)
-const aleatorio = n => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
+const aleatorio = n => {
+  const s = Math.sin(n * 12.9898) * 43758.5453;
+  return s - Math.floor(s);
+};
 const TUFOS = Array.from({ length: 160 }, (_, i) => ({
-  ang: aleatorio(i + 1) * Math.PI * 2, dist: Math.sqrt(aleatorio(i + 500)) * 0.95,
-  tam: 2.5 + aleatorio(i + 900) * 4, arbusto: aleatorio(i + 1300) < 0.2, giro: i,
+  ang: aleatorio(i + 1) * Math.PI * 2,
+  dist: Math.sqrt(aleatorio(i + 500)) * 0.95,
+  tam: 2.5 + aleatorio(i + 900) * 4,
+  arbusto: aleatorio(i + 1300) < 0.2,
+  giro: i,
 }));
 // Tufos e arbustos instanciados: 2 chamadas de desenho para os 160
 const Tufos = memo(function Tufos({ estruturas, qtdEstruturas, qtdExpansoes }) {
   const { capim, arbustos } = useMemo(() => {
-    const capim = [], arbustos = [];
+    const capim = [],
+      arbustos = [];
     TUFOS.forEach((t, i) => {
       const r = (raioIlha(t.ang) - RECUO_GRAMA - 10) * t.dist;
-      const x = ILHA.x + Math.cos(t.ang) * r, y = ILHA.y + Math.sin(t.ang) * r;
+      const x = ILHA.x + Math.cos(t.ang) * r,
+        y = ILHA.y + Math.sin(t.ang) * r;
       // não nasce dentro de construções
       if (estruturas.some(s => Math.abs(s.x - x) < s.raio + 6 && Math.abs(s.y - y) < s.raio + 6)) return;
-      const X = x - ILHA.x, Z = y - ILHA.y;
-      if (t.arbusto) arbustos.push({ p: [X, ALTURA.grama + t.tam * 0.5, Z], s: [t.tam * 1.4, t.tam, t.tam * 1.4], r: [0, t.giro, 0], cor: '#4f9e3a' });
-      else capim.push({ p: [X, ALTURA.grama + t.tam * 0.6, Z], s: [t.tam * 0.45, t.tam * 1.2, t.tam * 0.45], r: [0, t.giro, 0], cor: i % 2 ? '#62b345' : '#8fd45f' });
+      const X = x - ILHA.x,
+        Z = y - ILHA.y;
+      if (t.arbusto)
+        arbustos.push({ p: [X, ALTURA.grama + t.tam * 0.5, Z], s: [t.tam * 1.4, t.tam, t.tam * 1.4], r: [0, t.giro, 0], cor: '#4f9e3a' });
+      else
+        capim.push({
+          p: [X, ALTURA.grama + t.tam * 0.6, Z],
+          s: [t.tam * 0.45, t.tam * 1.2, t.tam * 0.45],
+          r: [0, t.giro, 0],
+          cor: i % 2 ? '#62b345' : '#8fd45f',
+        });
     });
     return { capim, arbustos };
   }, [qtdEstruturas, qtdExpansoes]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -59,12 +75,17 @@ const Tufos = memo(function Tufos({ estruturas, qtdEstruturas, qtdExpansoes }) {
 
 // Rochas do raso, instanciadas (somem as que ficam embaixo de terra aterrada)
 const Rochas = memo(function Rochas({ qtdExpansoes }) {
-  const itens = useMemo(() => ROCHAS.flatMap((r, i) => {
-    const dist = raioIlha(r.ang) + r.fora;
-    const x = ILHA.x + Math.cos(r.ang) * dist, y = ILHA.y + Math.sin(r.ang) * dist;
-    if (dentroDaIlha(x, y, -r.tam)) return [];
-    return [{ p: [x - ILHA.x, r.tam * 0.25, y - ILHA.y], s: [r.tam, r.tam * 0.7, r.tam], r: [0, r.giro, 0], cor: i % 3 ? '#e4e8ec' : '#c9d0d6' }];
-  }), [qtdExpansoes]); // eslint-disable-line react-hooks/exhaustive-deps
+  const itens = useMemo(
+    () =>
+      ROCHAS.flatMap((r, i) => {
+        const dist = raioIlha(r.ang) + r.fora;
+        const x = ILHA.x + Math.cos(r.ang) * dist,
+          y = ILHA.y + Math.sin(r.ang) * dist;
+        if (dentroDaIlha(x, y, -r.tam)) return [];
+        return [{ p: [x - ILHA.x, r.tam * 0.25, y - ILHA.y], s: [r.tam, r.tam * 0.7, r.tam], r: [0, r.giro, 0], cor: i % 3 ? '#e4e8ec' : '#c9d0d6' }];
+      }),
+    [qtdExpansoes],
+  ); // eslint-disable-line react-hooks/exhaustive-deps
   return <Instancias geometria={GEO.rocha} itens={itens} sombra />;
 });
 
@@ -73,14 +94,17 @@ export default function Terreno() {
   const qtdExpansoes = expansoes.length;
 
   // Refaz as geometrias só quando a ilha muda de forma (expansão)
-  const geo = useMemo(() => ({
-    areia: extrudar(formaIlha(0), 14),
-    grama: extrudar(formaIlha(RECUO_GRAMA), 1.5),
-    espuma: new THREE.ShapeGeometry(formaIlha(-ESPUMA, 0)),
-    raso: new THREE.ShapeGeometry(formaIlha(-FIM_DO_RASO, -ESPUMA)),
-    mar: new THREE.ShapeGeometry(formaIlha(-FIM_DO_MAR, -FIM_DO_RASO)),
-    transicao: new THREE.ShapeGeometry(formaIlha(-(FIM_DO_MAR + TRANSICAO_MAR), -FIM_DO_MAR)),
-  }), [qtdExpansoes]); // eslint-disable-line react-hooks/exhaustive-deps
+  const geo = useMemo(
+    () => ({
+      areia: extrudar(formaIlha(0), 14),
+      grama: extrudar(formaIlha(RECUO_GRAMA), 1.5),
+      espuma: new THREE.ShapeGeometry(formaIlha(-ESPUMA, 0)),
+      raso: new THREE.ShapeGeometry(formaIlha(-FIM_DO_RASO, -ESPUMA)),
+      mar: new THREE.ShapeGeometry(formaIlha(-FIM_DO_MAR, -FIM_DO_RASO)),
+      transicao: new THREE.ShapeGeometry(formaIlha(-(FIM_DO_MAR + TRANSICAO_MAR), -FIM_DO_MAR)),
+    }),
+    [qtdExpansoes],
+  ); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pontoDoEvento = e => doMundo(e.point.x, e.point.z);
 
@@ -102,7 +126,10 @@ export default function Terreno() {
         geometry={GEO.quadrado}
         scale={[8000, 1, 8000]}
         position={[0, ALTURA.grama, 0]}
-        onPointerDown={e => { if (e.nativeEvent.button > 0 || gestos.pincando) return; clicar(pontoDoEvento(e)); }}
+        onPointerDown={e => {
+          if (e.nativeEvent.button > 0 || gestos.pincando) return;
+          clicar(pontoDoEvento(e));
+        }}
         onPointerMove={e => moverPonteiro(pontoDoEvento(e))}
       >
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />

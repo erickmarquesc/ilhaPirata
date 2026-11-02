@@ -26,7 +26,9 @@ function Niveis({ atual, onEscolher, desabilitado = false }) {
   return (
     <span className="flex gap-1">
       {Array.from({ length: nivelMaximo() }, (_, i) => i + 1).map(n => (
-        <BotaoNivel key={n} ativo={atual === n} desabilitado={desabilitado} onClick={() => onEscolher(n)}>{n}</BotaoNivel>
+        <BotaoNivel key={n} ativo={atual === n} desabilitado={desabilitado} onClick={() => onEscolher(n)}>
+          {n}
+        </BotaoNivel>
       ))}
     </span>
   );
@@ -35,7 +37,9 @@ function Niveis({ atual, onEscolher, desabilitado = false }) {
 function PainelDev({ semente }) {
   return (
     <Painel className="mb-2 w-[290px]">
-      <Painel.Cabecalho><Painel.Titulo>🛠️ Modo dev</Painel.Titulo></Painel.Cabecalho>
+      <Painel.Cabecalho>
+        <Painel.Titulo>🛠️ Modo dev</Painel.Titulo>
+      </Painel.Cabecalho>
       <Painel.Texto>Obras liberadas: sem custo, sem filhos, sem totem e prontas na hora.</Painel.Texto>
       <div className="mt-1 text-[13px]" title="Abra com ?semente=… para repetir este mapa">
         Semente: <span className="font-mono select-all">{semente}</span>

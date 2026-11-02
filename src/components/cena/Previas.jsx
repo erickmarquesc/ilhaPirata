@@ -12,14 +12,19 @@ import { Fantasma, material } from './materiais.jsx';
 import { MODELOS } from './modelos/Construcoes.jsx';
 import { GEO } from './Peca.jsx';
 
-const OK = '#b4ff8c', ERRO = '#ff7864', AREIA = '#f1dc9e';
+const OK = '#b4ff8c',
+  ERRO = '#ff7864',
+  AREIA = '#f1dc9e';
 
 // Material translúcido, um por cor
 const translucidos = new Map();
 function translucido(cor, opacidade = 0.35) {
   const chave = cor + opacidade;
   if (!translucidos.has(chave)) {
-    translucidos.set(chave, new THREE.MeshBasicMaterial({ color: cor, transparent: true, opacity: opacidade, depthWrite: false, side: THREE.DoubleSide }));
+    translucidos.set(
+      chave,
+      new THREE.MeshBasicMaterial({ color: cor, transparent: true, opacity: opacidade, depthWrite: false, side: THREE.DoubleSide }),
+    );
   }
   return translucidos.get(chave);
 }
@@ -44,7 +49,9 @@ const MAX_X = 12;
 function PreviaConstruir({ id }) {
   const c = CONSTRUCOES[id];
   const Modelo = MODELOS[id];
-  const grupo = useRef(), base = useRef(), xis = useRef([]);
+  const grupo = useRef(),
+    base = useRef(),
+    xis = useRef([]);
   useFrame(() => {
     const p = mundo.ponteiro;
     base.current.material = translucido(podeConstruirEm(id, p) ? OK : ERRO, 0.4);
@@ -61,10 +68,17 @@ function PreviaConstruir({ id }) {
     <>
       <group ref={grupo}>
         <mesh ref={base} geometry={c.area ? GEO.quadrado : GEO.disco} scale={c.area ? c.raio * 2 : c.raio} position={[0, 0.5, 0]} />
-        <Fantasma><Modelo /></Fantasma>
+        <Fantasma>
+          <Modelo />
+        </Fantasma>
       </group>
       {Array.from({ length: MAX_X }, (_, i) => (
-        <group key={i} ref={el => { xis.current[i] = el; }}>
+        <group
+          key={i}
+          ref={el => {
+            xis.current[i] = el;
+          }}
+        >
           <mesh geometry={GEO.caixa} material={material(ERRO)} scale={[18, 3, 3]} rotation={[0, 0, Math.PI / 4]} />
           <mesh geometry={GEO.caixa} material={material(ERRO)} scale={[18, 3, 3]} rotation={[0, 0, -Math.PI / 4]} />
         </group>
@@ -76,7 +90,8 @@ function PreviaConstruir({ id }) {
 // ===================== Expandir a ilha =====================
 // Mostra só o pedaço de terra novo
 function PreviaExpandir() {
-  const terra = useRef(), aviso = useRef();
+  const terra = useRef(),
+    aviso = useRef();
   const ultima = useRef(null);
   const vazia = useMemo(() => new THREE.BufferGeometry(), []);
   useEffect(() => () => terra.current?.geometry.dispose(), []);
@@ -85,7 +100,10 @@ function PreviaExpandir() {
     const nova = expansaoPara(p);
     aviso.current.visible = !nova;
     terra.current.visible = !!nova;
-    if (!nova) { posicionar(aviso.current, p.x, p.y); return; }
+    if (!nova) {
+      posicionar(aviso.current, p.x, p.y);
+      return;
+    }
     const u = ultima.current;
     if (u && Math.abs(u.ang - nova.ang) < 0.005 && Math.abs(u.alt - nova.alt) < 1) return;
     ultima.current = nova;
@@ -103,15 +121,16 @@ function PreviaExpandir() {
 // ===================== Marcadores do jogador =====================
 // Destino do toque, lugar de plantio/obra e ponto de aterro
 function Marcadores() {
-  const destino = useRef(), alvo = useRef();
+  const destino = useRef(),
+    alvo = useRef();
   useFrame(() => {
     const { jogador } = mundo;
     const d = jogador.destino;
     destino.current.visible = !!d && !jogador.tarefa && !jogador.embarcado;
     if (destino.current.visible) posicionar(destino.current, d.x, d.y);
     const t = jogador.tarefa;
-    const ponto = t && t.tipo === 'aterrar' ? { ...t.ponto, raio: 10 }
-      : t && (t.tipo === 'plantar' || t.tipo === 'construir') && !jogador.acao ? t : null;
+    const ponto =
+      t && t.tipo === 'aterrar' ? { ...t.ponto, raio: 10 } : t && (t.tipo === 'plantar' || t.tipo === 'construir') && !jogador.acao ? t : null;
     alvo.current.visible = !!ponto;
     if (ponto) {
       posicionar(alvo.current, ponto.x, ponto.y);

@@ -10,7 +10,8 @@ function InfoReprodutor({ animal }) {
   const limite = limiteEspecie(animal.especie);
   let extra;
   if (!(c.f && c.m)) extra = `Precisa de ${animal.sexo === 'f' ? 'um macho' : 'uma fêmea'} para ter filhotes.`;
-  else if (qtdEspecie(animal.especie) >= limite) extra = `Limite de ${limite} atingido${abrigoDe(animal.especie) ? '' : '. Construa um abrigo para aumentar'}.`;
+  else if (qtdEspecie(animal.especie) >= limite)
+    extra = `Limite de ${limite} atingido${abrigoDe(animal.especie) ? '' : '. Construa um abrigo para aumentar'}.`;
   else extra = `Próximo filhote em ${Math.ceil(TEMPO_CRIA_ANIMAL - c.f.cria)}s.`;
   return (
     <>
@@ -26,7 +27,9 @@ export default function PainelAnimal({ alvo: animal }) {
   return (
     <>
       <Painel.Cabecalho>
-        <Painel.Titulo>{iconeAnimal(animal)} {nomeAnimal(animal)}</Painel.Titulo>
+        <Painel.Titulo>
+          {iconeAnimal(animal)} {nomeAnimal(animal)}
+        </Painel.Titulo>
         <Painel.Fechar />
       </Painel.Cabecalho>
       {animal.reprodutor ? (

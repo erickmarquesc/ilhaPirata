@@ -54,7 +54,13 @@ function estadoDaCarta(id, modo) {
   const temAjuda = requisitosOk(id);
   const selecionada = !existente && modo.tipo === 'construir' && modo.construcao === id;
   return {
-    c, existente, obra, custo, selecionada, maximo, requisitos: requisitosDaConstrucao(id),
+    c,
+    existente,
+    obra,
+    custo,
+    selecionada,
+    maximo,
+    requisitos: requisitosDaConstrucao(id),
     disponivel: !obra && !maximo && temCusto && temAjuda,
     acao: maximo ? 'Nível máximo ⭐' : existente ? `Evoluir p/ nível ${existente.nivel + 1}` : 'Construir',
   };
@@ -65,9 +71,11 @@ function Ilustracao({ id, nivel, icone }) {
   const url = useMiniatura(id, nivel);
   return (
     <span className="flex h-[78px] w-full items-center justify-center">
-      {url
-        ? <img src={url} alt="" draggable={false} className="h-[78px] w-[78px] object-contain drop-shadow-[0_3px_2px_rgb(0_0_0/0.45)]" />
-        : <span className="text-[34px] leading-none">{icone}</span>}
+      {url ? (
+        <img src={url} alt="" draggable={false} className="h-[78px] w-[78px] object-contain drop-shadow-[0_3px_2px_rgb(0_0_0/0.45)]" />
+      ) : (
+        <span className="text-[34px] leading-none">{icone}</span>
+      )}
     </span>
   );
 }

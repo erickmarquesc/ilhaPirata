@@ -1,7 +1,18 @@
 import {
-  ILHA, SEMENTES_TRIGO_INICIAIS, SEMENTES_TRIGO_POR_COLHEITA,
-  TEMPO_CACAR, TEMPO_COLHER_TRIGO, TEMPO_GRAVIDEZ, TEMPO_NAMORAR, TEMPO_PLANTAR, TEMPO_PLANTAR_CRIANCA,
-  TEMPO_ATERRAR, TEMPO_COLETAR, TEMPO_COZINHAR, TEMPO_PLANTAR_TRIGO, TRIGO_POR_COLHEITA,
+  ILHA,
+  SEMENTES_TRIGO_INICIAIS,
+  SEMENTES_TRIGO_POR_COLHEITA,
+  TEMPO_CACAR,
+  TEMPO_COLHER_TRIGO,
+  TEMPO_GRAVIDEZ,
+  TEMPO_NAMORAR,
+  TEMPO_PLANTAR,
+  TEMPO_PLANTAR_CRIANCA,
+  TEMPO_ATERRAR,
+  TEMPO_COLETAR,
+  TEMPO_COZINHAR,
+  TEMPO_PLANTAR_TRIGO,
+  TRIGO_POR_COLHEITA,
 } from './config.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar, pertoDe } from './agentes.js';
@@ -9,9 +20,7 @@ import { entrarNaCabana, sairDaCabana, sairSemMotivo } from './cabana.js';
 import { madeiraDe, novaArvore, removerArvores, sementesDe, tempoSerrar } from './arvores.js';
 import { chovendo } from './chuva.js';
 import { arvoresAfetadas, motivoNaoPlantar, podeConstruirEm } from './espaco.js';
-import {
-  carneDe, custoEvolucao, filhosParaNivel, nivelAlvoDaObra, podeAjudarObra, requisitosDaConstrucao, tempoDoNivel,
-} from './estruturas.js';
+import { carneDe, custoEvolucao, filhosParaNivel, nivelAlvoDaObra, podeAjudarObra, requisitosDaConstrucao, tempoDoNivel } from './estruturas.js';
 import { devAtivo, pagarObra, podePagarObra } from './dev.js';
 import { textoFlutuante } from './efeitos.js';
 import { concluirAterro } from './expansao.js';
@@ -42,7 +51,9 @@ function ajudantesNecessarios(t) {
   if (devAtivo()) return 0;
   return filhosParaNivel(t.construcao, nivelAlvoDaObra(t));
 }
-export function precisaAjuda(t) { return ajudantesNecessarios(t) > 0; }
+export function precisaAjuda(t) {
+  return ajudantesNecessarios(t) > 0;
+}
 function ajudantesValidos(t) {
   return (t.ajudantes || []).filter(aj => mundo.agentes.includes(aj) && aj.tarefa && aj.tarefa.obra === t);
 }
@@ -53,11 +64,15 @@ function chamarAjudante(t) {
   t.ajudantes = ajudantesValidos(t);
   let faltam = ajudantesNecessarios(t) - t.ajudantes.length;
   while (faltam > 0) {
-    let melhor = null, dist = Infinity;
+    let melhor = null,
+      dist = Infinity;
     for (const ag of mundo.agentes) {
       if (!podeAjudarObra(ag, t.construcao) || t.ajudantes.includes(ag) || (ag.tarefa && ag.tarefa.tipo === 'embarcar')) continue;
       const d = Math.hypot(ag.x - t.x, ag.y - t.y);
-      if (d < dist) { dist = d; melhor = ag; }
+      if (d < dist) {
+        dist = d;
+        melhor = ag;
+      }
     }
     if (!melhor) return;
     cancelar(melhor);
@@ -71,22 +86,38 @@ function chamarAjudante(t) {
 
 function duracaoDe(a, t) {
   switch (t.tipo) {
-    case 'serrar': return tempoSerrar(t.arvore);
-    case 'plantar': return a.tipo === 'crianca' ? TEMPO_PLANTAR_CRIANCA : TEMPO_PLANTAR;
-    case 'namorar': return TEMPO_NAMORAR;
-    case 'cacar': return TEMPO_CACAR;
-    case 'ajudar': return Infinity; // fica ajudando até a obra acabar
-    case 'esperarNaCabana': return Infinity; // até o namoro acabar
-    case 'cuidarNaCabana': return Infinity;  // até o bebê virar criança
-    case 'abrigarNaCabana': return Infinity; // até a chuva parar
-    case 'embarcar': return 0.3;
-    case 'plantarTrigo': return TEMPO_PLANTAR_TRIGO;
-    case 'colher': return TEMPO_COLHER_TRIGO;
-    case 'aterrar': return TEMPO_ATERRAR;
-    case 'coletar': return TEMPO_COLETAR;
-    case 'cozinhar': return TEMPO_COZINHAR;
-    case 'pedirComida': return Infinity; // espera na fogueira até ter o prato que pediu
-    default: return devAtivo() ? 0 : tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir (dev: na hora)
+    case 'serrar':
+      return tempoSerrar(t.arvore);
+    case 'plantar':
+      return a.tipo === 'crianca' ? TEMPO_PLANTAR_CRIANCA : TEMPO_PLANTAR;
+    case 'namorar':
+      return TEMPO_NAMORAR;
+    case 'cacar':
+      return TEMPO_CACAR;
+    case 'ajudar':
+      return Infinity; // fica ajudando até a obra acabar
+    case 'esperarNaCabana':
+      return Infinity; // até o namoro acabar
+    case 'cuidarNaCabana':
+      return Infinity; // até o bebê virar criança
+    case 'abrigarNaCabana':
+      return Infinity; // até a chuva parar
+    case 'embarcar':
+      return 0.3;
+    case 'plantarTrigo':
+      return TEMPO_PLANTAR_TRIGO;
+    case 'colher':
+      return TEMPO_COLHER_TRIGO;
+    case 'aterrar':
+      return TEMPO_ATERRAR;
+    case 'coletar':
+      return TEMPO_COLETAR;
+    case 'cozinhar':
+      return TEMPO_COZINHAR;
+    case 'pedirComida':
+      return Infinity; // espera na fogueira até ter o prato que pediu
+    default:
+      return devAtivo() ? 0 : tempoDoNivel(t.construcao, nivelAlvoDaObra(t)); // construir / evoluir (dev: na hora)
   }
 }
 function comecarAcao(a) {
@@ -96,14 +127,22 @@ function comecarAcao(a) {
 // Quanto uma tarefa vai render no estoque (para só começar se couber tudo)
 export function rendimentoDe(t) {
   switch (t.tipo) {
-    case 'serrar': return madeiraDe(t.arvore) + sementesDe(t.arvore);
-    case 'cacar': return carneDe(t.alvo.especie);
-    case 'coletar': return 1;
-    case 'colher': return TRIGO_POR_COLHEITA + SEMENTES_TRIGO_POR_COLHEITA;
-    default: return 0;
+    case 'serrar':
+      return madeiraDe(t.arvore) + sementesDe(t.arvore);
+    case 'cacar':
+      return carneDe(t.alvo.especie);
+    case 'coletar':
+      return 1;
+    case 'colher':
+      return TRIGO_POR_COLHEITA + SEMENTES_TRIGO_POR_COLHEITA;
+    default:
+      return 0;
   }
 }
-function semEspaco(t) { const r = rendimentoDe(t); return r > 0 && !cabeNoEstoque(r); }
+function semEspaco(t) {
+  const r = rendimentoDe(t);
+  return r > 0 && !cabeNoEstoque(r);
+}
 
 function tarefaValida(a) {
   const t = a.tarefa;
@@ -111,21 +150,36 @@ function tarefaValida(a) {
   if (semEspaco(t)) return false; // estoque cheio: a coleta fica bloqueada
   const { arvores, animais, estruturas, inventario, jogador } = mundo;
   switch (t.tipo) {
-    case 'serrar': return arvores.includes(t.arvore);
-    case 'namorar': return podeNamorar() || !!a.dentro; // depois de entrar, segue até o fim
-    case 'esperarNaCabana': return mundo.jogador.tarefa?.tipo === 'namorar';
-    case 'cuidarNaCabana': return !!mundo.esposa && mundo.esposa.cuidado > 0;
-    case 'abrigarNaCabana': return chovendo();
-    case 'cacar': return animais.includes(t.alvo);
-    case 'evoluir': return estruturas.includes(t.estrutura);
-    case 'ajudar': return jogador.tarefa === t.obra;
-    case 'plantarTrigo': return t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0;
-    case 'colher': return t.canteiro.estado === 'maduro';
-    case 'coletar': return t.monte.restante > 0;
-    case 'cozinhar': return estruturas.includes(t.estrutura);
-    case 'pedirComida': return !!fogueira() && !!pedidoDe(a);
-    case 'embarcar': return estruturas.includes(t.estrutura) && jangadaNaAgua(t.estrutura) && !!t.estrutura.reservadaPor && t.estrutura.tripulacao.length < 2;
-    default: return true;
+    case 'serrar':
+      return arvores.includes(t.arvore);
+    case 'namorar':
+      return podeNamorar() || !!a.dentro; // depois de entrar, segue até o fim
+    case 'esperarNaCabana':
+      return mundo.jogador.tarefa?.tipo === 'namorar';
+    case 'cuidarNaCabana':
+      return !!mundo.esposa && mundo.esposa.cuidado > 0;
+    case 'abrigarNaCabana':
+      return chovendo();
+    case 'cacar':
+      return animais.includes(t.alvo);
+    case 'evoluir':
+      return estruturas.includes(t.estrutura);
+    case 'ajudar':
+      return jogador.tarefa === t.obra;
+    case 'plantarTrigo':
+      return t.canteiro.estado === 'vazio' && inventario.sementesTrigo > 0;
+    case 'colher':
+      return t.canteiro.estado === 'maduro';
+    case 'coletar':
+      return t.monte.restante > 0;
+    case 'cozinhar':
+      return estruturas.includes(t.estrutura);
+    case 'pedirComida':
+      return !!fogueira() && !!pedidoDe(a);
+    case 'embarcar':
+      return estruturas.includes(t.estrutura) && jangadaNaAgua(t.estrutura) && !!t.estrutura.reservadaPor && t.estrutura.tripulacao.length < 2;
+    default:
+      return true;
   }
 }
 
@@ -134,7 +188,8 @@ function tarefaValida(a) {
 const CONCLUIR = {
   serrar(a, t) {
     if (!mundo.arvores.includes(t.arvore)) return;
-    const madeira = madeiraDe(t.arvore), sementes = sementesDe(t.arvore);
+    const madeira = madeiraDe(t.arvore),
+      sementes = sementesDe(t.arvore);
     removerArvores([t.arvore]);
     ganhar('madeira', madeira);
     ganhar('sementes', sementes);
@@ -153,8 +208,14 @@ const CONCLUIR = {
   },
   construir(a, t) {
     const c = CONSTRUCOES[t.construcao];
-    if (!podePagarObra(c.custo)) { textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0'); return; }
-    if (!podeConstruirEm(t.construcao, t)) { textoFlutuante(t.x, t.y - 20, 'Não dá para construir aqui', '#ffb0a0'); return; }
+    if (!podePagarObra(c.custo)) {
+      textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
+      return;
+    }
+    if (!podeConstruirEm(t.construcao, t)) {
+      textoFlutuante(t.x, t.y - 20, 'Não dá para construir aqui', '#ffb0a0');
+      return;
+    }
     pagarObra(c.custo);
     // derruba as árvores do terreno, sem ganhar madeira nem sementes
     const derrubadas = arvoresAfetadas(t.construcao, t);
@@ -163,7 +224,10 @@ const CONCLUIR = {
       textoFlutuante(t.x, t.y + 10, derrubadas.length + (derrubadas.length > 1 ? ' árvores derrubadas' : ' árvore derrubada'), '#e0c090');
     }
     const est = { tipo: t.construcao, x: t.x, y: t.y, raio: c.raio, nivel: 1 };
-    if (c.area) { est.area = true; est.ocupa = c.raio * 1.42; }
+    if (c.area) {
+      est.area = true;
+      est.ocupa = c.raio * 1.42;
+    }
     if (t.construcao === 'campoTrigo') {
       est.canteiros = criarCanteiros(est);
       ganhar('sementesTrigo', SEMENTES_TRIGO_INICIAIS);
@@ -182,7 +246,8 @@ const CONCLUIR = {
     abrirConquista(t.construcao);
   },
   evoluir(a, t) {
-    const est = t.estrutura, c = CONSTRUCOES[est.tipo];
+    const est = t.estrutura,
+      c = CONSTRUCOES[est.tipo];
     const custo = custoEvolucao(est);
     if (!custo) return; // já está no nível máximo
     if (!mundo.estruturas.includes(est) || !podePagarObra(custo)) {
@@ -190,7 +255,10 @@ const CONCLUIR = {
       return;
     }
     const totem = requisitosDaConstrucao(est.tipo).find(r => r.chave === 'totem' && !r.ok);
-    if (totem) { textoFlutuante(t.x, t.y - 20, totem.dica, '#ffb0a0'); return; }
+    if (totem) {
+      textoFlutuante(t.x, t.y - 20, totem.dica, '#ffb0a0');
+      return;
+    }
     pagarObra(custo);
     est.nivel += 1;
     textoFlutuante(t.x, t.y - c.altura - 20, `${c.nome} evoluiu para o nível ${est.nivel}!`);
@@ -198,11 +266,13 @@ const CONCLUIR = {
   plantarTrigo(a, t) {
     if (t.canteiro.estado !== 'vazio' || mundo.inventario.sementesTrigo <= 0) return;
     ganhar('sementesTrigo', -1);
-    t.canteiro.estado = 'crescendo'; t.canteiro.idade = 0;
+    t.canteiro.estado = 'crescendo';
+    t.canteiro.idade = 0;
   },
   colher(a, t) {
     if (t.canteiro.estado !== 'maduro') return;
-    t.canteiro.estado = 'vazio'; t.canteiro.idade = 0;
+    t.canteiro.estado = 'vazio';
+    t.canteiro.idade = 0;
     ganhar('trigo', TRIGO_POR_COLHEITA);
     ganhar('sementesTrigo', SEMENTES_TRIGO_POR_COLHEITA);
     textoFlutuante(t.x, t.y - 15, '+' + TRIGO_POR_COLHEITA + ' 🌾  +' + SEMENTES_TRIGO_POR_COLHEITA + ' sementes');
@@ -251,7 +321,10 @@ function concluirAcao(a) {
 
 // Executa tarefa/ação/movimento de qualquer personagem
 export function executar(a, dt) {
-  if (a.embarcado) { if (a === mundo.jogador) navegar(dt); return; }
+  if (a.embarcado) {
+    if (a === mundo.jogador) navegar(dt);
+    return;
+  }
   if (!tarefaValida(a)) {
     if (a === mundo.jogador && a.tarefa && semEspaco(a.tarefa)) {
       textoFlutuante(a.x, a.y - 30, 'Estoque cheio! Gaste recursos ou melhore o moinho', '#ffb0a0');
@@ -271,23 +344,37 @@ export function executar(a, dt) {
     }
     if ((t.tipo === 'cuidarNaCabana' || t.tipo === 'abrigarNaCabana') && !a.dentro) entrarNaCabana(a, t.cabana);
     if (precisaAjuda(t) && !ajudantesTrabalhando(t)) {
-      chamarAjudante(t);   // garante que alguém está vindo
-      return;              // espera o adolescente chegar
+      chamarAjudante(t); // garante que alguém está vindo
+      return; // espera o adolescente chegar
     }
     a.acao.tempo += dt;
     if (a.acao.tempo >= a.acao.duracao) concluirAcao(a);
     return;
   }
   const t = a.tarefa;
-  if (t && t.alvo) { t.x = t.alvo.x; t.y = t.alvo.y; a.destino = { x: t.x, y: t.y }; } // alvo que se move
-  if (t && pertoDe(a, t.x, t.y, t.raio)) { comecarAcao(a); return; }
+  if (t && t.alvo) {
+    t.x = t.alvo.x;
+    t.y = t.alvo.y;
+    a.destino = { x: t.x, y: t.y };
+  } // alvo que se move
+  if (t && pertoDe(a, t.x, t.y, t.raio)) {
+    comecarAcao(a);
+    return;
+  }
 
-  let dx = 0, dy = 0;
+  let dx = 0,
+    dy = 0;
   if (a.destino) {
     const alvo = proximoPonto(a);
-    const vx = alvo.x - a.x, vy = alvo.y - a.y;
-    if (alvo === a.destino && Math.hypot(vx, vy) < 4) { a.destino = null; a.rota = null; }
-    else { dx = vx; dy = vy; }
+    const vx = alvo.x - a.x,
+      vy = alvo.y - a.y;
+    if (alvo === a.destino && Math.hypot(vx, vy) < 4) {
+      a.destino = null;
+      a.rota = null;
+    } else {
+      dx = vx;
+      dy = vy;
+    }
   }
   if ((dx || dy) && !mover(a, dx, dy, dt)) {
     cancelar(a);

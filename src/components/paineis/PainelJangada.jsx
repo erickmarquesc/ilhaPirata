@@ -1,7 +1,5 @@
 import { dispararCanhoes } from '../../game/canhoes.js';
-import {
-  adultosLivres, desembarcar, irEmbarcar, jangadaLivre, jangadaNaAgua, podeDesembarcar, prepararJangada,
-} from '../../game/jangada.js';
+import { adultosLivres, desembarcar, irEmbarcar, jangadaLivre, jangadaNaAgua, podeDesembarcar, prepararJangada } from '../../game/jangada.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import Botao from '../ui/Botao.jsx';
 import Painel from '../ui/Painel.jsx';
@@ -33,17 +31,21 @@ function Conteudo({ jangada }) {
       return (
         <>
           <Painel.Texto>Esperando o filho adulto embarcar...</Painel.Texto>
-          <Painel.Acoes><BotaoFogo jangada={jangada} /><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
+          <Painel.Acoes>
+            <BotaoFogo jangada={jangada} />
+            <BotaoDesembarcar jangada={jangada} />
+          </Painel.Acoes>
         </>
       );
     }
     return (
       <>
         <Painel.Texto>Navegando com seu filho. Pare em cima de um cardume para pescar.</Painel.Texto>
-        <Painel.Texto>
-          {podeDesembarcar(jangada) ? 'Vocês estão perto da praia.' : 'Cheguem perto da praia para desembarcar.'}
-        </Painel.Texto>
-        <Painel.Acoes><BotaoFogo jangada={jangada} /><BotaoDesembarcar jangada={jangada} /></Painel.Acoes>
+        <Painel.Texto>{podeDesembarcar(jangada) ? 'Vocês estão perto da praia.' : 'Cheguem perto da praia para desembarcar.'}</Painel.Texto>
+        <Painel.Acoes>
+          <BotaoFogo jangada={jangada} />
+          <BotaoDesembarcar jangada={jangada} />
+        </Painel.Acoes>
       </>
     );
   }

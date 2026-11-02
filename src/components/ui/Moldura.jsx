@@ -27,8 +27,12 @@ function Cantoneiras() {
   const rebites = ['top-1 left-1', 'top-1 right-1', 'bottom-1 left-1', 'bottom-1 right-1'];
   return (
     <>
-      {cantos.map(c => <span key={c} className={`pointer-events-none absolute h-5 w-5 border-[#f0bd4e] drop-shadow-[0_1px_0_#5a2e0c] ${c}`} />)}
-      {rebites.map(r => <span key={r} className={`ouro pointer-events-none absolute h-1.5 w-1.5 rounded-full border ${r}`} />)}
+      {cantos.map(c => (
+        <span key={c} className={`pointer-events-none absolute h-5 w-5 border-[#f0bd4e] drop-shadow-[0_1px_0_#5a2e0c] ${c}`} />
+      ))}
+      {rebites.map(r => (
+        <span key={r} className={`ouro pointer-events-none absolute h-1.5 w-1.5 rounded-full border ${r}`} />
+      ))}
     </>
   );
 }

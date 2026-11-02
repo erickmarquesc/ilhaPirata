@@ -22,14 +22,14 @@ for (let i = 0; i < tipos.length; i++) {
 const raios = [10, Math.max(...Object.values(ESPECIES).map(e => e.raio))];
 
 const ehMonte = id => id.startsWith('monte:');
-const raioDe = id => ehMonte(id) ? MONTES[id.slice(6)].raio : CONSTRUCOES[id].raio;
+const raioDe = id => (ehMonte(id) ? MONTES[id.slice(6)].raio : CONSTRUCOES[id].raio);
 function colocar(id, x, y) {
   if (!ehMonte(id)) return colocarConstrucao(id, x, y);
   const m = { tipo: id.slice(6), x, y, raio: raioDe(id), restante: 500, recarga: 0 };
   mundo.montes.push(m);
   return m;
 }
-const formaDoId = (id, x, y) => ehMonte(id) ? { x, y, r: raioDe(id) } : formaDe(id, x, y);
+const formaDoId = (id, x, y) => (ehMonte(id) ? { x, y, r: raioDe(id) } : formaDe(id, x, y));
 // Distância ao centro abaixo da qual quem tem esse raio fica bloqueado (igual a podeFicar)
 function bloqueio(obj, raio) {
   if (mundo.montes.includes(obj)) return obj.raio * 0.8 + raio * 0.5;
@@ -41,9 +41,11 @@ beforeEach(() => limparMundo());
 
 // Monta o par alinhado no eixo x, com a folga mínima entre as bordas
 function montarPar(a, b) {
-  const xA = ILHA.x - 60, y = ILHA.y;
+  const xA = ILHA.x - 60,
+    y = ILHA.y;
   const xB = xA + raioDe(a) + raioDe(b) + DISTANCIA_MIN_CONSTRUCAO;
-  const A = colocar(a, xA, y), B = colocar(b, xB, y);
+  const A = colocar(a, xA, y),
+    B = colocar(b, xB, y);
   return { A, B, y, vaoX: xA + raioDe(a) + DISTANCIA_MIN_CONSTRUCAO / 2 };
 }
 
@@ -55,16 +57,19 @@ describe.each(pares)('%s + %s à folga mínima', (a, b) => {
 
   it.each(raios)('sobra vão entre os bloqueios (raio %i)', raio => {
     const { A, B } = montarPar(a, b);
-    const bA = bloqueio(A, raio), bB = bloqueio(B, raio);
+    const bA = bloqueio(A, raio),
+      bB = bloqueio(B, raio);
     if (bA === null || bB === null) return; // um dos dois não bloqueia: passagem livre
     expect(Math.hypot(B.x - A.x, B.y - A.y) - bA - bB).toBeGreaterThan(0);
   });
 
   // reto: atravessa perpendicular ao par; diagonal: cruza o vão inclinado, raspando nas bordas
-  it.each([
-    ['reto', raio => [raio, 0]],
-    ['diagonal', raio => [raio, 30]],
-  ].flatMap(([nome, f]) => raios.map(r => [nome, r, f(r)[1]])))('atravessa o vão %s (raio %i)', (_, raio, desvio) => {
+  it.each(
+    [
+      ['reto', raio => [raio, 0]],
+      ['diagonal', raio => [raio, 30]],
+    ].flatMap(([nome, f]) => raios.map(r => [nome, r, f(r)[1]])),
+  )('atravessa o vão %s (raio %i)', (_, raio, desvio) => {
     const { A, B, y, vaoX } = montarPar(a, b);
     const p = novoAgente('adulto', vaoX - desvio, y - 80, { raio });
     const destino = { x: vaoX + desvio, y: y + 80 };

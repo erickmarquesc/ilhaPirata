@@ -19,16 +19,26 @@ function parte(geo, cor) {
   const g = geo.toNonIndexed();
   const c = new THREE.Color(cor);
   const cores = new Float32Array(g.attributes.position.count * 3);
-  for (let i = 0; i < cores.length; i += 3) { cores[i] = c.r; cores[i + 1] = c.g; cores[i + 2] = c.b; }
+  for (let i = 0; i < cores.length; i += 3) {
+    cores[i] = c.r;
+    cores[i + 1] = c.g;
+    cores[i + 2] = c.b;
+  }
   g.setAttribute('color', new THREE.BufferAttribute(cores, 3));
   g.deleteAttribute('uv');
   return g;
 }
 const geoPeixe = mergeGeometries([
-  parte(new THREE.IcosahedronGeometry(1, 1).scale(3.8, 1.6, 1.3), '#ffffff'),                                        // corpo
-  parte(new THREE.ConeGeometry(1.9, 3.2, 3).rotateZ(-Math.PI / 2).scale(1, 1, 0.3).translate(-4.8, 0, 0), '#ffffff'), // rabo
-  parte(new THREE.ConeGeometry(0.9, 1.8, 3).scale(1, 1, 0.3).rotateZ(0.5).translate(0, 1.7, 0), '#ffffff'),           // nadadeira
-  parte(new THREE.IcosahedronGeometry(0.3, 0).translate(2.5, 0.4, 0.95), '#1a1a1a'),                                   // olhos
+  parte(new THREE.IcosahedronGeometry(1, 1).scale(3.8, 1.6, 1.3), '#ffffff'), // corpo
+  parte(
+    new THREE.ConeGeometry(1.9, 3.2, 3)
+      .rotateZ(-Math.PI / 2)
+      .scale(1, 1, 0.3)
+      .translate(-4.8, 0, 0),
+    '#ffffff',
+  ), // rabo
+  parte(new THREE.ConeGeometry(0.9, 1.8, 3).scale(1, 1, 0.3).rotateZ(0.5).translate(0, 1.7, 0), '#ffffff'), // nadadeira
+  parte(new THREE.IcosahedronGeometry(0.3, 0).translate(2.5, 0.4, 0.95), '#1a1a1a'), // olhos
   parte(new THREE.IcosahedronGeometry(0.3, 0).translate(2.5, 0.4, -0.95), '#1a1a1a'),
 ]);
 const matsPeixe = CORES_PEIXE.map(cor => new THREE.MeshStandardMaterial({ color: cor, vertexColors: true, flatShading: true, roughness: 0.6 }));
@@ -48,8 +58,8 @@ const Cardume = memo(function Cardume({ c }) {
       if (!m) return;
       m.visible = i < qtd;
       m.scale.setScalar(tam);
-      const a = c.fase * 0.8 + i / qtd * Math.PI * 2;
-      const r = c.raio * (0.35 + 0.5 * ((i * 37) % 10) / 10);
+      const a = c.fase * 0.8 + (i / qtd) * Math.PI * 2;
+      const r = c.raio * (0.35 + (0.5 * ((i * 37) % 10)) / 10);
       // nada em círculo, virado para onde vai, com o corpo balançando
       const rumo = -Math.atan2(Math.cos(a) * 0.8, -Math.sin(a));
       m.position.set(c.x - ILHA.x + Math.cos(a) * r, 0.6, c.y - ILHA.y + Math.sin(a) * r * 0.8);
@@ -69,7 +79,15 @@ const Cardume = memo(function Cardume({ c }) {
     <>
       <mesh ref={anel} geometry={geoAnelCardume} material={matAnelCardume} />
       {Array.from({ length: c.profundo ? MAX_PEIXES_PROFUNDO : MAX_PEIXES }, (_, i) => (
-        <mesh key={i} ref={el => { peixes.current[i] = el; }} geometry={geoPeixe} material={matsPeixe[i % matsPeixe.length]} castShadow />
+        <mesh
+          key={i}
+          ref={el => {
+            peixes.current[i] = el;
+          }}
+          geometry={geoPeixe}
+          material={matsPeixe[i % matsPeixe.length]}
+          castShadow
+        />
       ))}
     </>
   );
@@ -84,7 +102,9 @@ export function Cardumes() {
 function Luz({ f }) {
   const ref = useRef();
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#fff5b4', transparent: true, depthWrite: false }), []);
-  useFrame(() => { mat.opacity = Math.max(f.vida / 1.8, 0) * 0.55; });
+  useFrame(() => {
+    mat.opacity = Math.max(f.vida / 1.8, 0) * 0.55;
+  });
   return <mesh ref={ref} geometry={GEO.cilindro} material={mat} position={[f.x - ILHA.x, 200, f.y - ILHA.y]} scale={[20, 400, 20]} />;
 }
 

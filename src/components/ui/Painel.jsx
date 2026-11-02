@@ -28,11 +28,7 @@ function Cabecalho({ children }) {
 
 function Titulo({ children }) {
   const { destaque } = useContext(PainelContext);
-  return (
-    <h2 className={`m-0 font-semibold ${destaque ? 'text-base' : 'text-[13px] opacity-80'}`}>
-      {children}
-    </h2>
-  );
+  return <h2 className={`m-0 font-semibold ${destaque ? 'text-base' : 'text-[13px] opacity-80'}`}>{children}</h2>;
 }
 
 function Fechar() {

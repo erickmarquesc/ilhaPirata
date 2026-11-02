@@ -34,7 +34,7 @@ const Estrutura = memo(function Estrutura({ s }) {
     ref.current.rotation.x = noMar ? Math.sin(t * 1.6) * 0.03 : 0;
     if (ondinha.current) {
       ondinha.current.visible = noMar;
-      const r = 34 + (s.nivel - 1) * 9 + (t * 8) % 10;
+      const r = 34 + (s.nivel - 1) * 9 + ((t * 8) % 10);
       ondinha.current.scale.set(r, 1, r * 0.6);
       ondinha.current.rotation.y = s.rumoVisual ?? 0; // a marola acompanha o comprimento do barco
       ondinha.current.position.set(s.x - ILHA.x, 0.5, s.y - ILHA.y);
@@ -68,7 +68,9 @@ export default function Estruturas() {
   const { estruturas } = useMundo();
   return (
     <>
-      {estruturas.map(s => <Estrutura key={idDe(s)} s={s} nivel={s.nivel} />)}
+      {estruturas.map(s => (
+        <Estrutura key={idDe(s)} s={s} nivel={s.nivel} />
+      ))}
       <Obra />
     </>
   );

@@ -6,8 +6,8 @@ import { MODELOS_MONTE } from './modelos/Montes.jsx';
 
 // O monte encolhe conforme é coletado; esgotado, fica um restinho até se recompor
 export function escalaDoMonte(m) {
-  const fator = m.restante > 0 ? 0.45 + 0.55 * m.restante / QTD_POR_MONTE : 0.25;
-  return fator * m.raio / 20;
+  const fator = m.restante > 0 ? 0.45 + (0.55 * m.restante) / QTD_POR_MONTE : 0.25;
+  return (fator * m.raio) / 20;
 }
 
 export default function Montes() {

@@ -10,7 +10,9 @@ import { DT, jogadorAleatorio, povoarIlha } from './ajudantes.js';
 // terminar com o mesmo mundo, e outra semente, com um mundo diferente.
 const DURACAO = 2 * 60;
 
-afterEach(() => { mundo.dev = false; });
+afterEach(() => {
+  mundo.dev = false;
+});
 
 const r = v => Math.round(v * 100) / 100;
 const lugar = o => [r(o.x), r(o.y)];
@@ -19,14 +21,20 @@ function resumo() {
   return {
     inventario: { ...mundo.inventario },
     contagens: {
-      agentes: mundo.agentes.length, animais: mundo.animais.length, arvores: mundo.arvores.length,
-      estruturas: mundo.estruturas.length, cardumes: mundo.cardumes.length, montes: mundo.montes.length,
+      agentes: mundo.agentes.length,
+      animais: mundo.animais.length,
+      arvores: mundo.arvores.length,
+      estruturas: mundo.estruturas.length,
+      cardumes: mundo.cardumes.length,
+      montes: mundo.montes.length,
     },
     agentes: mundo.agentes.map(a => [a.nome ?? a.tipo, ...lugar(a)]),
     animais: mundo.animais.map(an => [an.especie, an.sexo, ...lugar(an)]),
     cardumes: mundo.cardumes.map(lugar),
     arvores: mundo.arvores.map(lugar),
-    chuva: r(mundo.chuva), favor: r(mundo.favor), filhos: mundo.contadorFilhos,
+    chuva: r(mundo.chuva),
+    favor: r(mundo.favor),
+    filhos: mundo.contadorFilhos,
   };
 }
 

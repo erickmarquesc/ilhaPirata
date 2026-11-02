@@ -21,16 +21,5 @@ export const GEO = {
 // Uma peça low-poly: <Peca geo="caixa" cor="#a06a35" p={[x, y, z]} s={[w, h, d]} />
 export default function Peca({ geo = 'caixa', cor, p = [0, 0, 0], s = 1, r = [0, 0, 0], sombra = true, ...props }) {
   const mat = useMaterial();
-  return (
-    <mesh
-      geometry={GEO[geo]}
-      material={mat(cor)}
-      position={p}
-      scale={s}
-      rotation={r}
-      castShadow={sombra}
-      receiveShadow
-      {...props}
-    />
-  );
+  return <mesh geometry={GEO[geo]} material={mat(cor)} position={p} scale={s} rotation={r} castShadow={sombra} receiveShadow {...props} />;
 }

@@ -27,7 +27,9 @@ export function dispararCanhoes() {
   if (est.recargaCanhoes > 0) return true;
   est.recargaCanhoes = RECARGA_CANHOES;
   // proa na direção (cos, −sin) do rumo; cada lado (l = ±1) sai perpendicular a ela
-  const ang = est.rumoVisual ?? 0, c = Math.cos(ang), s = Math.sin(ang);
+  const ang = est.rumoVisual ?? 0,
+    c = Math.cos(ang),
+    s = Math.sin(ang);
   for (const l of [-1, 1]) {
     for (const cx of CANHOES.xs) {
       const x = est.x + cx * c + l * CANHOES.boca * s;
@@ -46,12 +48,15 @@ export function atualizarCanhoes(dt) {
 
   const { balas, estouros } = mundo;
   for (const b of balas) {
-    b.x += b.vx * dt; b.y += b.vy * dt;
-    b.vh -= GRAVIDADE_BALA * dt; b.h += b.vh * dt;
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    b.vh -= GRAVIDADE_BALA * dt;
+    b.h += b.vh * dt;
     const naIlha = dentroDaIlha(b.x, b.y);
     if (b.h <= (naIlha ? ALTURA_CHAO : 0)) {
       b.caiu = true;
-      if (naIlha) estouro('fumaca', b.x, b.y, ALTURA_CHAO); // poeira na areia
+      if (naIlha)
+        estouro('fumaca', b.x, b.y, ALTURA_CHAO); // poeira na areia
       else estouro('agua', b.x, b.y, 0);
     }
   }

@@ -14,7 +14,9 @@ import { DT, jogadorAleatorio, povoarIlha } from './ajudantes.js';
 const DURACAO = 5 * 60;
 const SEMENTES = [1, 42, 2026];
 
-afterEach(() => { mundo.dev = false; });
+afterEach(() => {
+  mundo.dev = false;
+});
 
 // Devolve o primeiro problema encontrado no quadro, ou null
 function violacao() {
@@ -49,16 +51,24 @@ function simular(semente, jogada = () => {}) {
 }
 
 describe('simulação de 5 minutos', () => {
-  it.each(SEMENTES)('ilha nova, sem jogadas (semente %i)', semente => {
-    criarMundo(semente);
-    simular(semente);
-  }, 60000);
+  it.each(SEMENTES)(
+    'ilha nova, sem jogadas (semente %i)',
+    semente => {
+      criarMundo(semente);
+      simular(semente);
+    },
+    60000,
+  );
 
-  it.each(SEMENTES)('ilha povoada, jogador aleatório (semente %i)', semente => {
-    const aleatorio = criarGerador(semente); // jogadas do teste, separadas dos sorteios do jogo
-    criarMundo(semente);
-    povoarIlha(aleatorio);
-    expect(violacao()).toBeNull();
-    simular(semente, jogadorAleatorio(aleatorio));
-  }, 60000);
+  it.each(SEMENTES)(
+    'ilha povoada, jogador aleatório (semente %i)',
+    semente => {
+      const aleatorio = criarGerador(semente); // jogadas do teste, separadas dos sorteios do jogo
+      criarMundo(semente);
+      povoarIlha(aleatorio);
+      expect(violacao()).toBeNull();
+      simular(semente, jogadorAleatorio(aleatorio));
+    },
+    60000,
+  );
 });

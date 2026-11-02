@@ -18,14 +18,18 @@ export default function PainelTotem({ alvo }) {
   return (
     <Moldura className="w-full">
       <Moldura.Placa>🗿 Totem da Vida</Moldura.Placa>
-      <Moldura.Acao onClick={fecharPainel} aria-label="Fechar">✕</Moldura.Acao>
+      <Moldura.Acao onClick={fecharPainel} aria-label="Fechar">
+        ✕
+      </Moldura.Acao>
       <Moldura.Corpo>
         <p className="m-0 mt-1 text-center text-[12px] leading-snug text-[#f3dcae]">
           <span className="texto-ouro text-[13px]">Nível {alvo?.nivel ?? 1}</span> · Faça uma oferenda e peça algo aos deuses.
         </p>
         <Secao titulo="Pedidos">
           <div className="flex gap-2 pt-2">
-            {Object.entries(PEDIDOS).map(([id, p]) => <CartaPedido key={id} id={id} pedido={p} />)}
+            {Object.entries(PEDIDOS).map(([id, p]) => (
+              <CartaPedido key={id} id={id} pedido={p} />
+            ))}
           </div>
         </Secao>
         <Secao titulo="Troca com os deuses">
@@ -75,9 +79,7 @@ function CartaPedido({ id, pedido: p }) {
       )}
       <span className="text-[28px] leading-none drop-shadow-[0_2px_1px_rgb(0_0_0/0.45)]">{p.icone}</span>
       <span className="texto-ouro mt-1 mb-1 text-[14px] leading-tight">{p.nome}</span>
-      {disponivel
-        ? <ListaCusto custo={p.custo} />
-        : <span className="rounded-md bg-black/30 px-1 py-0.5 text-[11px] leading-tight">{p.motivo}</span>}
+      {disponivel ? <ListaCusto custo={p.custo} /> : <span className="rounded-md bg-black/30 px-1 py-0.5 text-[11px] leading-tight">{p.motivo}</span>}
     </button>
   );
 }
@@ -89,19 +91,27 @@ function TrocaComDeuses({ favor }) {
   return (
     <>
       <p className="m-0 text-center text-[12px] leading-snug text-[#f3dcae]">
-        {favor > 0
-          ? <><span className="texto-ouro text-[13px]">✨ Favor dos deuses</span> · troca 1 por 1 por mais {Math.ceil(favor)}s</>
-          : <>Taxa <span className="texto-ouro text-[13px]">{TAXA_TROCA} por 1</span> · ofereça o espeto na fogueira para ganhar ✨ favor</>}
+        {favor > 0 ? (
+          <>
+            <span className="texto-ouro text-[13px]">✨ Favor dos deuses</span> · troca 1 por 1 por mais {Math.ceil(favor)}s
+          </>
+        ) : (
+          <>
+            Taxa <span className="texto-ouro text-[13px]">{TAXA_TROCA} por 1</span> · ofereça o espeto na fogueira para ganhar ✨ favor
+          </>
+        )}
       </p>
       <EscolhaRecurso rotulo="Dar" valor={dar} onEscolher={setDar} />
       <EscolhaRecurso rotulo="Receber" valor={receber} onEscolher={setReceber} />
-      {dar === receber
-        ? <p className="m-0 mt-2 text-center text-[12px] font-semibold text-[#ff8a7a]">Escolha recursos diferentes</p>
-        : (
-          <div className="mt-2 grid grid-cols-3 gap-1.5">
-            {LOTES_TROCA.map(qtd => <Lote key={qtd} dar={dar} receber={receber} qtd={qtd} />)}
-          </div>
-        )}
+      {dar === receber ? (
+        <p className="m-0 mt-2 text-center text-[12px] font-semibold text-[#ff8a7a]">Escolha recursos diferentes</p>
+      ) : (
+        <div className="mt-2 grid grid-cols-3 gap-1.5">
+          {LOTES_TROCA.map(qtd => (
+            <Lote key={qtd} dar={dar} receber={receber} qtd={qtd} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -153,9 +163,13 @@ function Lote({ dar, receber, qtd }) {
         pode ? 'border-[#f0bd4e] shadow-[0_0_10px_rgb(245_200_76/0.5)]' : 'border-[#9a7040] opacity-50 saturate-50',
       ].join(' ')}
     >
-      <span className="text-[12px] leading-tight">Dá <span className="texto-ouro text-[14px]">{qtd}</span> {icone(dar)}</span>
+      <span className="text-[12px] leading-tight">
+        Dá <span className="texto-ouro text-[14px]">{qtd}</span> {icone(dar)}
+      </span>
       <span className="text-[10px] leading-none opacity-70">▼</span>
-      <span className="text-[12px] leading-tight">Ganha <span className="texto-ouro text-[14px]">{recebidoNaTroca(qtd)}</span> {icone(receber)}</span>
+      <span className="text-[12px] leading-tight">
+        Ganha <span className="texto-ouro text-[14px]">{recebidoNaTroca(qtd)}</span> {icone(receber)}
+      </span>
     </button>
   );
 }

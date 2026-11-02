@@ -59,7 +59,9 @@ function Item({ recurso, icone, rotulo, valor }) {
         <span className="text-base leading-none drop-shadow-[0_1px_0_rgb(0_0_0/0.5)]">{icone}</span>
         <strong className={`texto-ouro text-[17px] leading-tight font-normal tabular-nums ${destacado ? 'text-white' : ''}`}>{quantidade}</strong>
       </span>
-      <span className={`w-full truncate text-center text-[10px] leading-tight ${pausa ? 'font-semibold text-[#ffb070]' : 'text-[#f3dcae] opacity-80'}`}>
+      <span
+        className={`w-full truncate text-center text-[10px] leading-tight ${pausa ? 'font-semibold text-[#ffb070]' : 'text-[#f3dcae] opacity-80'}`}
+      >
         {pausa ? 'Pausado' : rotulo}
       </span>
       {pausa && (
@@ -69,7 +71,12 @@ function Item({ recurso, icone, rotulo, valor }) {
       )}
     </>
   );
-  if (!pausavel) return <div title={rotulo} className={classe}>{conteudo}</div>;
+  if (!pausavel)
+    return (
+      <div title={rotulo} className={classe}>
+        {conteudo}
+      </div>
+    );
   return (
     <button
       type="button"
@@ -86,7 +93,8 @@ function Item({ recurso, icone, rotulo, valor }) {
 // Barra do estoque: soma de todos os recursos / capacidade (o moinho aumenta)
 function Estoque() {
   useMundo();
-  const total = totalNoEstoque(), capacidade = capacidadeDoEstoque();
+  const total = totalNoEstoque(),
+    capacidade = capacidadeDoEstoque();
   const fracao = Math.min(total / capacidade, 1);
   const cheio = total >= capacidade;
   const cor = cheio ? 'from-[#e8584a] to-[#9c2a22]' : fracao > 0.85 ? 'from-[#f0a040] to-[#b0601a]' : 'from-[#ffe58a] to-[#c9851e]';
@@ -94,7 +102,9 @@ function Estoque() {
     <div className="mt-2" title="Soma de todos os recursos. Construa e evolua o moinho para guardar mais.">
       <div className="mb-0.5 flex items-baseline justify-between px-0.5 text-[11px] text-[#f3dcae]">
         <span>📦 Estoque{cheio && <strong className="ml-1 text-[#ff8a7a]">cheio!</strong>}</span>
-        <span className="texto-ouro text-[13px] font-normal tabular-nums">{total} / {capacidade}</span>
+        <span className="texto-ouro text-[13px] font-normal tabular-nums">
+          {total} / {capacidade}
+        </span>
       </div>
       <div className="medalhao h-3 overflow-hidden rounded-full p-0.5">
         <div className={`h-full rounded-full bg-gradient-to-r transition-[width] duration-300 ${cor}`} style={{ width: `${fracao * 100}%` }} />

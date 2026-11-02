@@ -16,24 +16,45 @@ import { atualizarInventario, fecharPainel } from './ui.js';
 export function novoAnimal(especie, sexo, x, y, reprodutor) {
   const E = ESPECIES[especie];
   return {
-    especie, sexo, x, y, reprodutor,
-    raio: E.raio, velocidade: E.velocidade,
+    especie,
+    sexo,
+    x,
+    y,
+    reprodutor,
+    raio: E.raio,
+    velocidade: E.velocidade,
     idade: reprodutor ? TEMPO_CRESCER_ANIMAL : 0,
-    destino: null, espera: entre(1, 3), cria: 0, dir: 1,
+    destino: null,
+    espera: entre(1, 3),
+    cria: 0,
+    dir: 1,
   };
 }
-export function nomeAnimal(an) { return ESPECIES[an.especie].nome[an.sexo]; }
-export function iconeAnimal(an) { return ESPECIES[an.especie].icone[an.sexo]; }
-export function animalAdulto(an) { return an.idade >= TEMPO_CRESCER_ANIMAL; }
-export function cacavel(an) { return !an.reprodutor && animalAdulto(an); }
+export function nomeAnimal(an) {
+  return ESPECIES[an.especie].nome[an.sexo];
+}
+export function iconeAnimal(an) {
+  return ESPECIES[an.especie].icone[an.sexo];
+}
+export function animalAdulto(an) {
+  return an.idade >= TEMPO_CRESCER_ANIMAL;
+}
+export function cacavel(an) {
+  return !an.reprodutor && animalAdulto(an);
+}
 export function casal(especie) {
   const r = mundo.animais.filter(a => a.especie === especie && a.reprodutor);
   return { f: r.find(a => a.sexo === 'f'), m: r.find(a => a.sexo === 'm') };
 }
-export function qtdEspecie(especie) { return mundo.animais.filter(a => a.especie === especie).length; }
+export function qtdEspecie(especie) {
+  return mundo.animais.filter(a => a.especie === especie).length;
+}
 // Espécies que ainda não têm o casal completo (1 fêmea + 1 macho)
 export function especiesIncompletas() {
-  return Object.keys(ESPECIES).filter(e => { const c = casal(e); return !(c.f && c.m); });
+  return Object.keys(ESPECIES).filter(e => {
+    const c = casal(e);
+    return !(c.f && c.m);
+  });
 }
 
 export function pedirAnimal(id) {
@@ -58,7 +79,9 @@ export function pedirAnimal(id) {
 export function animalEm(p) {
   return mundo.animais.find(a => Math.hypot(p.x - a.x, p.y - (a.y - a.raio * 0.6)) < a.raio + 8);
 }
-function sendoCacado(an) { return mundo.agentes.some(a => a.acao && a.acao.tarefa.alvo === an); }
+function sendoCacado(an) {
+  return mundo.agentes.some(a => a.acao && a.acao.tarefa.alvo === an);
+}
 
 // O jogador vai caçar o animal (tira a presa de quem já estava indo)
 export function cacar(an) {
@@ -71,13 +94,18 @@ export function cacar(an) {
 // ===================== Locomoção =====================
 // O animal tem um rumo que gira aos poucos (anda em curvas) e uma velocidade que
 // acelera e freia suavemente: sai devagar, desacelera ao chegar e nas curvas fechadas.
-const GIRO_POR_SEGUNDO = 3;      // quanto o rumo pode virar por segundo (rad)
-const DISTANCIA_DE_FREIO = 25;   // começa a frear a essa distância do destino
+const GIRO_POR_SEGUNDO = 3; // quanto o rumo pode virar por segundo (rad)
+const DISTANCIA_DE_FREIO = 25; // começa a frear a essa distância do destino
 
 function andar(an, dt) {
-  const vx = an.destino.x - an.x, vy = an.destino.y - an.y;
+  const vx = an.destino.x - an.x,
+    vy = an.destino.y - an.y;
   const dist = Math.hypot(vx, vy);
-  if (dist < 3) { an.destino = null; an.vel = 0; return; }
+  if (dist < 3) {
+    an.destino = null;
+    an.vel = 0;
+    return;
+  }
   const alvo = Math.atan2(vy, vx);
   if (an.rumo === undefined) an.rumo = alvo;
   const dif = Math.atan2(Math.sin(alvo - an.rumo), Math.cos(alvo - an.rumo));
@@ -87,9 +115,13 @@ function andar(an, dt) {
   const alinhado = Math.max(0, Math.cos(dif));
   const desejada = an.velocidade * Math.min(1, dist / DISTANCIA_DE_FREIO) * (0.3 + 0.7 * alinhado);
   an.vel = (an.vel || 0) + (desejada - (an.vel || 0)) * Math.min(1, dt * 3);
-  const dx = Math.cos(an.rumo), dy = Math.sin(an.rumo);
+  const dx = Math.cos(an.rumo),
+    dy = Math.sin(an.rumo);
   if (Math.abs(dx) > 0.1) an.dir = Math.sign(dx);
-  if (!mover(an, dx, dy, dt, an.vel)) { an.destino = null; an.vel = 0; }
+  if (!mover(an, dx, dy, dt, an.vel)) {
+    an.destino = null;
+    an.vel = 0;
+  }
 }
 
 export function atualizarAnimais(dt) {
@@ -128,8 +160,9 @@ export function atualizarAnimais(dt) {
           p = { x: abrigo.x + entre(-m, m), y: abrigo.y + entre(-m, m) };
         } else {
           // filhote fica perto da mãe
-          const base = (!animalAdulto(an) && an.mae && animais.includes(an.mae)) ? an.mae : an;
-          const ang = sortear() * Math.PI * 2, d = entre(20, 70);
+          const base = !animalAdulto(an) && an.mae && animais.includes(an.mae) ? an.mae : an;
+          const ang = sortear() * Math.PI * 2,
+            d = entre(20, 70);
           p = { x: base.x + Math.cos(ang) * d, y: base.y + Math.sin(ang) * d };
         }
         if (podeFicar(p.x, p.y, an.raio)) an.destino = p;

@@ -5,17 +5,25 @@ import Painel from '../ui/Painel.jsx';
 export default function PainelMonte({ alvo: monte }) {
   const { nome, icone, recurso } = MONTES[monte.tipo];
   const trabalhador = trabalhadorDo(monte);
-  const porcento = Math.round(monte.restante / QTD_POR_MONTE * 100);
+  const porcento = Math.round((monte.restante / QTD_POR_MONTE) * 100);
   return (
     <>
       <Painel.Cabecalho>
-        <Painel.Titulo>{icone} {nome}</Painel.Titulo>
+        <Painel.Titulo>
+          {icone} {nome}
+        </Painel.Titulo>
         <Painel.Fechar />
       </Painel.Cabecalho>
       <Painel.Texto>
-        {monte.restante > 0
-          ? <>Restam <strong>{monte.restante}</strong> {ICONES[recurso]} ({porcento}%).</>
-          : <>Esgotado. Volta a ter {QTD_POR_MONTE} {ICONES[recurso]} em <strong>{Math.ceil(monte.recarga)}s</strong>.</>}
+        {monte.restante > 0 ? (
+          <>
+            Restam <strong>{monte.restante}</strong> {ICONES[recurso]} ({porcento}%).
+          </>
+        ) : (
+          <>
+            Esgotado. Volta a ter {QTD_POR_MONTE} {ICONES[recurso]} em <strong>{Math.ceil(monte.recarga)}s</strong>.
+          </>
+        )}
       </Painel.Texto>
       <div className="my-1.5 h-2 overflow-hidden rounded bg-white/15">
         <div className="h-full bg-obra" style={{ width: `${porcento}%` }} />

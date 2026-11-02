@@ -11,21 +11,35 @@ export function novaArvore(x, y, adulta, tipo = 'pinheiro') {
   if (adulta) t.idade = tempoCrescer(t);
   return t;
 }
-const fator = t => t.tipo === 'chuva' ? FATOR_ARVORE_CHUVA : 1;
-export function tempoCrescer(t) { return TEMPO_CRESCER * fator(t); }
-export function tempoSerrar(t) { return TEMPO_SERRAR * fator(t); }
-export function madeiraDe(t) { return MADEIRA_POR_ARVORE * fator(t); }
-export function sementesDe(t) { return SEMENTES_POR_ARVORE * fator(t); }
-export function adulta(t) { return t.idade >= tempoCrescer(t); }
-export function crescimento(t) { return Math.min(t.idade / tempoCrescer(t), 1); }
+const fator = t => (t.tipo === 'chuva' ? FATOR_ARVORE_CHUVA : 1);
+export function tempoCrescer(t) {
+  return TEMPO_CRESCER * fator(t);
+}
+export function tempoSerrar(t) {
+  return TEMPO_SERRAR * fator(t);
+}
+export function madeiraDe(t) {
+  return MADEIRA_POR_ARVORE * fator(t);
+}
+export function sementesDe(t) {
+  return SEMENTES_POR_ARVORE * fator(t);
+}
+export function adulta(t) {
+  return t.idade >= tempoCrescer(t);
+}
+export function crescimento(t) {
+  return Math.min(t.idade / tempoCrescer(t), 1);
+}
 
 export function gerarArvores(qtd) {
   const { arvores } = mundo;
   let tentativas = 0;
   while (arvores.length < qtd && tentativas < 2000) {
     tentativas++;
-    const a = sortear() * Math.PI * 2, d = sortear() * ILHA.raio * 0.75;
-    const x = ILHA.x + Math.cos(a) * d, y = ILHA.y + Math.sin(a) * d;
+    const a = sortear() * Math.PI * 2,
+      d = sortear() * ILHA.raio * 0.75;
+    const x = ILHA.x + Math.cos(a) * d,
+      y = ILHA.y + Math.sin(a) * d;
     if (!dentroDaIlha(x, y, 70)) continue;
     if (Math.hypot(x - ILHA.x, y - ILHA.y) < 60) continue;
     if (arvores.some(t => Math.hypot(t.x - x, t.y - y) < 70)) continue;
@@ -36,8 +50,7 @@ export function gerarArvores(qtd) {
 export function arvoreEm(p) {
   return mundo.arvores.find(t => {
     const c = 0.3 + 0.7 * crescimento(t);
-    return Math.hypot(p.x - t.x, p.y - t.y) < t.raio + 6 ||
-           Math.hypot(p.x - t.x, p.y - (t.y - t.raio * 0.9 * c)) < t.raio * 1.6 * c;
+    return Math.hypot(p.x - t.x, p.y - t.y) < t.raio + 6 || Math.hypot(p.x - t.x, p.y - (t.y - t.raio * 0.9 * c)) < t.raio * 1.6 * c;
   });
 }
 

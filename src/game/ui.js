@@ -59,12 +59,18 @@ export function cancelarTudo() {
 export function painelValido(p) {
   if (!p) return false;
   switch (p.tipo) {
-    case 'totem': return true;
-    case 'esposa': return !!mundo.esposa;
-    case 'filho': return mundo.agentes.includes(p.alvo);
-    case 'animal': return mundo.animais.includes(p.alvo);
-    case 'monte': return mundo.montes.includes(p.alvo);
-    default: return mundo.estruturas.includes(p.alvo);
+    case 'totem':
+      return true;
+    case 'esposa':
+      return !!mundo.esposa;
+    case 'filho':
+      return mundo.agentes.includes(p.alvo);
+    case 'animal':
+      return mundo.animais.includes(p.alvo);
+    case 'monte':
+      return mundo.montes.includes(p.alvo);
+    default:
+      return mundo.estruturas.includes(p.alvo);
   }
 }
 export function validarPainel() {

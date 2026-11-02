@@ -8,7 +8,9 @@ import { mundo } from './mundo.js';
 // Namorar e cuidar do bebê acontecem lá dentro, e a família se abriga lá na chuva.
 export const TAREFAS_NA_CABANA = ['namorar', 'esperarNaCabana', 'cuidarNaCabana', 'abrigarNaCabana'];
 
-export function cabanaDaFamilia() { return estruturaDoTipo('cabana'); }
+export function cabanaDaFamilia() {
+  return estruturaDoTipo('cabana');
+}
 
 // Ponto em frente à porta, fora da cabana (a porta fica na frente, lado +y do mundo)
 export function portaDaCabana(cabana) {
@@ -22,14 +24,17 @@ export function tarefaNaPorta(tipo, cabana) {
 export function entrarNaCabana(a, cabana) {
   const p = portaDaCabana(cabana);
   a.dentro = cabana;
-  a.x = p.x; a.y = p.y;
-  a.destino = null; a.rota = null;
+  a.x = p.x;
+  a.y = p.y;
+  a.destino = null;
+  a.rota = null;
 }
 export function sairDaCabana(a, desvio = 0) {
   if (!a.dentro) return;
   const p = portaDaCabana(a.dentro);
   a.dentro = null;
-  a.x = p.x + desvio; a.y = p.y + 4;
+  a.x = p.x + desvio;
+  a.y = p.y + 4;
   a.espera = 1;
 }
 
@@ -38,5 +43,8 @@ export function temMotivoParaFicar(a) {
   return !!a.tarefa && TAREFAS_NA_CABANA.includes(a.tarefa.tipo);
 }
 export function sairSemMotivo(a) {
-  if (a.dentro && !temMotivoParaFicar(a)) { cancelar(a); sairDaCabana(a, entre(-12, 12)); } // espalha quem sai junto
+  if (a.dentro && !temMotivoParaFicar(a)) {
+    cancelar(a);
+    sairDaCabana(a, entre(-12, 12));
+  } // espalha quem sai junto
 }

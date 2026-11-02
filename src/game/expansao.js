@@ -9,14 +9,17 @@ import { mundo } from './mundo.js';
 // Tocar no mar perto da costa aterra um pedaço de terra ali.
 // Devolve a expansão que seria feita no ponto p, ou null se não der.
 export function expansaoPara(p) {
-  const dx = p.x - ILHA.x, dy = p.y - ILHA.y;
-  const ang = Math.atan2(dy, dx), dist = Math.hypot(dx, dy);
+  const dx = p.x - ILHA.x,
+    dy = p.y - ILHA.y;
+  const ang = Math.atan2(dy, dx),
+    dist = Math.hypot(dx, dy);
   const costa = raioIlha(ang);
   if (dist <= costa || dist - costa > ALCANCE_EXPANSAO) return null; // já é terra ou longe demais
   const nova = { ang, alt: dist - costa + 30, larg: LARGURA_EXPANSAO };
   // a costa nova não pode sair do mapa
   const r = raioIlha(ang, [nova]);
-  const px = ILHA.x + Math.cos(ang) * r, py = ILHA.y + Math.sin(ang) * r;
+  const px = ILHA.x + Math.cos(ang) * r,
+    py = ILHA.y + Math.sin(ang) * r;
   if (px < 30 || py < 30 || px > MUNDO.w - 30 || py > MUNDO.h - 30) return null;
   // não pode enterrar a jangada que está no mar
   for (const s of mundo.estruturas) {
@@ -33,8 +36,14 @@ export function tarefaAterrar(p) {
 
 export function concluirAterro(t) {
   const nova = expansaoPara(t.ponto);
-  if (!temRecursos(CUSTO_EXPANSAO)) { textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0'); return; }
-  if (!nova) { textoFlutuante(t.x, t.y - 20, 'Não dá para aterrar aqui', '#ffb0a0'); return; }
+  if (!temRecursos(CUSTO_EXPANSAO)) {
+    textoFlutuante(t.x, t.y - 20, 'Recursos insuficientes', '#ffb0a0');
+    return;
+  }
+  if (!nova) {
+    textoFlutuante(t.x, t.y - 20, 'Não dá para aterrar aqui', '#ffb0a0');
+    return;
+  }
   gastarRecursos(CUSTO_EXPANSAO);
   mundo.expansoes.push(nova);
   // as faixas do mar avançaram junto com a costa: cardumes que ficaram fora da faixa deles somem

@@ -21,10 +21,14 @@ export default function PainelFogueira({ alvo: estrutura }) {
   return (
     <>
       <Painel.Cabecalho>
-        <Painel.Titulo>{c.icone} {c.nome} · nível {estrutura.nivel}</Painel.Titulo>
+        <Painel.Titulo>
+          {c.icone} {c.nome} · nível {estrutura.nivel}
+        </Painel.Titulo>
         <Painel.Fechar />
       </Painel.Cabecalho>
-      <Painel.Texto>{c.descricao} Cada prato rende {PEDACOS_POR_PRATO} pedaços.</Painel.Texto>
+      <Painel.Texto>
+        {c.descricao} Cada prato rende {PEDACOS_POR_PRATO} pedaços.
+      </Painel.Texto>
       <Painel.Texto>
         {noNivelMaximo(estrutura)
           ? `Cada prato gasta ${consumoDaFogueira(estrutura.nivel)}. Nível máximo.`
@@ -36,7 +40,9 @@ export default function PainelFogueira({ alvo: estrutura }) {
         </Painel.Texto>
       )}
       {pedidos.map(p => (
-        <Painel.Texto key={p.quem.nome}>🗨️ {p.quem.nome} quer {PRATOS[p.prato].nome.toLowerCase()} {PRATOS[p.prato].icone}</Painel.Texto>
+        <Painel.Texto key={p.quem.nome}>
+          🗨️ {p.quem.nome} quer {PRATOS[p.prato].nome.toLowerCase()} {PRATOS[p.prato].icone}
+        </Painel.Texto>
       ))}
       {!comida.conhece && <Painel.Texto>Faça o primeiro churrasco para a família conhecer a comida.</Painel.Texto>}
       <Painel.Acoes>
@@ -48,8 +54,12 @@ export default function PainelFogueira({ alvo: estrutura }) {
             disabled={!podeCozinhar(id)}
             onClick={() => cozinhar(id)}
           >
-            <Botao.Nome>{p.icone} {cozinhando === id ? 'Cozinhando...' : p.nome}</Botao.Nome>
-            <Botao.Detalhe><Custo custo={custoDoPrato(id, estrutura.nivel)} /></Botao.Detalhe>
+            <Botao.Nome>
+              {p.icone} {cozinhando === id ? 'Cozinhando...' : p.nome}
+            </Botao.Nome>
+            <Botao.Detalhe>
+              <Custo custo={custoDoPrato(id, estrutura.nivel)} />
+            </Botao.Detalhe>
             {servido && <Botao.Detalhe falta>Espere o {PRATOS[servido.prato].nome.toLowerCase()} acabar</Botao.Detalhe>}
           </Botao>
         ))}

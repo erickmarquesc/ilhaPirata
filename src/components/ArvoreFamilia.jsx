@@ -104,7 +104,10 @@ function Membro({ icone, nome, detalhe, aro = '#d9a441', fase, selo, alvo, aoToc
       </span>
       <span className="texto-ouro mt-1 text-[13px] leading-tight font-normal whitespace-nowrap">{nome}</span>
       {fase && (
-        <span className="mt-0.5 rounded-full px-1.5 text-[9px] leading-[14px] font-semibold tracking-wide text-white uppercase shadow-[0_1px_0_#3b2210]" style={{ backgroundColor: aro }}>
+        <span
+          className="mt-0.5 rounded-full px-1.5 text-[9px] leading-[14px] font-semibold tracking-wide text-white uppercase shadow-[0_1px_0_#3b2210]"
+          style={{ backgroundColor: aro }}
+        >
           {fase}
         </span>
       )}
@@ -116,7 +119,12 @@ function Membro({ icone, nome, detalhe, aro = '#d9a441', fase, selo, alvo, aoToc
     pendente ? 'border-dashed border-[#d9a441]/50 bg-black/15' : 'carta-madeira border-[#9a7040]',
     ativo ? 'border-[#ffd75e] shadow-[0_0_0_2px_#ffd75e,0_0_12px_rgb(255_215_94/0.7)]' : '',
   ].join(' ');
-  if (!aoTocar) return <div className={classe} title={detalhe}>{conteudo}</div>;
+  if (!aoTocar)
+    return (
+      <div className={classe} title={detalhe}>
+        {conteudo}
+      </div>
+    );
   return (
     <button
       type="button"
@@ -180,7 +188,9 @@ export function FamiliaDoJogo() {
             />
           ))}
           {bebe && <ArvoreFamilia.Membro key="bebe" icone="👶" nome="Bebê" detalhe={`criança em ${Math.ceil(esposa.cuidado)}s`} aro="#f3dcae" />}
-          {gravida && <ArvoreFamilia.Membro key="gravidez" icone="🤰" nome="A caminho" detalhe={`nasce em ${Math.ceil(esposa.gravidez)}s`} pendente />}
+          {gravida && (
+            <ArvoreFamilia.Membro key="gravidez" icone="🤰" nome="A caminho" detalhe={`nasce em ${Math.ceil(esposa.gravidez)}s`} pendente />
+          )}
         </ArvoreFamilia.Filhos>
       )}
     </ArvoreFamilia>
