@@ -1,8 +1,8 @@
-import { PEDACOS_POR_PRATO } from '../../game/config.js';
+import { PEDACOS_POR_PRATO, TEMPO_FAVOR } from '../../game/config.js';
 import { CONSTRUCOES } from '../../game/construcoes.js';
 import { noNivelMaximo } from '../../game/estruturas.js';
 import { PRATOS, consumoDaFogueira, cozinhar, custoDoPrato, podeCozinhar } from '../../game/fogueira.js';
-import { oferecerEspeto } from '../../game/oferenda.js';
+import { favorAtivo, oferecerEspeto } from '../../game/oferenda.js';
 import { useMundo } from '../../hooks/useMundo.js';
 import Botao from '../ui/Botao.jsx';
 import Custo from '../ui/Custo.jsx';
@@ -10,7 +10,7 @@ import Painel from '../ui/Painel.jsx';
 
 // Fogueira: Jones faz churrasco ou peixada (5 pedaços cada). Mostra o prato no espeto
 // e quem da família está esperando comida. Também é onde se oferece o espeto
-// aos deuses (o favor ganho barateia a troca no Totem da Vida).
+// aos deuses (o favor deixa a troca no Totem da Vida 1 por 1 por alguns segundos).
 export default function PainelFogueira({ alvo: estrutura }) {
   const { comida, jogador, favor } = useMundo();
   const c = CONSTRUCOES.fogueira;
@@ -54,13 +54,14 @@ export default function PainelFogueira({ alvo: estrutura }) {
           </Botao>
         ))}
         {servido && (
-          <Botao cor="amor" onClick={oferecerEspeto}>
+          <Botao cor="amor" disabled={favorAtivo()} onClick={oferecerEspeto}>
             <Botao.Nome>🙏 Oferecer aos deuses</Botao.Nome>
-            <Botao.Detalhe>Entrega o que sobrou no espeto · +{servido.pedacos} ✨ favor para trocar no totem</Botao.Detalhe>
+            <Botao.Detalhe>Entrega o que sobrou no espeto · ✨ troca 1 por 1 no totem por {TEMPO_FAVOR}s</Botao.Detalhe>
+            {favorAtivo() && <Botao.Detalhe falta>O favor dos deuses ainda está ativo</Botao.Detalhe>}
           </Botao>
         )}
       </Painel.Acoes>
-      {favor > 0 && <Painel.Texto>✨ {favor} favor: troque recursos 1 por 1 no Totem da Vida.</Painel.Texto>}
+      {favor > 0 && <Painel.Texto>✨ Favor dos deuses: troque recursos 1 por 1 no Totem da Vida por mais {Math.ceil(favor)}s.</Painel.Texto>}
     </>
   );
 }

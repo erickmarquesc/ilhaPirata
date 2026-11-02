@@ -1,6 +1,6 @@
 # Plano 5 — Câmera volta ao Jones ao clicar
 
-> **Status:** implementado em 2026-10-26 (aguardando teste no jogo).
+> **Status:** implementado em 2026-10-26; testado e aprovado no jogo em 2026-11-01.
 
 ## Problema
 

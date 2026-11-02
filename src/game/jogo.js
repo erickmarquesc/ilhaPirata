@@ -14,6 +14,7 @@ import { expansaoPara, tarefaAterrar } from './expansao.js';
 import { atualizarFamiliar } from './familia.js';
 import { atualizarPedidosDeComida } from './fogueira.js';
 import { alternarEmbarque, atualizarEstruturas } from './jangada.js';
+import { atualizarFavor } from './oferenda.js';
 import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
@@ -65,6 +66,7 @@ export function atualizar(dt) {
   atualizarCanteiros(dt);
   atualizarMontes(dt);
   atualizarPedidosDeComida(dt);
+  atualizarFavor(dt);
   atualizarCanhoes(dt);
   atualizarEfeitos(dt);
 }

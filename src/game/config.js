@@ -82,7 +82,10 @@ export const CRESCIMENTO_NA_CHUVA = 3;    // crescem 3x mais rápido
 // levam FATOR_ARVORE_CHUVA vezes mais para crescer e para serrar e dão isso vezes mais madeira e sementes.
 export const ARVORES_POR_CHUVA = 5;
 export const FATOR_ARVORE_CHUVA = 2;
-// Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1 (com favor, 1 por 1)
+// Troca com os deuses no Totem da Vida: dá TAXA_TROCA e recebe 1.
+// Oferecer o espeto na fogueira dá o favor dos deuses: por TEMPO_FAVOR segundos a troca é 1 por 1
+// (não acumula: com o favor ativo não dá para oferecer de novo)
+export const TEMPO_FAVOR = 15;
 export const TAXA_TROCA = 2;
 export const LOTES_TROCA = [10, 50, 100];
 

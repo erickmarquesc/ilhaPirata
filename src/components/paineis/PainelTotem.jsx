@@ -90,7 +90,7 @@ function TrocaComDeuses({ favor }) {
     <>
       <p className="m-0 text-center text-[12px] leading-snug text-[#f3dcae]">
         {favor > 0
-          ? <><span className="texto-ouro text-[13px]">✨ {favor} favor</span> · a próxima troca é 1 por 1</>
+          ? <><span className="texto-ouro text-[13px]">✨ Favor dos deuses</span> · troca 1 por 1 por mais {Math.ceil(favor)}s</>
           : <>Taxa <span className="texto-ouro text-[13px]">{TAXA_TROCA} por 1</span> · ofereça o espeto na fogueira para ganhar ✨ favor</>}
       </p>
       <EscolhaRecurso rotulo="Dar" valor={dar} onEscolher={setDar} />

@@ -1,6 +1,6 @@
 # Plano 4 — Pausar a produção automática de recursos
 
-> **Status:** fase 1 implementada em 2026-10-25 (aguardando teste no jogo). Decidido: controle no medalhão do inventário; com madeira pausada a família continua plantando. Fase 2 (metas) adiada: decidir depois de testar a pausa manual.
+> **Status:** fase 1 implementada em 2026-10-25; testado e aprovado no jogo em 2026-11-01. Decidido: controle no medalhão do inventário; com madeira pausada a família continua plantando. Fase 2 (metas) descartada em 2026-11-01.
 
 ## Objetivo
 
@@ -53,7 +53,7 @@ A pausa fica no inventário porque é onde o jogador percebe que tem recurso dem
 - `atividadeDe` (aparece na árvore da família): quem está parado por causa da pausa mostra "Descansando".
 - Painel do filho: uma linha "Produção pausada: 🍖 🐟" quando houver pausas.
 
-## Fase 2 (opcional): pausa automática por meta
+## Fase 2 (descartada em 2026-11-01): pausa automática por meta
 
 Cada recurso pode ter uma **meta**, por exemplo "parar quando chegar a 300".
 
@@ -78,8 +78,7 @@ Cada recurso pode ter uma **meta**, por exemplo "parar quando chegar a 300".
 - Pausar tudo: a família passeia, e obras e pedidos de comida continuam.
 - Retomar: a família volta a produzir na próxima decisão.
 
-## Decisões pendentes
-
-- **Onde fica o controle:** tocar no medalhão do inventário (proposta) ou um painel "Produção" separado?
-- **Madeira pausada:** a família também para de plantar, ou continua plantando (proposta)?
-- **Fase 2 (metas):** entra agora ou só depois de testar a pausa manual?
+## Decisões tomadas (2026-11-01)
+- **Onde fica o controle:** tocar no medalhão do inventário, como está.
+- **Madeira pausada:** a família para de cortar, mas continua plantando.
+- **Fase 2 (metas):** não será implementada. A pausa fica só manual.

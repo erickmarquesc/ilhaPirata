@@ -12,7 +12,7 @@ export const mundo = {
   esposa: null,
   contadorFilhos: 0,
   pausas: null,      // produção da família pausada pelo jogador: { carne, peixe, madeira, pedra, tijolo, trigo }
-  favor: 0,          // favor dos deuses: pedaços oferecidos na fogueira (cada um deixa uma troca 1 → 1 no totem)
+  favor: 0,          // favor dos deuses: segundos que faltam (oferenda na fogueira; enquanto isso a troca no totem é 1 → 1)
   chuva: 0,          // segundos de chuva que faltam (pedida no totem, ver chuva.js)
   comida: null,      // fogueira: { conhece, servido: { prato, pedacos }, pedidos: [{ quem, prato }], espera, torrando }
   animais: [],
