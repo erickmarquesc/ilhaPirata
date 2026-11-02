@@ -18,6 +18,19 @@ export function podeFicar(x, y, raio) {
   for (const m of mundo.montes) if (Math.hypot(m.x - x, m.y - y) < m.raio * 0.8 + raio * 0.5) return false;
   return true;
 }
+// Borda macia: quanto e para onde sair das bordas das construções (entre o miolo e o raio cheio).
+// Devolve a soma das saídas (cada uma do tamanho de quanto entrou) ou null fora de todas.
+export function saidaDaBorda(x, y, raio) {
+  let dx = 0, dy = 0;
+  for (const s of mundo.estruturas) {
+    if (s.area) continue;
+    const d = Math.hypot(x - s.x, y - s.y), fim = s.raio + pe(raio);
+    if (d >= fim || d < 1e-6) continue;
+    const entrou = Math.min(fim - d, fim - mioloDe(s) - pe(raio)); // no máximo a largura da borda
+    dx += (x - s.x) / d * entrou; dy += (y - s.y) / d * entrou;
+  }
+  return dx || dy ? { dx, dy } : null;
+}
 // ===================== Plantar =====================
 // Devolve por que não dá para plantar no ponto, ou null se pode.
 // O jogador e a família não impedem: quem estiver em cima da muda sai andando.

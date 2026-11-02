@@ -1,7 +1,7 @@
-import { ILHA, TEMPO_TRAVADO } from './config.js';
+import { EMPURRAO_BORDA, ILHA, TEMPO_TRAVADO } from './config.js';
 import { dentroDaIlha, pontoAreia } from './ilha.js';
 import { mundo } from './mundo.js';
-import { mioloDe, podeFicar } from './espaco.js';
+import { mioloDe, podeFicar, saidaDaBorda } from './espaco.js';
 
 // ===== Rotas inteligentes =====
 // Compara o caminho reto pelo meio da ilha com o caminho pela faixa de areia.
@@ -46,6 +46,18 @@ export function proximoPonto(a) {
 }
 
 // ===================== Movimento =====================
+// Depois de andar: se entrou na borda macia de uma construção, é empurrado um pouco para fora
+// (nunca para dentro de outro obstáculo nem para o mar). Com a rede de segurança ligada, não empurra.
+function escorregarDaBorda(a, dt, ok) {
+  if (a.fantasma > 0) return true;
+  const saida = saidaDaBorda(a.x, a.y, a.raio);
+  if (!saida) return true;
+  const len = Math.hypot(saida.dx, saida.dy), passo = Math.min(len, EMPURRAO_BORDA * dt);
+  const nx = a.x + saida.dx / len * passo, ny = a.y + saida.dy / len * passo;
+  if (ok(nx, ny)) { a.x = nx; a.y = ny; }
+  return true;
+}
+
 export function mover(a, dx, dy, dt, velocidade = a.velocidade) {
   const len = Math.hypot(dx, dy);
   if (!len) return true;
@@ -66,19 +78,19 @@ export function mover(a, dx, dy, dt, velocidade = a.velocidade) {
   if (a.desvio && a.desvio.t > 0) {
     a.desvio.t -= dt;
     const nx = a.x + Math.cos(a.desvio.ang) * passo, ny = a.y + Math.sin(a.desvio.ang) * passo;
-    if (ok(nx, ny)) { a.x = nx; a.y = ny; return true; }
+    if (ok(nx, ny)) { a.x = nx; a.y = ny; return escorregarDaBorda(a, dt, ok); }
     a.desvio = null;
   }
   let moveu = false;
   if (Math.abs(mx) > 1e-6 && ok(a.x + mx, a.y)) { a.x += mx; moveu = true; }
   if (Math.abs(my) > 1e-6 && ok(a.x, a.y + my)) { a.y += my; moveu = true; }
-  if (moveu) return true;
+  if (moveu) return escorregarDaBorda(a, dt, ok);
   // Travou de frente (ex.: árvore no caminho): contorna pelo lado
   const ang = Math.atan2(dy, dx), lado = a.ladoDesvio || 1;
   for (const giro of [1.57, -1.57, 2.3, -2.3]) {
     const angDesvio = ang + giro * lado;
     const nx = a.x + Math.cos(angDesvio) * passo, ny = a.y + Math.sin(angDesvio) * passo;
-    if (ok(nx, ny)) { a.x = nx; a.y = ny; a.desvio = { ang: angDesvio, t: 0.4 }; return true; }
+    if (ok(nx, ny)) { a.x = nx; a.y = ny; a.desvio = { ang: angDesvio, t: 0.4 }; return escorregarDaBorda(a, dt, ok); }
   }
   a.ladoDesvio = -lado;
   return false;

@@ -22,6 +22,9 @@ export const DISTANCIA_MIN_CONSTRUCAO = 12; // folga mínima entre construções
 // No par mais apertado (fogueira 14 + totem 16): 12 + 0,4 × 30 = 24 de folga contra 8 do pé.
 export const FATOR_MIOLO = 0.6;
 export const FATOR_PE = 0.4;
+// Borda macia: entre o miolo e o raio cheio da construção dá para entrar, mas quem anda
+// é empurrado para fora a essa velocidade (raspa na quina e escorrega em vez de parar)
+export const EMPURRAO_BORDA = 70;
 export const TEMPO_TRAVADO = 1.5; // quase parado tentando andar por esse tempo: atravessa por cima
 export const RESERVA_SEMENTES = 4;    // a família não planta se isso deixar você com menos que isso
 export const TEMPO_CACAR = 3;
