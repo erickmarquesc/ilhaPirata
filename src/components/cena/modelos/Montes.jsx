@@ -13,7 +13,11 @@ export function MonteBarro() {
       <Peca geo="bola" cor="#c27a48" p={[1, 12, 0]} s={[6, 5, 6]} />
       {/* tijolos empilhados */}
       <group position={[16, 0, 12]} rotation={[0, -0.4, 0]}>
-        {[[-3, 1.2, 0], [3, 1.2, 0], [0, 3.6, 0]].map((p, i) => (
+        {[
+          [-3, 1.2, 0],
+          [3, 1.2, 0],
+          [0, 3.6, 0],
+        ].map((p, i) => (
           <Peca key={i} cor={i === 2 ? '#c4553a' : '#b84a2e'} p={p} s={[5.6, 2.4, 3]} />
         ))}
       </group>
@@ -23,8 +27,12 @@ export function MonteBarro() {
 
 // Pilha de pedras de vários tamanhos
 const PEDRAS = [
-  [0, 6, 0, 13, '#9aa0a6', 0.3], [-10, 4, 4, 8, '#b8bec4', 1.1], [10, 4, -3, 9, '#7d848b', 2],
-  [4, 3.5, 11, 6, '#aab0b6', 0.7], [-7, 3, -10, 7, '#8c9298', 2.6], [2, 13, -2, 7, '#c3c9ce', 1.7],
+  [0, 6, 0, 13, '#9aa0a6', 0.3],
+  [-10, 4, 4, 8, '#b8bec4', 1.1],
+  [10, 4, -3, 9, '#7d848b', 2],
+  [4, 3.5, 11, 6, '#aab0b6', 0.7],
+  [-7, 3, -10, 7, '#8c9298', 2.6],
+  [2, 13, -2, 7, '#c3c9ce', 1.7],
 ];
 export function MontePedra() {
   return (

@@ -25,7 +25,9 @@ export const PRATOS = {
   peixada: { nome: 'Peixada', icone: '🐟', recurso: 'peixe', pronto: 'Peixada pronta!' },
 };
 
-export function fogueira() { return estruturaDoTipo('fogueira'); }
+export function fogueira() {
+  return estruturaDoTipo('fogueira');
+}
 
 // Quanto cada prato gasta no nível atual da fogueira
 export function consumoDaFogueira(nivel = fogueira()?.nivel ?? 1) {
@@ -35,12 +37,16 @@ export function custoDoPrato(prato, nivel) {
   return { [PRATOS[prato].recurso]: consumoDaFogueira(nivel) };
 }
 // Prato no espeto: { prato, pedacos } ou null
-export function pratoServido() { return mundo.comida.servido; }
+export function pratoServido() {
+  return mundo.comida.servido;
+}
 export function podeCozinhar(prato) {
   const { jogador } = mundo;
   return !!fogueira() && !jogador.embarcado && !pratoServido() && temRecursos(custoDoPrato(prato));
 }
-export function pedidoDe(a) { return mundo.comida.pedidos.find(p => p.quem === a); }
+export function pedidoDe(a) {
+  return mundo.comida.pedidos.find(p => p.quem === a);
+}
 
 // Ação do painel da fogueira
 export function cozinhar(prato) {
@@ -54,10 +60,14 @@ export function cozinhar(prato) {
 
 // Conclusão da tarefa "cozinhar" (chamada por tarefas.js): o prato vai para o espeto
 export function concluirCozinhar(t) {
-  const p = PRATOS[t.prato], custo = custoDoPrato(t.prato);
+  const p = PRATOS[t.prato],
+    custo = custoDoPrato(t.prato);
   const comida = mundo.comida;
   if (comida.servido) return;
-  if (!temRecursos(custo)) { textoFlutuante(t.x, t.y - 20, `Falta ${p.icone} para ${p.nome.toLowerCase()}`, '#ffb0a0'); return; }
+  if (!temRecursos(custo)) {
+    textoFlutuante(t.x, t.y - 20, `Falta ${p.icone} para ${p.nome.toLowerCase()}`, '#ffb0a0');
+    return;
+  }
   gastarRecursos(custo);
   comida.servido = { prato: t.prato, pedacos: PEDACOS_POR_PRATO };
   textoFlutuante(t.x, t.y - 40, `${p.pronto} ${p.icone} ×${PEDACOS_POR_PRATO}`);
@@ -126,10 +136,14 @@ function servirPedidos() {
 // Mais da metade da família (esposa e filhos) na fogueira querendo outro prato:
 // conta o tempo e, se continuar assim, o prato do espeto torra
 function verificarTorra(dt, s) {
-  const comida = mundo.comida, servido = comida.servido;
+  const comida = mundo.comida,
+    servido = comida.servido;
   const familia = mundo.agentes.filter(a => a !== mundo.jogador).length;
   const querOutro = servido ? comida.pedidos.filter(p => p.quem.acao && p.prato !== servido.prato).length : 0;
-  if (!servido || querOutro <= familia / 2) { comida.torrando = null; return; }
+  if (!servido || querOutro <= familia / 2) {
+    comida.torrando = null;
+    return;
+  }
   const p = PRATOS[servido.prato];
   if (comida.torrando === null) {
     comida.torrando = TEMPO_TORRAR;

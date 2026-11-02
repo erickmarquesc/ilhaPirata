@@ -9,7 +9,8 @@ import { GEO } from './Peca.jsx';
 // Bolas de canhão, clarão e fumaça na boca do canhão e respingo onde a bola cai (ver canhoes.js).
 // Tudo dura menos de um segundo: um conjunto fixo de malhas lê mundo.balas / mundo.estouros
 // a cada quadro, sem esperar o React re-renderizar.
-const MAX_BALAS = 24, MAX_ESTOUROS = 48;
+const MAX_BALAS = 24,
+  MAX_ESTOUROS = 48;
 const matBala = new THREE.MeshStandardMaterial({ color: '#1e1e1e', flatShading: true, roughness: 0.5, metalness: 0.4 });
 const COR = { clarao: '#ffb347', fumaca: '#ddd8cc', agua: '#ffffff' };
 const geoRespingo = new THREE.ConeGeometry(1, 1, 7, 1, true).translate(0, 0.5, 0); // coluna d'água, base na água
@@ -17,8 +18,10 @@ const geoRespingo = new THREE.ConeGeometry(1, 1, 7, 1, true).translate(0, 0.5, 0
 export default function Disparos() {
   const balas = useRef([]);
   const estouros = useRef([]);
-  const mats = useMemo(() => Array.from({ length: MAX_ESTOUROS }, () =>
-    new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide })), []);
+  const mats = useMemo(
+    () => Array.from({ length: MAX_ESTOUROS }, () => new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide })),
+    [],
+  );
 
   useFrame(() => {
     balas.current.forEach((m, i) => {
@@ -52,10 +55,28 @@ export default function Disparos() {
   return (
     <>
       {Array.from({ length: MAX_BALAS }, (_, i) => (
-        <mesh key={`b${i}`} ref={el => { balas.current[i] = el; }} geometry={GEO.bolaLisa} material={matBala} scale={1.3} visible={false} castShadow />
+        <mesh
+          key={`b${i}`}
+          ref={el => {
+            balas.current[i] = el;
+          }}
+          geometry={GEO.bolaLisa}
+          material={matBala}
+          scale={1.3}
+          visible={false}
+          castShadow
+        />
       ))}
       {mats.map((mat, i) => (
-        <mesh key={`e${i}`} ref={el => { estouros.current[i] = el; }} geometry={GEO.bola} material={mat} visible={false} />
+        <mesh
+          key={`e${i}`}
+          ref={el => {
+            estouros.current[i] = el;
+          }}
+          geometry={GEO.bola}
+          material={mat}
+          visible={false}
+        />
       ))}
     </>
   );

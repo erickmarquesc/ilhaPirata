@@ -20,7 +20,16 @@ import { limparMundo, mundo, notificar } from './mundo.js';
 import { executar, iniciarTarefa } from './tarefas.js';
 import { atualizarCanteiros, clicarCampo } from './trigo.js';
 import {
-  abrirPainel, alternarCartas, fecharConquista, alternarExpandir, alternarPlantar, atualizarInventario, cancelarTudo, definirModo, fecharPainel, validarPainel,
+  abrirPainel,
+  alternarCartas,
+  fecharConquista,
+  alternarExpandir,
+  alternarPlantar,
+  atualizarInventario,
+  cancelarTudo,
+  definirModo,
+  fecharPainel,
+  validarPainel,
 } from './ui.js';
 
 // ===================== Início =====================
@@ -45,11 +54,12 @@ export function criarMundo(semente = novaSemente()) {
 // se mover (no chão, numa árvore, no mar ou nos modos plantar/expandir/construir).
 export function direcaoDoTeclado() {
   const { teclas } = mundo;
-  let dx = 0, dy = 0;
-  if (teclas['arrowleft']  || teclas['a']) dx -= 1;
+  let dx = 0,
+    dy = 0;
+  if (teclas['arrowleft'] || teclas['a']) dx -= 1;
   if (teclas['arrowright'] || teclas['d']) dx += 1;
-  if (teclas['arrowup']    || teclas['w']) dy -= 1;
-  if (teclas['arrowdown']  || teclas['s']) dy += 1;
+  if (teclas['arrowup'] || teclas['w']) dy -= 1;
+  if (teclas['arrowdown'] || teclas['s']) dy += 1;
   return { dx, dy };
 }
 export function centralizarCamera() {
@@ -92,13 +102,34 @@ export function passo(dt) {
 export function teclaPressionada(tecla) {
   const k = tecla.toLowerCase();
   // com o aviso de construção aberto, só fechar
-  if (mundo.ui.conquista) { if (['enter', 'escape', ' '].includes(k)) fecharConquista(); return; }
-  if (k === 'p') { alternarPlantar(); return; }
-  if (k === 'c') { alternarCartas(); return; }
-  if (k === 'x') { alternarExpandir(); return; }
-  if (k === 'e') { alternarEmbarque(); return; }
-  if (k === 'escape') { cancelarTudo(); return; }
-  if (k === ' ') { if (!dispararCanhoes()) centralizarCamera(); return; } // no barco pirata, Espaço atira
+  if (mundo.ui.conquista) {
+    if (['enter', 'escape', ' '].includes(k)) fecharConquista();
+    return;
+  }
+  if (k === 'p') {
+    alternarPlantar();
+    return;
+  }
+  if (k === 'c') {
+    alternarCartas();
+    return;
+  }
+  if (k === 'x') {
+    alternarExpandir();
+    return;
+  }
+  if (k === 'e') {
+    alternarEmbarque();
+    return;
+  }
+  if (k === 'escape') {
+    cancelarTudo();
+    return;
+  }
+  if (k === ' ') {
+    if (!dispararCanhoes()) centralizarCamera();
+    return;
+  } // no barco pirata, Espaço atira
   mundo.teclas[k] = true;
 }
 export function teclaSolta(tecla) {
@@ -116,7 +147,11 @@ export function clicar(p) {
   // Navegando: toque na jangada abre o painel, qualquer outro lugar é destino no mar
   if (jogador.embarcado) {
     if (estruturaEm(p) === jogador.embarcado) abrirPainel('jangada', jogador.embarcado);
-    else { fecharPainel(); centralizarCamera(); jogador.destino = p; }
+    else {
+      fecharPainel();
+      centralizarCamera();
+      jogador.destino = p;
+    }
     return;
   }
 
@@ -147,13 +182,22 @@ export function clicar(p) {
 
   // Família
   const ag = agenteEm(p);
-  if (ag) { ag === mundo.esposa ? abrirPainel('esposa') : abrirPainel('filho', ag); return; }
+  if (ag) {
+    ag === mundo.esposa ? abrirPainel('esposa') : abrirPainel('filho', ag);
+    return;
+  }
   // Animais
   const an = animalEm(p);
-  if (an) { abrirPainel('animal', an); return; }
+  if (an) {
+    abrirPainel('animal', an);
+    return;
+  }
   // Montes de barro / pedra
   const monte = monteEm(p);
-  if (monte) { abrirPainel('monte', monte); return; }
+  if (monte) {
+    abrirPainel('monte', monte);
+    return;
+  }
   // Construções
   const s = estruturaEm(p);
   if (s) {

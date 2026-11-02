@@ -1,6 +1,4 @@
-import {
-  DESCANSO_VIAGEM, ILHA, NIVEL_MAR_PROFUNDO, PEIXES_POR_PESCA, PESCAS_POR_VIAGEM, TEMPO_EMPURRAR, VELOCIDADE_JANGADA,
-} from './config.js';
+import { DESCANSO_VIAGEM, ILHA, NIVEL_MAR_PROFUNDO, PEIXES_POR_PESCA, PESCAS_POR_VIAGEM, TEMPO_EMPURRAR, VELOCIDADE_JANGADA } from './config.js';
 import { cancelar } from './agentes.js';
 import { chovendo } from './chuva.js';
 import { cardumeMaisProximo, cardumeSob, pescaDe, removerCardume } from './cardumes.js';
@@ -16,7 +14,9 @@ import { atualizarInventario, definirModo } from './ui.js';
 // ===================== Jangada: tripulação, navegação e pesca =====================
 // A jangada só navega com DOIS adultos: o pai + um filho adulto, ou dois filhos adultos.
 // est.tripulacao: quem está a bordo | est.reservadaPor: 'jogador' ou 'filhos'
-export function jangadaNaAgua(est) { return !!est && est.empurrar !== undefined && est.empurrar >= 1; }
+export function jangadaNaAgua(est) {
+  return !!est && est.empurrar !== undefined && est.empurrar >= 1;
+}
 export function prepararJangada(est) {
   if (!est.tripulacao) Object.assign(est, { tripulacao: [], reservadaPor: null, viagem: null, pesca: 0, moveu: false, descansoViagem: 0 });
 }
@@ -28,15 +28,22 @@ function pertoDaPraia(est) {
   const p = pontoTerraPerto(est.x, est.y);
   return Math.hypot(p.x - est.x, p.y - est.y) <= est.raio + 36;
 }
-export function podeDesembarcar(est) { return !!est && pertoDaPraia(est) && !!terraLivrePerto(est.x, est.y); }
-export function estaNoMar(est) { return !dentroDaIlha(est.x, est.y, 0); }
+export function podeDesembarcar(est) {
+  return !!est && pertoDaPraia(est) && !!terraLivrePerto(est.x, est.y);
+}
+export function estaNoMar(est) {
+  return !dentroDaIlha(est.x, est.y, 0);
+}
 
 // ----- Tripulação -----
 export function adultosLivres(excluir = []) {
-  return mundo.agentes.filter(a => a.tipo === 'adulto' && !a.embarcado && !excluir.includes(a) &&
-    !(a.tarefa && (a.tarefa.tipo === 'ajudar' || a.tarefa.tipo === 'embarcar')));
+  return mundo.agentes.filter(
+    a => a.tipo === 'adulto' && !a.embarcado && !excluir.includes(a) && !(a.tarefa && (a.tarefa.tipo === 'ajudar' || a.tarefa.tipo === 'embarcar')),
+  );
 }
-function vindoEmbarcar(est) { return mundo.agentes.filter(a => a.tarefa && a.tarefa.tipo === 'embarcar' && a.tarefa.estrutura === est); }
+function vindoEmbarcar(est) {
+  return mundo.agentes.filter(a => a.tarefa && a.tarefa.tipo === 'embarcar' && a.tarefa.estrutura === est);
+}
 function mandarEmbarcar(a, est) {
   cancelar(a);
   const p = pontoTerraPerto(est.x, est.y);
@@ -54,7 +61,8 @@ function chamarTripulante(est) {
 export function embarcar(a, est) {
   cancelar(a);
   a.embarcado = est;
-  a.x = est.x; a.y = est.y;
+  a.x = est.x;
+  a.y = est.y;
   est.tripulacao.push(a);
   if (est.tripulacao.length === 2) textoFlutuante(est.x, est.y - 60, 'Zarpando! ⛵', '#c8e8ff');
   if (a === mundo.jogador) definirModo(null);
@@ -64,7 +72,8 @@ function desembarcarTodos(est) {
     const p = terraLivrePerto(est.x, est.y, i * 0.06) || terraLivrePerto(est.x, est.y) || pontoTerraPerto(est.x, est.y);
     m.embarcado = null;
     cancelar(m);
-    m.x = p.x; m.y = p.y;
+    m.x = p.x;
+    m.y = p.y;
     m.espera = 1;
   });
   for (const a of vindoEmbarcar(est)) cancelar(a);
@@ -96,7 +105,10 @@ export function desembarcar() {
 // Tecla E: embarca ou desembarca
 export function alternarEmbarque() {
   if (mundo.jogador.embarcado) desembarcar();
-  else { const j = estruturaDoTipo('jangada'); if (j) irEmbarcar(j); }
+  else {
+    const j = estruturaDoTipo('jangada');
+    if (j) irEmbarcar(j);
+  }
 }
 
 // ----- Filhos adultos saem sozinhos para pescar -----
@@ -106,7 +118,7 @@ export function tentarViagemDePesca(a) {
   if (!mundo.cardumes.some(c => c.peixes > 0)) return false;
   if (!cabeNoEstoque(PEIXES_POR_PESCA)) return false; // estoque cheio: nem saem
   const outros = adultosLivres([a]);
-  if (!outros.length) return false;   // precisa de dois adultos
+  if (!outros.length) return false; // precisa de dois adultos
   est.reservadaPor = 'filhos';
   est.viagem = null;
   mandarEmbarcar(a, est);
@@ -117,20 +129,31 @@ export function tentarViagemDePesca(a) {
 // ----- Movimento no mar -----
 // Mar profundo: só a jangada do nível NIVEL_MAR_PROFUNDO para cima entra.
 // (Se já estiver lá dentro, por ex. o nível baixou no modo dev, pode sair.)
-export function podeIrAoMarProfundo(est) { return est.nivel >= NIVEL_MAR_PROFUNDO; }
+export function podeIrAoMarProfundo(est) {
+  return est.nivel >= NIVEL_MAR_PROFUNDO;
+}
 function barradaNoFundo(est, x, y) {
   return !podeIrAoMarProfundo(est) && noMarProfundo(x, y, est.raio) && !noMarProfundo(est.x, est.y, est.raio);
 }
-function podeIr(est, x, y) { return podeNavegar(x, y, est.raio) && !barradaNoFundo(est, x, y); }
+function podeIr(est, x, y) {
+  return podeNavegar(x, y, est.raio) && !barradaNoFundo(est, x, y);
+}
 
 function moverJangada(est, dx, dy, dt) {
   const len = Math.hypot(dx, dy);
   if (!len) return false;
   const passo = VELOCIDADE_JANGADA * dt;
-  const mx = dx / len * passo, my = dy / len * passo;
+  const mx = (dx / len) * passo,
+    my = (dy / len) * passo;
   let moveu = false;
-  if (mx && podeIr(est, est.x + mx, est.y)) { est.x += mx; moveu = true; }
-  if (my && podeIr(est, est.x, est.y + my)) { est.y += my; moveu = true; }
+  if (mx && podeIr(est, est.x + mx, est.y)) {
+    est.x += mx;
+    moveu = true;
+  }
+  if (my && podeIr(est, est.x, est.y + my)) {
+    est.y += my;
+    moveu = true;
+  }
   if (!moveu && barradaNoFundo(est, est.x + mx, est.y + my)) est.barradaNoFundo = true;
   if (moveu) est.moveu = true;
   return moveu;
@@ -138,7 +161,8 @@ function moverJangada(est, dx, dy, dt) {
 // Vai até um ponto; se a ilha estiver no caminho, contorna pela costa
 function rumoPara(est, alvo, dt) {
   if (moverJangada(est, alvo.x - est.x, alvo.y - est.y, dt)) return;
-  const a1 = Math.atan2(est.y - ILHA.y, est.x - ILHA.x), a2 = Math.atan2(alvo.y - ILHA.y, alvo.x - ILHA.x);
+  const a1 = Math.atan2(est.y - ILHA.y, est.x - ILHA.x),
+    a2 = Math.atan2(alvo.y - ILHA.y, alvo.x - ILHA.x);
   const dif = Math.atan2(Math.sin(a2 - a1), Math.cos(a2 - a1));
   const sentido = dif >= 0 ? 1 : -1;
   moverJangada(est, -Math.sin(a1) * sentido + Math.cos(a1) * 0.3, Math.cos(a1) * sentido + Math.sin(a1) * 0.3, dt);
@@ -147,12 +171,21 @@ function rumoPara(est, alvo, dt) {
 export function navegar(dt) {
   const { jogador } = mundo;
   const est = jogador.embarcado;
-  if (est.tripulacao.length < 2) { chamarTripulante(est); jogador.destino = null; return; } // espera o filho
-  let dx = 0, dy = 0;
+  if (est.tripulacao.length < 2) {
+    chamarTripulante(est);
+    jogador.destino = null;
+    return;
+  } // espera o filho
+  let dx = 0,
+    dy = 0;
   if (jogador.destino) {
-    const vx = jogador.destino.x - est.x, vy = jogador.destino.y - est.y;
+    const vx = jogador.destino.x - est.x,
+      vy = jogador.destino.y - est.y;
     if (Math.hypot(vx, vy) < 4) jogador.destino = null;
-    else { dx = vx; dy = vy; }
+    else {
+      dx = vx;
+      dy = vy;
+    }
   }
   if ((dx || dy) && !moverJangada(est, dx, dy, dt)) {
     jogador.destino = null;
@@ -169,7 +202,8 @@ function viagemDosFilhos(est, dt) {
   if (v.fase === 'ir') {
     const alvo = cardumeMaisProximo(est, podeIrAoMarProfundo(est));
     if (!alvo) v.fase = 'voltar';
-    else if (Math.hypot(alvo.x - est.x, alvo.y - est.y) < 8) v.fase = 'pescar'; // chega no meio do cardume
+    else if (Math.hypot(alvo.x - est.x, alvo.y - est.y) < 8)
+      v.fase = 'pescar'; // chega no meio do cardume
     else rumoPara(est, alvo, dt);
   } else if (v.fase === 'pescar') {
     if (!cardumeSob(est)) v.fase = 'ir';
@@ -190,8 +224,11 @@ function pescar(est, dt) {
   const c = est.tripulacao.length === 2 && !est.moveu ? cardumeSob(est) : null;
   const pesca = c && pescaDe(c);
   est.estoqueCheio = !!c && !cabeNoEstoque(pesca.peixes);
-  if (!c || est.estoqueCheio) { est.pesca = 0; return; }
-  c.parado = 0.3;   // cardume fica parado enquanto estão pescando nele
+  if (!c || est.estoqueCheio) {
+    est.pesca = 0;
+    return;
+  }
+  c.parado = 0.3; // cardume fica parado enquanto estão pescando nele
   est.tempoPesca = pesca.tempo; // para a barra de progresso
   est.pesca += dt;
   if (est.pesca < pesca.tempo) return;
@@ -224,7 +261,10 @@ function atualizarJangada(est, dt) {
   est.moveu = false;
 
   // Tripulação acompanha a jangada
-  for (const m of est.tripulacao) { m.x = est.x; m.y = est.y; }
+  for (const m of est.tripulacao) {
+    m.x = est.x;
+    m.y = est.y;
+  }
 }
 
 // Depois de pronta, a jangada é empurrada da praia até a água
@@ -240,7 +280,8 @@ function empurrarParaAgua(est, dt) {
 // (ângulo da proa: aponta para (cos, −sin) no mapa).
 function atualizarRumo(est) {
   const ant = est.posAnterior ?? est;
-  const dx = est.x - ant.x, dy = est.y - ant.y;
+  const dx = est.x - ant.x,
+    dy = est.y - ant.y;
   est.posAnterior = { x: est.x, y: est.y };
   if (est.rumoVisual === undefined) est.rumoVisual = 0;
   if (Math.hypot(dx, dy) > 0.05) {

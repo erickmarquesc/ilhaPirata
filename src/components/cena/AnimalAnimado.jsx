@@ -30,7 +30,9 @@ function AnimalAnimado({ an, filhote }) {
 
   // as peças não projetam sombra (o disco embaixo faz esse papel)
   useLayoutEffect(() => {
-    modelo.current?.traverse(o => { if (o.isMesh) o.castShadow = false; });
+    modelo.current?.traverse(o => {
+      if (o.isMesh) o.castShadow = false;
+    });
   }, [filhote]);
 
   useFrame(({ clock }, dt) => {
@@ -41,7 +43,8 @@ function AnimalAnimado({ an, filhote }) {
 
     // velocidade real (suavizada) a partir do deslocamento no quadro
     const v = Math.hypot(an.x - s.px, an.y - s.py) / dt;
-    s.px = an.x; s.py = an.y;
+    s.px = an.x;
+    s.py = an.y;
     s.vel = suave(s.vel, v, dt, 8);
     const andando = Math.min(s.vel / (ESPECIES[an.especie].velocidade * 0.6), 1);
     s.fase += dt * (bipede ? 14 : 7) * Math.min(1, s.vel / 8);
@@ -66,7 +69,7 @@ function AnimalAnimado({ an, filhote }) {
     // pernas
     pernas.forEach((p, i) => {
       if (!p) return;
-      const defasagem = bipede ? i * Math.PI : (i === 0 || i === 3 ? 0 : Math.PI); // diagonais juntas
+      const defasagem = bipede ? i * Math.PI : i === 0 || i === 3 ? 0 : Math.PI; // diagonais juntas
       p.rotation.z = Math.sin(s.fase + defasagem) * (bipede ? 0.7 : 0.55) * andando;
     });
 
@@ -103,11 +106,15 @@ function AnimalAnimado({ an, filhote }) {
     }
 
     // asas batem quando a galinha anda rápido
-    asas.forEach((a, i) => { if (a) a.rotation.x = (i ? -1 : 1) * (0.15 + Math.abs(Math.sin(t * 18)) * 0.5) * andando * andando; });
+    asas.forEach((a, i) => {
+      if (a) a.rotation.x = (i ? -1 : 1) * (0.15 + Math.abs(Math.sin(t * 18)) * 0.5) * andando * andando;
+    });
 
     // piscar
     const piscando = (t * 0.27) % 1 < 0.035;
-    olhos.forEach(o => { if (o) o.scale.y = piscando ? 0.12 : 1; });
+    olhos.forEach(o => {
+      if (o) o.scale.y = piscando ? 0.12 : 1;
+    });
   });
 
   return (

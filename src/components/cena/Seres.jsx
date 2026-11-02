@@ -17,19 +17,23 @@ function useSegue(obj, opcoes = {}) {
   useFrame(({ clock }) => {
     const g = ref.current;
     if (!g) return;
-    let { x, y } = obj, h;
+    let { x, y } = obj,
+      h;
     if (obj.embarcado) {
       // em pé no convés, girando junto com o barco
-      const est = obj.embarcado, i = est.tripulacao.indexOf(obj);
+      const est = obj.embarcado,
+        i = est.tripulacao.indexOf(obj);
       const ang = est.rumoVisual ?? 0;
-      const ox = i === 0 ? -10 : 10, oz = 3;          // posição no convés (proa para +X)
+      const ox = i === 0 ? -10 : 10,
+        oz = 3; // posição no convés (proa para +X)
       x = est.x + ox * Math.cos(ang) + oz * Math.sin(ang);
       y = est.y - ox * Math.sin(ang) + oz * Math.cos(ang);
       h = ALTURA.agua + alturaDoConves(est.nivel) + Math.sin(clock.elapsedTime * 2) * 1.2;
     } else {
       h = alturaDoChao(x, y);
     }
-    const dx = x - anterior.current.x, dy = y - anterior.current.y;
+    const dx = x - anterior.current.x,
+      dy = y - anterior.current.y;
     const andando = Math.hypot(dx, dy) > 0.05;
     if (opcoes.virar) opcoes.virar(g, dx, dy, andando);
     // pulinho ao andar
@@ -51,7 +55,16 @@ function virarPessoa(g, dx, dy, andando) {
 function PessoaNaCena({ a, eJogador }) {
   const ref = useSegue(a, { virar: virarPessoa, pular: 1.5 });
   return (
-    <group ref={ref} onPointerDown={eJogador ? undefined : e => { if (!a.dentro) aoTocarEntidade(e, a.x, a.y); }}>
+    <group
+      ref={ref}
+      onPointerDown={
+        eJogador
+          ? undefined
+          : e => {
+              if (!a.dentro) aoTocarEntidade(e, a.x, a.y);
+            }
+      }
+    >
       <group scale={a.raio / 10}>
         <Pessoa a={a} />
       </group>
@@ -81,7 +94,9 @@ export function Animais() {
   detalhados.current = new Set(perto);
   return (
     <>
-      {perto.map(an => <AnimalAnimado key={idDe(an)} an={an} filhote={!animalAdulto(an)} />)}
+      {perto.map(an => (
+        <AnimalAnimado key={idDe(an)} an={an} filhote={!animalAdulto(an)} />
+      ))}
       <AnimaisSimples detalhados={detalhados} />
     </>
   );

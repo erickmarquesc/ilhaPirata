@@ -7,14 +7,14 @@ export const TEMPO_PLANTAR = 2;
 export const TEMPO_PLANTAR_CRIANCA = 3;
 export const TEMPO_CRESCER = 60;
 export const TEMPO_NAMORAR = 3;
-export const TEMPO_GRAVIDEZ = 30;     // segundos até o bebê nascer
-export const TEMPO_CUIDAR_BEBE = 60;  // segundos até o bebê virar criança
-export const TEMPO_DESCANSO = 60;     // espera depois que o bebê vira criança para poder namorar de novo
+export const TEMPO_GRAVIDEZ = 30; // segundos até o bebê nascer
+export const TEMPO_CUIDAR_BEBE = 60; // segundos até o bebê virar criança
+export const TEMPO_DESCANSO = 60; // espera depois que o bebê vira criança para poder namorar de novo
 export const MADEIRA_POR_ARVORE = 20;
 export const SEMENTES_POR_ARVORE = 2;
-export const DISTANCIA_MIN_ARVORES = 45;   // entre os centros de duas árvores
-export const DISTANCIA_MIN_PLANTIO = 6;    // folga entre a muda e construções / montes
-export const RECUO_GRAMA = 45;             // a grama começa a essa distância da costa
+export const DISTANCIA_MIN_ARVORES = 45; // entre os centros de duas árvores
+export const DISTANCIA_MIN_PLANTIO = 6; // folga entre a muda e construções / montes
+export const RECUO_GRAMA = 45; // a grama começa a essa distância da costa
 export const DISTANCIA_MIN_CONSTRUCAO = 12; // folga mínima entre construções e entre construção e monte
 // Colisão de quem anda: construções bloqueiam só o miolo (raio × FATOR_MIOLO) e as pessoas
 // colidem pelo pé (min(raio, 10) × FATOR_PE). Para sempre sobrar passagem entre duas construções:
@@ -26,39 +26,39 @@ export const FATOR_PE = 0.4;
 // é empurrado para fora a essa velocidade (raspa na quina e escorrega em vez de parar)
 export const EMPURRAO_BORDA = 70;
 export const TEMPO_TRAVADO = 1.5; // quase parado tentando andar por esse tempo: atravessa por cima
-export const RESERVA_SEMENTES = 4;    // a família não planta se isso deixar você com menos que isso
+export const RESERVA_SEMENTES = 4; // a família não planta se isso deixar você com menos que isso
 export const TEMPO_CACAR = 3;
-export const TEMPO_EMPURRAR = 3;      // segundos empurrando a jangada para a água
-export const VELOCIDADE_JANGADA = 120;    // velocidade navegando no mar
-export const CARDUMES_MAX = 4;            // cardumes ao mesmo tempo no mar
-export const PEIXES_POR_CARDUME = 5;      // quantas pescas cada cardume aguenta
-export const TEMPO_PESCAR = 4;            // segundos por pesca
-export const PEIXES_POR_PESCA = 2;        // um peixe para cada adulto na jangada
-export const TEMPO_NOVO_CARDUME = 20;     // segundos para surgir um cardume novo
+export const TEMPO_EMPURRAR = 3; // segundos empurrando a jangada para a água
+export const VELOCIDADE_JANGADA = 120; // velocidade navegando no mar
+export const CARDUMES_MAX = 4; // cardumes ao mesmo tempo no mar
+export const PEIXES_POR_CARDUME = 5; // quantas pescas cada cardume aguenta
+export const TEMPO_PESCAR = 4; // segundos por pesca
+export const PEIXES_POR_PESCA = 2; // um peixe para cada adulto na jangada
+export const TEMPO_NOVO_CARDUME = 20; // segundos para surgir um cardume novo
 // Cardumes do mar profundo (só a jangada nível 4+ chega): 3x maiores, mais peixe e pesca mais rápida.
 // A pesca de cada cardume: { pescas que ele aguenta, peixes por pesca, segundos por pesca }
 export const CARDUMES_PROFUNDOS_MAX = 2;
 export const PESCA_NO_MAR = { raio: 30, pescas: PEIXES_POR_CARDUME, peixes: PEIXES_POR_PESCA, tempo: TEMPO_PESCAR };
 export const PESCA_NO_PROFUNDO = { raio: 90, pescas: 15, peixes: 4, tempo: 2 };
-export const PESCAS_POR_VIAGEM = 3;       // filhos voltam depois de pescar isso
-export const DESCANSO_VIAGEM = 30;        // segundos entre viagens dos filhos
-export const RECARGA_CANHOES = 1.5;       // segundos entre disparos do barco pirata
-export const VELOCIDADE_BALA = 220;       // bola de canhão: velocidade para o lado...
-export const SUBIDA_BALA = 60;            // ...e para cima, na saída do canhão
+export const PESCAS_POR_VIAGEM = 3; // filhos voltam depois de pescar isso
+export const DESCANSO_VIAGEM = 30; // segundos entre viagens dos filhos
+export const RECARGA_CANHOES = 1.5; // segundos entre disparos do barco pirata
+export const VELOCIDADE_BALA = 220; // bola de canhão: velocidade para o lado...
+export const SUBIDA_BALA = 60; // ...e para cima, na saída do canhão
 export const GRAVIDADE_BALA = 160;
 // Canhões do barco pirata (nível 5) no referencial do barco: proa para +X, origem na linha d'água.
 // xs: posição ao longo do casco | lateral: onde fica o canhão | boca: onde a bola sai
 export const CANHOES = { xs: [-18, -2, 14], lateral: 15.4, boca: 19.9, altura: 7.4 };
-export const TEMPO_CRIA_ANIMAL = 45;     // segundos entre filhotes de um casal
-export const TEMPO_CRESCER_ANIMAL = 60;  // segundos para o filhote virar adulto
-export const MAX_POR_ESPECIE = 6;        // limite de animais de cada espécie na ilha
-export const MAX_COM_ABRIGO = 10;        // limite com galinheiro / curral / pasto
-export const TEMPO_TRIGO_CRESCER = 45;   // segundos para o trigo amadurecer
+export const TEMPO_CRIA_ANIMAL = 45; // segundos entre filhotes de um casal
+export const TEMPO_CRESCER_ANIMAL = 60; // segundos para o filhote virar adulto
+export const MAX_POR_ESPECIE = 6; // limite de animais de cada espécie na ilha
+export const MAX_COM_ABRIGO = 10; // limite com galinheiro / curral / pasto
+export const TEMPO_TRIGO_CRESCER = 45; // segundos para o trigo amadurecer
 export const TEMPO_PLANTAR_TRIGO = 1.5;
 export const TEMPO_COLHER_TRIGO = 2;
 export const TRIGO_POR_COLHEITA = 5;
-export const SEMENTES_TRIGO_INICIAIS = 1;      // ganha ao construir o campo
-export const SEMENTES_TRIGO_POR_COLHEITA = 2;  // cada canteiro colhido devolve 2 sementes
+export const SEMENTES_TRIGO_INICIAIS = 1; // ganha ao construir o campo
+export const SEMENTES_TRIGO_POR_COLHEITA = 2; // cada canteiro colhido devolve 2 sementes
 // Estoque: a soma de todos os recursos não passa da capacidade.
 // Sem moinho: 350. Cada nível do moinho soma +150.
 export const ESTOQUE_BASE = 350;
@@ -69,15 +69,15 @@ export const ESTOQUE_POR_NIVEL_MOINHO = 150;
 // Cada prato rende 5 pedaços e fica no espeto até acabar.
 // Depois do 1º churrasco, de tempos em tempos alguém da família para o que está fazendo
 // e vai até a fogueira pedir comida.
-export const TEMPO_COZINHAR = 5;              // segundos por prato
-export const PEDACOS_POR_PRATO = 5;           // quantos pedidos um prato atende
-export const TEMPO_PRIMEIRO_PEDIDO = 15;      // depois do 1º churrasco
-export const TEMPO_ENTRE_PEDIDOS = [40, 80];  // sorteado entre esses segundos
+export const TEMPO_COZINHAR = 5; // segundos por prato
+export const PEDACOS_POR_PRATO = 5; // quantos pedidos um prato atende
+export const TEMPO_PRIMEIRO_PEDIDO = 15; // depois do 1º churrasco
+export const TEMPO_ENTRE_PEDIDOS = [40, 80]; // sorteado entre esses segundos
 // Se mais da metade da família está pedindo outro prato, o do espeto torra e se perde
-export const TEMPO_TORRAR = 10;               // segundos de aviso antes de torrar
+export const TEMPO_TORRAR = 10; // segundos de aviso antes de torrar
 // Chuva pedida no Totem da Vida: durante esse tempo árvores e trigo crescem mais rápido
-export const TEMPO_CHUVA = 60;            // segundos de chuva
-export const CRESCIMENTO_NA_CHUVA = 3;    // crescem 3x mais rápido
+export const TEMPO_CHUVA = 60; // segundos de chuva
+export const CRESCIMENTO_NA_CHUVA = 3; // crescem 3x mais rápido
 // Árvores da chuva: nascem quando começa a chover. Comparadas ao pinheiro,
 // levam FATOR_ARVORE_CHUVA vezes mais para crescer e para serrar e dão isso vezes mais madeira e sementes.
 export const ARVORES_POR_CHUVA = 5;
@@ -91,18 +91,25 @@ export const LOTES_TROCA = [10, 50, 100];
 
 // Montes de barro e de pedra: filhos adultos coletam 1 unidade por vez, 1 filho por monte
 export const QTD_POR_MONTE = 500;
-export const TEMPO_COLETAR = 2;        // segundos por unidade
+export const TEMPO_COLETAR = 2; // segundos por unidade
 export const TEMPO_RECARGA_MONTE = 60; // monte esgotado volta a ter 500 depois disso
 export const MONTES = {
-  barro: { nome: 'Monte de barro', icone: '🟫', recurso: 'tijolo', raio: 20, acabou: 'O monte de barro esgotou!', voltou: 'O monte de barro voltou!' },
+  barro: {
+    nome: 'Monte de barro',
+    icone: '🟫',
+    recurso: 'tijolo',
+    raio: 20,
+    acabou: 'O monte de barro esgotou!',
+    voltou: 'O monte de barro voltou!',
+  },
   pedra: { nome: 'Monte de pedra', icone: '🪨', recurso: 'pedra', raio: 20, acabou: 'O monte de pedra esgotou!', voltou: 'O monte de pedra voltou!' },
 };
 
 // Expansão da ilha: aterrar um pedaço de mar perto da costa
 export const CUSTO_EXPANSAO = { madeira: 50 };
-export const TEMPO_ATERRAR = 4;          // segundos aterrando
-export const ALCANCE_EXPANSAO = 90;      // distância máxima da costa até o ponto clicado
-export const LARGURA_EXPANSAO = 0.18;    // largura do pedaço de terra (em radianos)
+export const TEMPO_ATERRAR = 4; // segundos aterrando
+export const ALCANCE_EXPANSAO = 90; // distância máxima da costa até o ponto clicado
+export const LARGURA_EXPANSAO = 0.18; // largura do pedaço de terra (em radianos)
 // Faixas do mar em volta da costa: espuma até ESPUMA, mar raso (azul-claro) até FIM_DO_RASO,
 // mar até FIM_DO_MAR e dali para fora o mar profundo (azul mais escuro).
 // Os cardumes ficam sempre no mar, a pelo menos FOLGA_CARDUME_RASO do raso e do mar profundo.
@@ -115,20 +122,22 @@ export const ANEL_AREIA = 22; // distância da beira do mar até o meio da faixa
 
 // Espécies: f = fêmea, m = macho
 export const ESPECIES = {
-  ovelha:  { nome: { f: 'Ovelha', m: 'Carneiro' }, icone: { f: '🐑', m: '🐏' }, raio: 9,  carne: 15, velocidade: 40 },
-  vaca:    { nome: { f: 'Vaca', m: 'Touro' },      icone: { f: '🐄', m: '🐂' }, raio: 13, carne: 30, velocidade: 30 },
-  galinha: { nome: { f: 'Galinha', m: 'Galo' },    icone: { f: '🐔', m: '🐓' }, raio: 5,  carne: 5,  velocidade: 55 },
+  ovelha: { nome: { f: 'Ovelha', m: 'Carneiro' }, icone: { f: '🐑', m: '🐏' }, raio: 9, carne: 15, velocidade: 40 },
+  vaca: { nome: { f: 'Vaca', m: 'Touro' }, icone: { f: '🐄', m: '🐂' }, raio: 13, carne: 30, velocidade: 30 },
+  galinha: { nome: { f: 'Galinha', m: 'Galo' }, icone: { f: '🐔', m: '🐓' }, raio: 5, carne: 5, velocidade: 55 },
 };
 
 export const ICONES = { madeira: '🪵', sementes: '🌱', carne: '🍖', peixe: '🐟', trigo: '🌾', sementesTrigo: '🌾 sem.', tijolo: '🧱', pedra: '🪨' };
 
 export const DICAS = {
-  normal: 'Toque no mapa para andar. Setas / WASD movem a câmera; tocar no chão ou Espaço volta para o Jones. Toque em árvores, construções, família ou animais.',
+  normal:
+    'Toque no mapa para andar. Setas / WASD movem a câmera; tocar no chão ou Espaço volta para o Jones. Toque em árvores, construções, família ou animais.',
   plantar: 'Toque num lugar da grama para plantar. P ou Esc para sair.',
   construir: 'Toque num lugar da ilha para construir. Esc para cancelar.',
   expandir: 'Toque no mar, perto da praia, para aterrar um pedaço de terra. X ou Esc para sair.',
   navegando: 'Navegando: toque no mar para ir até lá. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
-  navegandoPirata: 'Navegando: toque no mar para ir até lá. Espaço dispara os canhões. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
+  navegandoPirata:
+    'Navegando: toque no mar para ir até lá. Espaço dispara os canhões. Pare em cima de um cardume para pescar. Perto da praia, E desembarca.',
 };
 
 // Nomes da família
@@ -143,10 +152,42 @@ export function nomeDoFilho(n) {
 }
 
 export const FASES = {
-  crianca:     { icone: '🧒', texto: 'Criança. Ajuda a mãe plantando sementes. Vira adolescente quando nascer o próximo irmão.' },
-  adolescente: { icone: '🧑', texto: 'Adolescente. Caça animais adultos e, quando não há caça, corta árvores e planta sementes. Ajuda o pai a construir a jangada. Vira adulto quando nascer o próximo irmão.' },
-  adulto:      { icone: '🧔', texto: 'Filho adulto. Sua obrigação é coletar barro e pedra nos montes (um filho por monte). Sem monte livre, caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.' },
+  crianca: { icone: '🧒', texto: 'Criança. Ajuda a mãe plantando sementes. Vira adolescente quando nascer o próximo irmão.' },
+  adolescente: {
+    icone: '🧑',
+    texto:
+      'Adolescente. Caça animais adultos e, quando não há caça, corta árvores e planta sementes. Ajuda o pai a construir a jangada. Vira adulto quando nascer o próximo irmão.',
+  },
+  adulto: {
+    icone: '🧔',
+    texto:
+      'Filho adulto. Sua obrigação é coletar barro e pedra nos montes (um filho por monte). Sem monte livre, caça, corta árvores e planta. Vai junto com o pai na jangada e, com outro irmão adulto, sai sozinho para pescar.',
+  },
 };
 
-export const CORES_ACAO = { serrar: '#ffd34d', plantar: '#8fd16a', construir: '#e0a95a', namorar: '#f08bbd', cacar: '#e06a4a', evoluir: '#e0a95a', plantarTrigo: '#d8c060', colher: '#f0d050', aterrar: '#e8d08a', coletar: '#c8794a', cozinhar: '#ff8a3a' };
-export const NOMES_ACAO = { serrar: 'Serrando', plantar: 'Plantando', construir: 'Construindo', namorar: 'Namorando', cacar: 'Caçando', evoluir: 'Evoluindo', plantarTrigo: 'Plantando trigo', colher: 'Colhendo', aterrar: 'Aterrando', coletar: 'Coletando', cozinhar: 'Cozinhando' };
+export const CORES_ACAO = {
+  serrar: '#ffd34d',
+  plantar: '#8fd16a',
+  construir: '#e0a95a',
+  namorar: '#f08bbd',
+  cacar: '#e06a4a',
+  evoluir: '#e0a95a',
+  plantarTrigo: '#d8c060',
+  colher: '#f0d050',
+  aterrar: '#e8d08a',
+  coletar: '#c8794a',
+  cozinhar: '#ff8a3a',
+};
+export const NOMES_ACAO = {
+  serrar: 'Serrando',
+  plantar: 'Plantando',
+  construir: 'Construindo',
+  namorar: 'Namorando',
+  cacar: 'Caçando',
+  evoluir: 'Evoluindo',
+  plantarTrigo: 'Plantando trigo',
+  colher: 'Colhendo',
+  aterrar: 'Aterrando',
+  coletar: 'Coletando',
+  cozinhar: 'Cozinhando',
+};

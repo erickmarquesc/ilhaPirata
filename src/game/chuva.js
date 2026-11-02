@@ -13,9 +13,13 @@ import { atualizarInventario, fecharPainel } from './ui.js';
 // ===================== Chuva =====================
 // Pedida no Totem da Vida: por TEMPO_CHUVA segundos árvores e trigo crescem mais rápido,
 // a família se abriga na cabana (ver familia.js) e brotam mudas de árvores da chuva.
-export function chovendo() { return mundo.chuva > 0; }
+export function chovendo() {
+  return mundo.chuva > 0;
+}
 // Quanto o crescimento das plantas anda por segundo (1 = normal)
-export function ritmoDasPlantas() { return chovendo() ? CRESCIMENTO_NA_CHUVA : 1; }
+export function ritmoDasPlantas() {
+  return chovendo() ? CRESCIMENTO_NA_CHUVA : 1;
+}
 
 export function pedirChuva(id) {
   const p = PEDIDOS[id];
@@ -34,7 +38,8 @@ export function pedirChuva(id) {
 function brotarArvoresDaChuva() {
   let brotaram = 0;
   for (let i = 0; i < 400 && brotaram < ARVORES_POR_CHUVA; i++) {
-    const ang = sortear() * Math.PI * 2, d = Math.sqrt(sortear()) * raioIlha(ang);
+    const ang = sortear() * Math.PI * 2,
+      d = Math.sqrt(sortear()) * raioIlha(ang);
     const p = { x: ILHA.x + Math.cos(ang) * d, y: ILHA.y + Math.sin(ang) * d };
     if (!podePlantarEm(p)) continue;
     mundo.arvores.push(novaArvore(p.x, p.y, false, 'chuva'));

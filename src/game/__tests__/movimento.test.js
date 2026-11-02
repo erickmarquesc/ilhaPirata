@@ -18,7 +18,7 @@ function arvore(x, y, raio = 20) {
 // Círculo fechado de árvores em volta de (x, y): sobra só um espacinho no meio
 function cercarDeArvores(x, y) {
   for (let i = 0; i < 8; i++) {
-    const ang = i / 8 * Math.PI * 2;
+    const ang = (i / 8) * Math.PI * 2;
     arvore(x + Math.cos(ang) * 14, y + Math.sin(ang) * 14);
   }
 }

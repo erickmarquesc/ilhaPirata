@@ -19,12 +19,14 @@ const Arvore = memo(function Arvore({ t }) {
   useFrame(({ clock }) => {
     const c = crescimento(t);
     const g = grupo.current;
-    g.scale.setScalar((0.3 + 0.7 * c) * t.raio / 16);
+    g.scale.setScalar(((0.3 + 0.7 * c) * t.raio) / 16);
     const serrando = mundo.agentes.some(a => a.acao && a.acao.tarefa.arvore === t);
     g.rotation.z = serrando ? Math.sin(clock.elapsedTime * 16) * 0.06 : 0;
     const alvo = mundo.jogador.tarefa && mundo.jogador.tarefa.arvore === t;
     const cores = c < 1 ? paleta.nova : alvo ? paleta.alvo : paleta.adulta;
-    copas.current.forEach((m, i) => { if (m) m.material = material(cores[i % 2]); });
+    copas.current.forEach((m, i) => {
+      if (m) m.material = material(cores[i % 2]);
+    });
   });
 
   return (
@@ -33,8 +35,13 @@ const Arvore = memo(function Arvore({ t }) {
       position={paraCena(t.x, t.y, alturaDoChao(t.x, t.y))}
       rotation={[0, giro, 0]}
       onPointerDown={e => aoTocarEntidade(e, t.x, t.y)}
-      onPointerOver={e => { e.stopPropagation(); sobMouse.arvore = t; }}
-      onPointerOut={() => { if (sobMouse.arvore === t) sobMouse.arvore = null; }}
+      onPointerOver={e => {
+        e.stopPropagation();
+        sobMouse.arvore = t;
+      }}
+      onPointerOut={() => {
+        if (sobMouse.arvore === t) sobMouse.arvore = null;
+      }}
     >
       {daChuva ? <ArvoreDaChuva ref={copas} /> : <Pinheiro ref={copas} />}
     </group>

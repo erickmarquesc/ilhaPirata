@@ -10,19 +10,27 @@ import Peca from '../Peca.jsx';
 // 4 pás com velas de pano e varanda · 5 cúpula dourada, flâmula e lanternas.
 // Obra em etapas: base → torre → telhado → pás.
 
-const MADEIRA = '#8b6a45', MADEIRA_ESCURA = '#5a3a1c', TELHADO = '#6e3f22', PEDRA = '#a9aeb3', PANO = '#f2ead6', OURO = '#f5c84c';
-const ALTURA_TORRE = 46, EIXO = [0, 50, 13];
+const MADEIRA = '#8b6a45',
+  MADEIRA_ESCURA = '#5a3a1c',
+  TELHADO = '#6e3f22',
+  PEDRA = '#a9aeb3',
+  PANO = '#f2ead6',
+  OURO = '#f5c84c';
+const ALTURA_TORRE = 46,
+  EIXO = [0, 50, 13];
 
 function Pas({ nivel }) {
   const giro = useRef();
-  useFrame((_, dt) => { giro.current.rotation.z += dt * (0.6 + nivel * 0.15); });
+  useFrame((_, dt) => {
+    giro.current.rotation.z += dt * (0.6 + nivel * 0.15);
+  });
   return (
     <group position={EIXO}>
       <Peca geo="cilindro" cor={MADEIRA_ESCURA} p={[0, 0, -2]} s={[1.6, 6, 1.6]} r={[Math.PI / 2, 0, 0]} />
       <group ref={giro}>
         <Peca geo="bola" cor={MADEIRA_ESCURA} s={2.4} />
         {[0, 1, 2, 3].map(i => (
-          <group key={i} rotation={[0, 0, i * Math.PI / 2 + 0.3]}>
+          <group key={i} rotation={[0, 0, (i * Math.PI) / 2 + 0.3]}>
             <Peca cor={MADEIRA_ESCURA} p={[0, 15, 0]} s={[1.2, 28, 0.8]} />
             {nivel >= 4 ? (
               <Peca cor={PANO} p={[3.2, 17, 0.3]} s={[5.4, 22, 0.3]} sombra={false} /> // vela de pano
@@ -74,9 +82,18 @@ export function Moinho({ progresso = 1, est = null }) {
       {pTorre > 0 && (
         <group>
           <Peca geo="tronco" cor={MADEIRA} p={[0, 4 + alturaTorre / 2, 0]} s={[13, alturaTorre, 13]} />
-          {[0.25, 0.5, 0.75].filter(f => f <= pTorre).map(f => (
-            <Peca key={f} geo="tronco" cor={MADEIRA_ESCURA} p={[0, 4 + ALTURA_TORRE * f, 0]} s={[13.4 - f * 2.6, 1, 13.4 - f * 2.6]} sombra={false} />
-          ))}
+          {[0.25, 0.5, 0.75]
+            .filter(f => f <= pTorre)
+            .map(f => (
+              <Peca
+                key={f}
+                geo="tronco"
+                cor={MADEIRA_ESCURA}
+                p={[0, 4 + ALTURA_TORRE * f, 0]}
+                s={[13.4 - f * 2.6, 1, 13.4 - f * 2.6]}
+                sombra={false}
+              />
+            ))}
         </group>
       )}
       {pTorre >= 1 && (
@@ -115,11 +132,18 @@ export function Moinho({ progresso = 1, est = null }) {
           <group position={[15, 0, 11]} rotation={[0, -0.5, 0]}>
             <Peca cor={MADEIRA} p={[0, 3.5, 0]} s={[7, 3, 5]} />
             <Peca geo="cilindro" cor={MADEIRA_ESCURA} p={[4.5, 1.8, 0]} s={[1.8, 0.8, 1.8]} r={[Math.PI / 2, 0, 0]} />
-            {[-1.8, 1.8].map(z => <Peca key={z} cor={MADEIRA_ESCURA} p={[-5.5, 3.5, z]} s={[5, 0.6, 0.6]} sombra={false} />)}
+            {[-1.8, 1.8].map(z => (
+              <Peca key={z} cor={MADEIRA_ESCURA} p={[-5.5, 3.5, z]} s={[5, 0.6, 0.6]} sombra={false} />
+            ))}
           </group>
         </group>
       )}
-      {pronto && nivel >= 5 && <><Lanterna p={[-6, 4.4, 14]} /><Lanterna p={[6, 4.4, 14]} /></>}
+      {pronto && nivel >= 5 && (
+        <>
+          <Lanterna p={[-6, 4.4, 14]} />
+          <Lanterna p={[6, 4.4, 14]} />
+        </>
+      )}
     </group>
   );
 }

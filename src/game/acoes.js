@@ -17,9 +17,12 @@ export function evoluir(id) {
   definirModo(null);
   cancelar(jogador);
   if (jogador.embarcado) return;
-  if (s.tipo === 'jangada') { prepararJangada(s); if (s.reservadaPor || s.tripulacao.length) return; }
+  if (s.tipo === 'jangada') {
+    prepararJangada(s);
+    if (s.reservadaPor || s.tripulacao.length) return;
+  }
   const noMar = estaNoMar(s);
-  const pos = noMar ? pontoTerraPerto(s.x, s.y) : s;   // jangada no mar: trabalha a partir da praia
+  const pos = noMar ? pontoTerraPerto(s.x, s.y) : s; // jangada no mar: trabalha a partir da praia
   iniciarTarefa(jogador, { tipo: 'evoluir', construcao: id, estrutura: s, x: pos.x, y: pos.y, raio: noMar ? 6 : s.raio });
 }
 

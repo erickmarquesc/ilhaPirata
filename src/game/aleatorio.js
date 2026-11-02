@@ -18,13 +18,23 @@ export function criarGerador(semente) {
 let gerador = criarGerador(novaSemente());
 
 // Semente para quando a partida não recebe uma
-export function novaSemente() { return Date.now() >>> 0; }
+export function novaSemente() {
+  return Date.now() >>> 0;
+}
 
-export function definirSemente(n) { gerador = criarGerador(n); }
+export function definirSemente(n) {
+  gerador = criarGerador(n);
+}
 
 // Número em [0, 1)
-export function sortear() { return gerador(); }
+export function sortear() {
+  return gerador();
+}
 // Número em [min, max)
-export function entre(min, max) { return min + gerador() * (max - min); }
+export function entre(min, max) {
+  return min + gerador() * (max - min);
+}
 // Um item da lista (undefined se vazia)
-export function escolher(lista) { return lista[Math.floor(gerador() * lista.length)]; }
+export function escolher(lista) {
+  return lista[Math.floor(gerador() * lista.length)];
+}

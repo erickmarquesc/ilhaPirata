@@ -12,7 +12,9 @@ function InfoAbrigo({ estrutura }) {
   const limite = limiteDoAbrigo(estrutura.tipo, estrutura.nivel);
   return (
     <>
-      <Painel.Texto>{ESPECIES[abrigo].icone.f} {qtdEspecie(abrigo)} de {limite} {nome}.</Painel.Texto>
+      <Painel.Texto>
+        {ESPECIES[abrigo].icone.f} {qtdEspecie(abrigo)} de {limite} {nome}.
+      </Painel.Texto>
       <Painel.Texto>
         {noNivelMaximo(estrutura)
           ? 'Nível máximo.'
@@ -26,7 +28,9 @@ function InfoAbrigo({ estrutura }) {
 function InfoMoinho({ estrutura }) {
   return (
     <>
-      <Painel.Texto>📦 Estoque: {totalNoEstoque()} de {capacidadeDoEstoque(estrutura.nivel)}.</Painel.Texto>
+      <Painel.Texto>
+        📦 Estoque: {totalNoEstoque()} de {capacidadeDoEstoque(estrutura.nivel)}.
+      </Painel.Texto>
       <Painel.Texto>
         {noNivelMaximo(estrutura) ? 'Nível máximo.' : `No nível ${estrutura.nivel + 1}: até ${capacidadeDoEstoque(estrutura.nivel + 1)}.`}
       </Painel.Texto>
@@ -40,7 +44,9 @@ export default function PainelEstrutura({ alvo: estrutura }) {
   return (
     <>
       <Painel.Cabecalho>
-        <Painel.Titulo>{c.icone} {c.nome} · nível {estrutura.nivel}</Painel.Titulo>
+        <Painel.Titulo>
+          {c.icone} {c.nome} · nível {estrutura.nivel}
+        </Painel.Titulo>
         <Painel.Fechar />
       </Painel.Cabecalho>
       <Painel.Texto>{c.descricao || ''}</Painel.Texto>

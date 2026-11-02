@@ -24,11 +24,14 @@ export function raioIlha(angulo, extras = []) {
   return r;
 }
 export function dentroDaIlha(x, y, margem = 0, extras = []) {
-  const dx = x - ILHA.x, dy = y - ILHA.y;
+  const dx = x - ILHA.x,
+    dy = y - ILHA.y;
   return Math.hypot(dx, dy) <= raioIlha(Math.atan2(dy, dx), extras) - margem;
 }
 // Um pouco para dentro da borda desenhada, para a copa não ficar sobre a areia
-export function naGrama(x, y) { return dentroDaIlha(x, y, RECUO_GRAMA + 6); }
+export function naGrama(x, y) {
+  return dentroDaIlha(x, y, RECUO_GRAMA + 6);
+}
 
 export function pontoAreia(ang) {
   const r = raioIlha(ang) - ANEL_AREIA;
@@ -43,7 +46,8 @@ export function terraLivrePerto(x, y, deslocamento = 0) {
   const ang0 = Math.atan2(y - ILHA.y, x - ILHA.x) + deslocamento;
   for (const off of [0, 0.04, -0.04, 0.08, -0.08, 0.14, -0.14, 0.2, -0.2]) {
     for (const recuo of [14, 24, 36]) {
-      const ang = ang0 + off, r = raioIlha(ang) - recuo;
+      const ang = ang0 + off,
+        r = raioIlha(ang) - recuo;
       const p = { x: ILHA.x + Math.cos(ang) * r, y: ILHA.y + Math.sin(ang) * r };
       if (podeFicar(p.x, p.y, 10)) return p;
     }
@@ -51,7 +55,9 @@ export function terraLivrePerto(x, y, deslocamento = 0) {
   return null;
 }
 // Algum pedaço (raio r) já passou do fim do mar, no mar profundo?
-export function noMarProfundo(x, y, r = 0) { return !dentroDaIlha(x, y, -(FIM_DO_MAR - r)); }
+export function noMarProfundo(x, y, r = 0) {
+  return !dentroDaIlha(x, y, -(FIM_DO_MAR - r));
+}
 export function podeNavegar(x, y, r) {
   if (x < r || y < r || x > MUNDO.w - r || y > MUNDO.h - r) return false;
   const ang = Math.atan2(y - ILHA.y, x - ILHA.x);

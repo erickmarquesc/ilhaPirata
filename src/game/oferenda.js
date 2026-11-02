@@ -14,11 +14,16 @@ import { atualizarInventario } from './ui.js';
 export const RECURSOS_TROCA = ['madeira', 'pedra', 'tijolo', 'carne', 'peixe', 'trigo', 'sementes'];
 export { LOTES_TROCA };
 
-export function favorAtivo() { return mundo.favor > 0; }
-export function podeOferecer() { return !!mundo.comida.servido && !!fogueira() && !favorAtivo(); }
+export function favorAtivo() {
+  return mundo.favor > 0;
+}
+export function podeOferecer() {
+  return !!mundo.comida.servido && !!fogueira() && !favorAtivo();
+}
 
 export function oferecerEspeto() {
-  const comida = mundo.comida, s = fogueira();
+  const comida = mundo.comida,
+    s = fogueira();
   if (!podeOferecer()) return;
   const { prato } = comida.servido;
   comida.servido = null;
@@ -32,18 +37,24 @@ export function oferecerEspeto() {
 export function atualizarFavor(dt) {
   if (!favorAtivo()) return;
   mundo.favor = Math.max(mundo.favor - dt, 0);
-  if (!favorAtivo()) { const s = estruturaDoTipo('totem') ?? mundo.jogador; textoFlutuante(s.x, s.y - 60, 'O favor dos deuses acabou', '#fff3b0'); }
+  if (!favorAtivo()) {
+    const s = estruturaDoTipo('totem') ?? mundo.jogador;
+    textoFlutuante(s.x, s.y - 60, 'O favor dos deuses acabou', '#fff3b0');
+  }
 }
 
 // Quanto se recebe dando "qtd" (com o favor ativo a troca é 1 → 1)
-export function recebidoNaTroca(qtd) { return favorAtivo() ? qtd : Math.floor(qtd / TAXA_TROCA); }
+export function recebidoNaTroca(qtd) {
+  return favorAtivo() ? qtd : Math.floor(qtd / TAXA_TROCA);
+}
 export function podeTrocar(dar, receber, qtd) {
   return !!estruturaDoTipo('totem') && dar !== receber && temRecursos({ [dar]: qtd }) && recebidoNaTroca(qtd) > 0;
 }
 // Dá mais do que recebe (ou igual, com o favor), então o resultado sempre cabe no estoque
 export function trocarComDeuses(dar, receber, qtd) {
   if (!podeTrocar(dar, receber, qtd)) return;
-  const recebe = recebidoNaTroca(qtd), s = estruturaDoTipo('totem');
+  const recebe = recebidoNaTroca(qtd),
+    s = estruturaDoTipo('totem');
   gastarRecursos({ [dar]: qtd });
   ganhar(receber, recebe);
   luzDivina(s.x, s.y);

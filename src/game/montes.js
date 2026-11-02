@@ -13,8 +13,10 @@ export function gerarMontes() {
   for (const tipo of Object.keys(MONTES)) {
     const { raio } = MONTES[tipo];
     for (let i = 0; i < 300; i++) {
-      const a = sortear() * Math.PI * 2, d = ILHA.raio * entre(0.35, 0.65);
-      const x = ILHA.x + Math.cos(a) * d, y = ILHA.y + Math.sin(a) * d;
+      const a = sortear() * Math.PI * 2,
+        d = ILHA.raio * entre(0.35, 0.65);
+      const x = ILHA.x + Math.cos(a) * d,
+        y = ILHA.y + Math.sin(a) * d;
       if (!dentroDaIlha(x, y, 80)) continue;
       if (mundo.montes.some(m => Math.hypot(m.x - x, m.y - y) < 160)) continue;
       mundo.montes.push({ tipo, x, y, raio, restante: QTD_POR_MONTE, recarga: 0 });
@@ -45,14 +47,19 @@ export function recursoPreferido(a) {
 function outrosNoMonte(m, a) {
   return mundo.agentes.filter(f => f !== a && f.tarefa && f.tarefa.tipo === 'coletar' && f.tarefa.monte === m);
 }
-function recursoPausado(m) { return pausado(MONTES[m.tipo].recurso); }
-function livrePara(m, a) { return m.restante > 0 && !recursoPausado(m) && !outrosNoMonte(m, a).length; }
+function recursoPausado(m) {
+  return pausado(MONTES[m.tipo].recurso);
+}
+function livrePara(m, a) {
+  return m.restante > 0 && !recursoPausado(m) && !outrosNoMonte(m, a).length;
+}
 // O monte preferido só conta como ocupado se quem está nele também o prefere;
 // quem está lá "de favor" cede o lugar na próxima unidade (ver coletarUma)
 function monteLivrePreferido(a) {
   const tipo = recursoPreferido(a);
-  return tipo ? mundo.montes.find(m => m.tipo === tipo && m.restante > 0 && !recursoPausado(m) &&
-    !outrosNoMonte(m, a).some(f => recursoPreferido(f) === tipo)) : null;
+  return tipo
+    ? mundo.montes.find(m => m.tipo === tipo && m.restante > 0 && !recursoPausado(m) && !outrosNoMonte(m, a).some(f => recursoPreferido(f) === tipo))
+    : null;
 }
 
 // Obrigação do filho adulto: pega o monte livre do tipo preferido; se não tiver
@@ -60,11 +67,15 @@ function monteLivrePreferido(a) {
 export function monteLivreParaColetar(a) {
   const preferido = monteLivrePreferido(a);
   if (preferido) return preferido;
-  let melhor = null, dist = Infinity;
+  let melhor = null,
+    dist = Infinity;
   for (const m of mundo.montes) {
     if (!livrePara(m, a)) continue;
     const d = Math.hypot(m.x - a.x, m.y - a.y);
-    if (d < dist) { dist = d; melhor = m; }
+    if (d < dist) {
+      dist = d;
+      melhor = m;
+    }
   }
   return melhor;
 }
@@ -94,7 +105,9 @@ export function coletarUma(monte, a) {
   return tarefaColetar(monte);
 }
 
-export function esgotado(monte) { return monte.restante <= 0; }
+export function esgotado(monte) {
+  return monte.restante <= 0;
+}
 
 // Montes esgotados se recompõem com o tempo
 export function atualizarMontes(dt) {

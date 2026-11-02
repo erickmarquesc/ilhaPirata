@@ -23,7 +23,10 @@ export const DT = 1 / 60;
 export function colocarConstrucao(tipo, x, y, nivel = 1) {
   const c = CONSTRUCOES[tipo];
   const est = { tipo, x, y, raio: c.raio, nivel };
-  if (c.area) { est.area = true; est.ocupa = c.raio * 1.42; }
+  if (c.area) {
+    est.area = true;
+    est.ocupa = c.raio * 1.42;
+  }
   mundo.estruturas.push(est);
   return est;
 }
@@ -40,7 +43,8 @@ function construirPeloJogo(id, aleatorio) {
   mundo.dev = true;
   let p = null;
   for (let i = 0; i < 2000 && !p; i++) {
-    const ang = aleatorio() * Math.PI * 2, d = aleatorio() * raioIlha(ang);
+    const ang = aleatorio() * Math.PI * 2,
+      d = aleatorio() * raioIlha(ang);
     const q = { x: ILHA.x + Math.cos(ang) * d, y: ILHA.y + Math.sin(ang) * d };
     if (podeConstruirEm(id, q)) p = q;
   }
@@ -64,7 +68,9 @@ function novoFilho(tipo) {
   mundo.contadorFilhos++;
   const totem = estruturaDoTipo('totem');
   const pos = lugarLivrePerto(totem.x, totem.y, 50);
-  mundo.agentes.push(novoAgente(tipo, pos.x, pos.y, { ...FASES[tipo], nome: 'Filho ' + mundo.contadorFilhos, ordem: mundo.contadorFilhos, espera: 1 }));
+  mundo.agentes.push(
+    novoAgente(tipo, pos.x, pos.y, { ...FASES[tipo], nome: 'Filho ' + mundo.contadorFilhos, ordem: mundo.contadorFilhos, espera: 1 }),
+  );
 }
 export function povoarIlha(aleatorio) {
   for (const id of ['totem', 'cabana', 'fogueira', 'campoTrigo', 'curral', 'moinho', 'jangada']) construirPeloJogo(id, aleatorio);
@@ -81,7 +87,8 @@ export function povoarIlha(aleatorio) {
 // O Jones joga sozinho: toca em lugares sorteados e, de tempos em tempos, cozinha,
 // oferece o espeto, embarca/desembarca, chama para namorar e pede chuva
 export function jogadorAleatorio(aleatorio) {
-  let proxima = 0, chuva = false;
+  let proxima = 0,
+    chuva = false;
   return t => {
     if (!chuva && t >= 120) {
       chuva = true;
@@ -96,11 +103,15 @@ export function jogadorAleatorio(aleatorio) {
     const sorteio = aleatorio();
     if (sorteio < 0.08) teclaPressionada('e');
     else if (sorteio < 0.14) namorar();
-    else if (sorteio < 0.2) { const prato = aleatorio() < 0.5 ? 'churrasco' : 'peixada'; if (podeCozinhar(prato)) cozinhar(prato); }
-    else if (sorteio < 0.24) { if (podeOferecer()) oferecerEspeto(); }
-    else if (sorteio < 0.4) clicar({ x: aleatorio() * MUNDO.w, y: aleatorio() * MUNDO.h });
+    else if (sorteio < 0.2) {
+      const prato = aleatorio() < 0.5 ? 'churrasco' : 'peixada';
+      if (podeCozinhar(prato)) cozinhar(prato);
+    } else if (sorteio < 0.24) {
+      if (podeOferecer()) oferecerEspeto();
+    } else if (sorteio < 0.4) clicar({ x: aleatorio() * MUNDO.w, y: aleatorio() * MUNDO.h });
     else {
-      const ang = aleatorio() * Math.PI * 2, d = aleatorio() * raioIlha(ang);
+      const ang = aleatorio() * Math.PI * 2,
+        d = aleatorio() * raioIlha(ang);
       clicar({ x: ILHA.x + Math.cos(ang) * d, y: ILHA.y + Math.sin(ang) * d });
     }
   };

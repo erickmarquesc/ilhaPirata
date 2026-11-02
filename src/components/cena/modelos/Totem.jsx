@@ -11,8 +11,14 @@ import Peca from '../Peca.jsx';
 // Níveis: 2 asas com pontas de ouro · 3 segundo anel no orbe · 4 coroa dourada ·
 // 5 totem divino (faixas e base de ouro, olhos do pássaro brilhando, orbe maior com raios).
 
-const MADEIRA = '#8b5a2b', MADEIRA_CLARA = '#a06a35', MADEIRA_ESCURA = '#5a3a1c', ENTALHE = '#2a1a10';
-const VERMELHO = '#b5442e', TURQUESA = '#2f8f8a', AMARELO = '#e6b84a', OSSO = '#efe6cf';
+const MADEIRA = '#8b5a2b',
+  MADEIRA_CLARA = '#a06a35',
+  MADEIRA_ESCURA = '#5a3a1c',
+  ENTALHE = '#2a1a10';
+const VERMELHO = '#b5442e',
+  TURQUESA = '#2f8f8a',
+  AMARELO = '#e6b84a',
+  OSSO = '#efe6cf';
 
 const geoAnel = new THREE.TorusGeometry(9, 0.6, 6, 32);
 
@@ -117,9 +123,13 @@ function Sereno() {
 
 // Faixas pintadas entre os rostos
 function Faixas({ rostos, nivel }) {
-  return [[26, VERMELHO, 11.6], [44, TURQUESA, 10.6], [60, AMARELO, 10.1]].slice(0, rostos).map(([y, cor, r]) => (
-    <Peca key={y} geo="octogono" cor={nivel >= 5 ? OURO : cor} p={[0, y, 0]} s={[r, 1.6, r]} />
-  ));
+  return [
+    [26, VERMELHO, 11.6],
+    [44, TURQUESA, 10.6],
+    [60, AMARELO, 10.1],
+  ]
+    .slice(0, rostos)
+    .map(([y, cor, r]) => <Peca key={y} geo="octogono" cor={nivel >= 5 ? OURO : cor} p={[0, y, 0]} s={[r, 1.6, r]} />);
 }
 
 // Uma asa: penas em leque, pontas pintadas
@@ -129,8 +139,13 @@ function Asa({ lado, dourada }) {
     <group position={[lado * 7, 64, -1]} rotation={[0, 0, lado * 0.28]}>
       {penas.map((L, i) => (
         <group key={i} rotation={[0, 0, lado * -0.2 * i]}>
-          <Peca cor={i % 2 ? MADEIRA_CLARA : MADEIRA} p={[lado * L / 2, -i * 2, -i * 0.6]} s={[L, 4.5, 2]} />
-          <Peca cor={dourada ? AMARELO : i % 2 ? TURQUESA : VERMELHO} p={[lado * (L - 2.5), -i * 2, -i * 0.6 + 0.4]} s={[5, 4.7, 2.2]} sombra={false} />
+          <Peca cor={i % 2 ? MADEIRA_CLARA : MADEIRA} p={[(lado * L) / 2, -i * 2, -i * 0.6]} s={[L, 4.5, 2]} />
+          <Peca
+            cor={dourada ? AMARELO : i % 2 ? TURQUESA : VERMELHO}
+            p={[lado * (L - 2.5), -i * 2, -i * 0.6 + 0.4]}
+            s={[5, 4.7, 2.2]}
+            sombra={false}
+          />
         </group>
       ))}
     </group>
@@ -146,23 +161,30 @@ function PassaroTrovao({ nivel }) {
       {[-3.5, 3.5].map(x => (
         <group key={x}>
           <Peca cor={AMARELO} p={[x, 67.5, 8.1]} s={[4, 4, 1]} sombra={false} />
-          {nivel >= 5
-            ? <mesh geometry={geoOrbe} material={olhoDivino} position={[x, 67.5, 8.9]} scale={1.3} />
-            : <Peca cor={ENTALHE} p={[x, 67.5, 8.6]} s={[1.8, 1.8, 1]} sombra={false} />}
+          {nivel >= 5 ? (
+            <mesh geometry={geoOrbe} material={olhoDivino} position={[x, 67.5, 8.9]} scale={1.3} />
+          ) : (
+            <Peca cor={ENTALHE} p={[x, 67.5, 8.6]} s={[1.8, 1.8, 1]} sombra={false} />
+          )}
         </group>
       ))}
       <Apontada p={[0, 64.5, 7.5]} r={[Math.PI / 2 + 0.75, 0, 0]} comprimento={13}>
         <Peca geo="cone" cor={AMARELO} s={[3.2, 13, 3.2]} />
       </Apontada>
-      {[[-3, VERMELHO, 0.35], [0, TURQUESA, 0], [3, VERMELHO, -0.35]].map(([x, cor, rz]) => (
+      {[
+        [-3, VERMELHO, 0.35],
+        [0, TURQUESA, 0],
+        [3, VERMELHO, -0.35],
+      ].map(([x, cor, rz]) => (
         <Apontada key={x} p={[x, 72, -1]} r={[-0.35, 0, rz]} comprimento={9}>
           <Peca geo="cone" cor={cor} s={[1.7, 9, 1.7]} />
         </Apontada>
       ))}
-      {nivel >= 4 && [0, 1, 2, 3, 4, 5].map(i => {
-        const a = i / 6 * Math.PI * 2;
-        return <Peca key={i} geo="cone" cor={AMARELO} p={[Math.cos(a) * 7, 74.5, Math.sin(a) * 7]} s={[1.4, 4, 1.4]} />;
-      })}
+      {nivel >= 4 &&
+        [0, 1, 2, 3, 4, 5].map(i => {
+          const a = (i / 6) * Math.PI * 2;
+          return <Peca key={i} geo="cone" cor={AMARELO} p={[Math.cos(a) * 7, 74.5, Math.sin(a) * 7]} s={[1.4, 4, 1.4]} />;
+        })}
       <Asa lado={-1} dourada={nivel >= 2} />
       <Asa lado={1} dourada={nivel >= 2} />
     </group>
@@ -190,9 +212,16 @@ function Orbe({ nivel }) {
           <mesh geometry={geoAnel} material={anel} rotation={[0.3, 0, Math.PI / 2]} scale={1.45} />
           {/* raios de luz em volta do orbe */}
           {Array.from({ length: 8 }, (_, i) => {
-            const a = i / 8 * Math.PI * 2;
+            const a = (i / 8) * Math.PI * 2;
             return (
-              <mesh key={i} geometry={geoRaio} material={ouro} position={[Math.cos(a) * 10, 0, Math.sin(a) * 10]} rotation={[0, -a, -Math.PI / 2]} scale={[1.2, 7, 1.2]} />
+              <mesh
+                key={i}
+                geometry={geoRaio}
+                material={ouro}
+                position={[Math.cos(a) * 10, 0, Math.sin(a) * 10]}
+                rotation={[0, -a, -Math.PI / 2]}
+                scale={[1.2, 7, 1.2]}
+              />
             );
           })}
         </>
@@ -206,7 +235,7 @@ const geoRaio = new THREE.ConeGeometry(1, 1, 4);
 export function Totem({ progresso = 1, est = null }) {
   const nivel = est?.nivel ?? 1;
   // etapas da obra
-  const rostos = progresso < 0.15 ? 0 : Math.min(Math.ceil((progresso - 0.15) / 0.7 * 3), 3);
+  const rostos = progresso < 0.15 ? 0 : Math.min(Math.ceil(((progresso - 0.15) / 0.7) * 3), 3);
   const topo = progresso >= 0.85;
   const pronto = progresso >= 1;
   return (

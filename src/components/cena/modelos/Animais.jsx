@@ -6,7 +6,8 @@ import Peca from '../Peca.jsx';
 //   rig.corpo, rig.cabeca, rig.cauda, rig.pernas[], rig.asas[], rig.olhos[]
 // A animação (andar, pastar, piscar...) fica em AnimalAnimado.
 
-const BOCHECHA = '#ffb3c1', PUPILA = '#1c1410';
+const BOCHECHA = '#ffb3c1',
+  PUPILA = '#1c1410';
 
 // Liga um ref de callback a um campo do rig (ou a uma lista dele)
 const ligar = (rig, campo, i) => el => {
@@ -30,9 +31,10 @@ function Rosto({ rig, x, y = 0.08, z = 0.18, tam, bochecha = true }) {
     <>
       <Olho rig={rig} i={0} p={[x, y, z]} tam={tam} />
       <Olho rig={rig} i={1} p={[x, y, -z]} tam={tam} />
-      {bochecha && [z + 0.07, -z - 0.07].map(bz => (
-        <Peca key={bz} geo="bolaLisa" cor={BOCHECHA} p={[x - 0.02, y - 0.15, bz]} s={[0.04, 0.05, 0.07]} sombra={false} />
-      ))}
+      {bochecha &&
+        [z + 0.07, -z - 0.07].map(bz => (
+          <Peca key={bz} geo="bolaLisa" cor={BOCHECHA} p={[x - 0.02, y - 0.15, bz]} s={[0.04, 0.05, 0.07]} sombra={false} />
+        ))}
     </>
   );
 }
@@ -58,8 +60,17 @@ function Orelha({ lado, p, cor, dentro = BOCHECHA, tam = 1 }) {
 
 // ===================== Ovelha / carneiro / cordeiro =====================
 const TUFOS = [
-  [0, 0.42, 0], [0.42, 0.25, 0.3], [0.42, 0.25, -0.3], [-0.42, 0.28, 0.3], [-0.42, 0.28, -0.3],
-  [0, 0.15, 0.55], [0, 0.15, -0.55], [-0.75, 0.15, 0], [0.55, 0.05, 0], [0.15, 0.38, 0.35], [-0.2, 0.4, -0.3],
+  [0, 0.42, 0],
+  [0.42, 0.25, 0.3],
+  [0.42, 0.25, -0.3],
+  [-0.42, 0.28, 0.3],
+  [-0.42, 0.28, -0.3],
+  [0, 0.15, 0.55],
+  [0, 0.15, -0.55],
+  [-0.75, 0.15, 0],
+  [0.55, 0.05, 0],
+  [0.15, 0.38, 0.35],
+  [-0.2, 0.4, -0.3],
 ];
 function Ovelha({ an, rig, filhote }) {
   const macho = an.sexo === 'm';
@@ -67,12 +78,19 @@ function Ovelha({ an, rig, filhote }) {
   const rosto = macho ? '#5a4a3a' : '#4a4040';
   return (
     <group>
-      {[[0.45, 0.3], [0.45, -0.3], [-0.45, 0.3], [-0.45, -0.3]].map(([x, z], i) => (
+      {[
+        [0.45, 0.3],
+        [0.45, -0.3],
+        [-0.45, 0.3],
+        [-0.45, -0.3],
+      ].map(([x, z], i) => (
         <Perna key={i} rig={rig} i={i} p={[x, 0.6, z]} altura={0.6} raio={0.12} cor="#3a3434" />
       ))}
       <group ref={ligar(rig, 'corpo')} position={[0, 0.98, 0]}>
         <Peca geo="bolaLisa" cor={la} s={[0.95, 0.72, 0.72]} />
-        {TUFOS.map(([x, y, z], i) => <Peca key={i} geo="bolaLisa" cor={la} p={[x, y, z]} s={0.36 + (i % 3) * 0.05} />)}
+        {TUFOS.map(([x, y, z], i) => (
+          <Peca key={i} geo="bolaLisa" cor={la} p={[x, y, z]} s={0.36 + (i % 3) * 0.05} />
+        ))}
         <group ref={ligar(rig, 'cauda')} position={[-0.92, 0.1, 0]}>
           <Peca geo="bolaLisa" cor={la} s={0.2} />
         </group>
@@ -85,9 +103,7 @@ function Ovelha({ an, rig, filhote }) {
         <Orelha lado={1} p={[0.02, 0.05, 0.36]} cor={rosto} />
         <Orelha lado={-1} p={[0.02, 0.05, 0.36]} cor={rosto} />
         <Rosto rig={rig} x={0.36} y={0.1} z={0.15} tam={0.12} />
-        {macho && !filhote && [1, -1].map(l => (
-          <Peca key={l} geo="rosca" cor="#c9b48a" p={[0, 0.12, 0.3 * l]} s={0.15} r={[0, 0, 0]} />
-        ))}
+        {macho && !filhote && [1, -1].map(l => <Peca key={l} geo="rosca" cor="#c9b48a" p={[0, 0.12, 0.3 * l]} s={0.15} r={[0, 0, 0]} />)}
       </group>
     </group>
   );
@@ -100,7 +116,12 @@ function Vaca({ an, rig, filhote }) {
   const mancha = macho ? '#5a3418' : '#2a2a2a';
   return (
     <group>
-      {[[0.5, 0.32], [0.5, -0.32], [-0.5, 0.32], [-0.5, -0.32]].map(([x, z], i) => (
+      {[
+        [0.5, 0.32],
+        [0.5, -0.32],
+        [-0.5, 0.32],
+        [-0.5, -0.32],
+      ].map(([x, z], i) => (
         <Perna key={i} rig={rig} i={i} p={[x, 0.68, z]} altura={0.68} raio={0.14} cor={pelo} casco="#3a2a20" />
       ))}
       <group ref={ligar(rig, 'corpo')} position={[0, 1.05, 0]}>
@@ -118,12 +139,22 @@ function Vaca({ an, rig, filhote }) {
       <group ref={ligar(rig, 'cabeca')} position={[0.98, 1.45, 0]} scale={filhote ? 1.6 : 1.35}>
         <Peca geo="bolaLisa" cor={pelo} p={[0.08, 0, 0]} s={[0.38, 0.36, 0.35]} />
         <Peca geo="bolaLisa" cor="#f0b8b0" p={[0.36, -0.13, 0]} s={[0.17, 0.16, 0.26]} />
-        {[0.09, -0.09].map(z => <Peca key={z} geo="bolaLisa" cor="#7a4a44" p={[0.52, -0.1, z]} s={0.035} sombra={false} />)}
+        {[0.09, -0.09].map(z => (
+          <Peca key={z} geo="bolaLisa" cor="#7a4a44" p={[0.52, -0.1, z]} s={0.035} sombra={false} />
+        ))}
         {macho && !filhote && <Peca geo="rosca" cor="#e6b84a" p={[0.53, -0.2, 0]} s={0.07} r={[0, Math.PI / 2, 0]} sombra={false} />}
         <Orelha lado={1} p={[-0.02, 0.12, 0.38]} cor={pelo} tam={1.1} />
         <Orelha lado={-1} p={[-0.02, 0.12, 0.38]} cor={pelo} tam={1.1} />
         {[1, -1].map(l => (
-          <Peca key={l} geo="cone" cor="#f3ead2" p={[-0.02, 0.36, 0.2 * l]} s={macho ? [0.06, 0.28, 0.06] : [0.04, 0.14, 0.04]} r={[l * (macho ? -0.6 : -0.3), 0, 0]} sombra={false} />
+          <Peca
+            key={l}
+            geo="cone"
+            cor="#f3ead2"
+            p={[-0.02, 0.36, 0.2 * l]}
+            s={macho ? [0.06, 0.28, 0.06] : [0.04, 0.14, 0.04]}
+            r={[l * (macho ? -0.6 : -0.3), 0, 0]}
+            sombra={false}
+          />
         ))}
         <Rosto rig={rig} x={0.3} y={0.12} z={0.19} tam={0.115} />
       </group>
@@ -152,7 +183,11 @@ function Galinha({ an, rig, filhote }) {
           {filhote ? (
             <Peca geo="bolaLisa" cor={pena} s={0.14} />
           ) : macho ? (
-            [['#1f5a3a', 0.5, 0], ['#2a2a2a', 0.85, 0.12], ['#c8642a', 0.2, -0.12]].map(([cor, rz, z], i) => (
+            [
+              ['#1f5a3a', 0.5, 0],
+              ['#2a2a2a', 0.85, 0.12],
+              ['#c8642a', 0.2, -0.12],
+            ].map(([cor, rz, z], i) => (
               <Peca key={i} geo="bolaLisa" cor={cor} p={[-0.15, 0.3, z]} s={[0.16, 0.48, 0.07]} r={[0, 0, rz]} sombra={false} />
             ))
           ) : (
@@ -165,7 +200,11 @@ function Galinha({ an, rig, filhote }) {
         <Peca geo="cone" cor="#f5a623" p={[0.38, -0.04, 0]} s={[0.07, 0.18, 0.07]} r={[0, 0, -Math.PI / 2]} sombra={false} />
         {!filhote && (
           <>
-            {[[-0.08, 0.32], [0.04, 0.37], [0.16, 0.32]].map(([x, y], i) => (
+            {[
+              [-0.08, 0.32],
+              [0.04, 0.37],
+              [0.16, 0.32],
+            ].map(([x, y], i) => (
               <Peca key={i} geo="bolaLisa" cor="#e02a2a" p={[x, y, 0]} s={macho ? 0.11 : 0.07} sombra={false} />
             ))}
             <Peca geo="bolaLisa" cor="#e02a2a" p={[0.28, -0.2, 0]} s={[0.05, macho ? 0.11 : 0.07, 0.05]} sombra={false} />

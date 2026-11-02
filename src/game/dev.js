@@ -7,7 +7,9 @@ import { mundo, notificar } from './mundo.js';
 // filhos ajudando nem o nível do totem, e ficam prontas assim que o Jones chega.
 // O painel (components/Dev.jsx) também troca o nível das construções direto.
 // No build (import.meta.env.DEV = false) nada disso existe.
-export function devAtivo() { return import.meta.env.DEV && mundo.dev; }
+export function devAtivo() {
+  return import.meta.env.DEV && mundo.dev;
+}
 
 export function alternarDev() {
   if (!import.meta.env.DEV) return;
@@ -16,8 +18,12 @@ export function alternarDev() {
 }
 
 // Custo de obra: no modo dev, sempre dá para pagar e não gasta nada
-export function podePagarObra(custo) { return devAtivo() || temRecursos(custo); }
-export function pagarObra(custo) { if (!devAtivo()) gastarRecursos(custo); }
+export function podePagarObra(custo) {
+  return devAtivo() || temRecursos(custo);
+}
+export function pagarObra(custo) {
+  if (!devAtivo()) gastarRecursos(custo);
+}
 
 // Troca o nível de uma construção já construída (sem obra nem custo)
 export function definirNivel(id, nivel) {

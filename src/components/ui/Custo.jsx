@@ -8,7 +8,9 @@ export default function Custo({ custo }) {
   return Object.entries(custo).map(([r, q], i) => (
     <Fragment key={r}>
       {i > 0 && ' + '}
-      <span className={inventario[r] < q ? 'text-falta' : ''}>{q} {ICONES[r]}</span>
+      <span className={inventario[r] < q ? 'text-falta' : ''}>
+        {q} {ICONES[r]}
+      </span>
     </Fragment>
   ));
 }

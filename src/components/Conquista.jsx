@@ -15,7 +15,9 @@ import { useMiniatura } from './cena/Miniaturas.jsx';
 // que começa em y = 150 (espaçador com a mesma proporção); a placa do título fica
 // no tronco de cima e a caveira apoiada sobre ela.
 
-const CONTORNO = '#3b2210', OURO_ESCURO = '#8a5414', OSSO = '#f1e6cc';
+const CONTORNO = '#3b2210',
+  OURO_ESCURO = '#8a5414',
+  OSSO = '#f1e6cc';
 
 function Gradientes() {
   return (
@@ -70,7 +72,8 @@ function Sabre({ transform }) {
 // Bandeira preta de caveira num mastro inclinado, tremulando. lado = -1 (esquerda) ou 1
 function Bandeira({ x, lado }) {
   const s = lado; // o pano vai para fora
-  const pano = o => `M0 0 C${s * 22} ${-6 + o} ${s * 40} ${8 - o} ${s * 66} ${2 + o} L${s * 64} ${46 + o} C${s * 40} ${52 - o} ${s * 22} ${38 + o} 0 44`;
+  const pano = o =>
+    `M0 0 C${s * 22} ${-6 + o} ${s * 40} ${8 - o} ${s * 66} ${2 + o} L${s * 64} ${46 + o} C${s * 40} ${52 - o} ${s * 22} ${38 + o} 0 44`;
   return (
     <g transform={`translate(${x} 150) rotate(${-lado * 14})`}>
       <rect x="-3.5" y="-146" width="7" height="150" rx="3" fill="url(#cq-mastro)" stroke={CONTORNO} strokeWidth="1.2" />
@@ -115,10 +118,26 @@ function Caveira() {
         {/* sombra */}
         <ellipse cx="170" cy="128" rx="42" ry="6" fill="#000" opacity="0.25" />
         {/* crânio e maxilar */}
-        <path d="M128 76 C126 36 214 36 212 76 C212 92 204 100 198 104 L196 116 L144 116 L142 104 C136 100 128 92 128 76 Z" fill="url(#cq-cranio)" stroke={CONTORNO} strokeWidth="2.5" strokeLinejoin="round" />
-        <path d="M146 112 L148 128 C160 133 180 133 192 128 L194 112 Z" fill="url(#cq-cranio)" stroke={CONTORNO} strokeWidth="2.5" strokeLinejoin="round" />
+        <path
+          d="M128 76 C126 36 214 36 212 76 C212 92 204 100 198 104 L196 116 L144 116 L142 104 C136 100 128 92 128 76 Z"
+          fill="url(#cq-cranio)"
+          stroke={CONTORNO}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M146 112 L148 128 C160 133 180 133 192 128 L194 112 Z"
+          fill="url(#cq-cranio)"
+          stroke={CONTORNO}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
         {/* dentes */}
-        <path d="M148 113 L192 113 M155 110 L155 124 M162 110 L162 127 M170 110 L170 128 M178 110 L178 127 M185 110 L185 124" stroke={CONTORNO} strokeWidth="1.5" />
+        <path
+          d="M148 113 L192 113 M155 110 L155 124 M162 110 L162 127 M170 110 L170 128 M178 110 L178 127 M185 110 L185 124"
+          stroke={CONTORNO}
+          strokeWidth="1.5"
+        />
         {/* olhos e nariz */}
         <ellipse cx="153" cy="84" rx="11" ry="12" fill="#2a1a10" />
         <ellipse cx="187" cy="84" rx="11" ry="12" fill="#2a1a10" />
@@ -128,8 +147,22 @@ function Caveira() {
         {/* rachadura */}
         <path d="M196 62 L190 70 L194 74" fill="none" stroke={CONTORNO} strokeWidth="1.3" />
         {/* bandana com bolinhas e nó do lado */}
-        <path d="M126 70 C126 30 214 30 214 70 C196 60 144 60 126 70 Z" fill="url(#cq-bandana)" stroke={CONTORNO} strokeWidth="2.5" strokeLinejoin="round" />
-        {[[146, 50], [166, 42], [188, 46], [204, 58], [136, 62], [176, 56], [156, 58]].map(([x, y]) => (
+        <path
+          d="M126 70 C126 30 214 30 214 70 C196 60 144 60 126 70 Z"
+          fill="url(#cq-bandana)"
+          stroke={CONTORNO}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        {[
+          [146, 50],
+          [166, 42],
+          [188, 46],
+          [204, 58],
+          [136, 62],
+          [176, 56],
+          [156, 58],
+        ].map(([x, y]) => (
           <circle key={`${x}${y}`} cx={x} cy={y} r="2.6" fill="#ffe9e0" opacity="0.9" />
         ))}
         <path d="M210 60 C222 56 228 62 224 70 C218 72 212 68 210 60 Z" fill="url(#cq-bandana)" stroke={CONTORNO} strokeWidth="2" />
@@ -148,12 +181,16 @@ function Tronco({ className, vertical = false }) {
   const grad = vertical
     ? 'bg-[linear-gradient(90deg,#4e2b13_0%,#9a6436_35%,#b07a44_50%,#7a4a24_75%,#4e2b13_100%)]'
     : 'bg-[linear-gradient(180deg,#b07a44_0%,#9a6436_30%,#7a4a24_70%,#4e2b13_100%)]';
-  return <span className={`pointer-events-none absolute rounded-full border-2 border-[#3b2210] shadow-[0_3px_4px_rgb(0_0_0/0.45)] ${grad} ${className}`} />;
+  return (
+    <span className={`pointer-events-none absolute rounded-full border-2 border-[#3b2210] shadow-[0_3px_4px_rgb(0_0_0/0.45)] ${grad} ${className}`} />
+  );
 }
 
 // Amarração de corda
 function Corda({ className }) {
-  return <span className={`conquista-corda pointer-events-none absolute z-10 h-[30px] w-[18px] rounded-[5px] border border-[#6b4a1e] ${className}`} />;
+  return (
+    <span className={`conquista-corda pointer-events-none absolute z-10 h-[30px] w-[18px] rounded-[5px] border border-[#6b4a1e] ${className}`} />
+  );
 }
 
 // Botão redondo de madeira com aro dourado (como os da placa do menu)
@@ -175,8 +212,12 @@ function BotaoRedondo({ children, className = '', ...props }) {
 
 // Faíscas douradas piscando em volta
 const FAISCAS = [
-  { l: '2%', t: '30%', s: 14, d: 0 }, { l: '92%', t: '26%', s: 18, d: 0.6 }, { l: '-3%', t: '62%', s: 12, d: 1.1 },
-  { l: '97%', t: '58%', s: 14, d: 0.3 }, { l: '8%', t: '92%', s: 16, d: 0.9 }, { l: '88%', t: '90%', s: 12, d: 1.4 },
+  { l: '2%', t: '30%', s: 14, d: 0 },
+  { l: '92%', t: '26%', s: 18, d: 0.6 },
+  { l: '-3%', t: '62%', s: 12, d: 1.1 },
+  { l: '97%', t: '58%', s: 14, d: 0.3 },
+  { l: '8%', t: '92%', s: 16, d: 0.9 },
+  { l: '88%', t: '90%', s: 12, d: 1.4 },
 ];
 function Faiscas() {
   return FAISCAS.map((f, i) => (
@@ -184,7 +225,11 @@ function Faiscas() {
       key={i}
       className="conquista-faisca pointer-events-none absolute z-30 bg-[#fff2b0] shadow-[0_0_8px_#ffd75e]"
       style={{
-        left: f.l, top: f.t, width: f.s, height: f.s, animationDelay: `${f.d}s`,
+        left: f.l,
+        top: f.t,
+        width: f.s,
+        height: f.s,
+        animationDelay: `${f.d}s`,
         clipPath: 'polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%)',
       }}
     />
@@ -192,7 +237,8 @@ function Faiscas() {
 }
 
 // Tábua escura (como os botões PLAY / HELP do modelo)
-const TABUA_ESCURA = 'rounded-lg border-2 border-[#3b2210] bg-[linear-gradient(180deg,#8a4f26,#5c3016)] shadow-[inset_0_1px_0_rgb(255_210_160/0.35),inset_0_-2px_0_rgb(0_0_0/0.3),0_2px_0_rgb(59_34_16/0.8)]';
+const TABUA_ESCURA =
+  'rounded-lg border-2 border-[#3b2210] bg-[linear-gradient(180deg,#8a4f26,#5c3016)] shadow-[inset_0_1px_0_rgb(255_210_160/0.35),inset_0_-2px_0_rgb(0_0_0/0.3),0_2px_0_rgb(59_34_16/0.8)]';
 const TEXTO_CREME = 'text-[#ffe6b8] [font-family:var(--font-jogo)] [text-shadow:0_2px_0_#3b2210]';
 
 export default function Conquista() {
@@ -200,7 +246,9 @@ export default function Conquista() {
   const id = ui.conquista?.construcao;
   const imagem = useMiniatura(id ?? 'totem', 1);
   const ok = useRef();
-  useEffect(() => { if (id) ok.current?.focus({ preventScroll: true }); }, [id]);
+  useEffect(() => {
+    if (id) ok.current?.focus({ preventScroll: true });
+  }, [id]);
   if (!id) return null;
   const c = CONSTRUCOES[id];
 
@@ -217,7 +265,6 @@ export default function Conquista() {
           <div className="aspect-[340/150]" /> {/* espaço até o topo da placa (y = 150) */}
           <ArteDeTras />
           <Faiscas />
-
           {/* placa de tábuas com moldura de troncos */}
           <div className="relative z-10 mx-[14px] mb-4">
             <Tronco vertical className="top-1 -bottom-1 -left-[10px] w-[18px]" />
@@ -229,22 +276,32 @@ export default function Conquista() {
                 <Corda className="-top-1 left-[16%]" />
                 <Corda className="-top-1 right-[16%]" />
                 <div className="conquista-placa absolute top-0 left-1/2 z-10 flex h-[44px] w-[62%] -translate-x-1/2 items-center justify-center rounded-[10px] border-[3px] border-[#3b2210]">
-                  <h2 id="conquista-titulo" className={`m-0 text-[21px] leading-none font-normal tracking-wide ${TEXTO_CREME}`}>CONSTRUÍDO!</h2>
+                  <h2 id="conquista-titulo" className={`m-0 text-[21px] leading-none font-normal tracking-wide ${TEXTO_CREME}`}>
+                    CONSTRUÍDO!
+                  </h2>
                 </div>
-                <BotaoRedondo className="left-[2px] cursor-default" tabIndex={-1} aria-hidden>{c.icone}</BotaoRedondo>
-                <BotaoRedondo className="right-[2px] [font-family:var(--font-jogo)]" onClick={fecharConquista} aria-label="Fechar">✕</BotaoRedondo>
+                <BotaoRedondo className="left-[2px] cursor-default" tabIndex={-1} aria-hidden>
+                  {c.icone}
+                </BotaoRedondo>
+                <BotaoRedondo className="right-[2px] [font-family:var(--font-jogo)]" onClick={fecharConquista} aria-label="Fechar">
+                  ✕
+                </BotaoRedondo>
               </div>
 
               {/* quadro com o modelo 3D */}
               <div className="mx-auto mt-1 flex h-[104px] w-[104px] items-center justify-center rounded-xl border-[3px] border-[#3b2210] bg-[radial-gradient(circle_at_50%_40%,#6b3f1f,#2e180a_80%)] shadow-[inset_0_0_0_2px_#e3ad45,inset_0_4px_8px_rgb(0_0_0/0.6),0_3px_0_#3b2210]">
-                {imagem
-                  ? <img src={imagem} alt="" draggable={false} className="h-[88px] w-[88px] object-contain drop-shadow-[0_3px_2px_rgb(0_0_0/0.5)]" />
-                  : <span className="text-[40px]">{c.icone}</span>}
+                {imagem ? (
+                  <img src={imagem} alt="" draggable={false} className="h-[88px] w-[88px] object-contain drop-shadow-[0_3px_2px_rgb(0_0_0/0.5)]" />
+                ) : (
+                  <span className="text-[40px]">{c.icone}</span>
+                )}
               </div>
 
               <p className={`m-0 mt-2.5 text-[14px] ${TEXTO_CREME}`}>Você construiu:</p>
               <p className="texto-ouro m-0 text-[24px] leading-tight">{c.nome}</p>
-              <p className="m-0 mt-1 text-[13px] leading-snug font-semibold text-[#3b1e08] [text-shadow:0_1px_0_rgb(255_220_170/0.5)]">{c.descricao}</p>
+              <p className="m-0 mt-1 text-[13px] leading-snug font-semibold text-[#3b1e08] [text-shadow:0_1px_0_rgb(255_220_170/0.5)]">
+                {c.descricao}
+              </p>
 
               {c.uso?.length > 0 && (
                 <>
@@ -266,7 +323,8 @@ export default function Conquista() {
                 onClick={fecharConquista}
                 className={[
                   'conquista-botao mx-auto mt-3.5 block w-[56%] cursor-pointer py-1.5 text-[22px]',
-                  TABUA_ESCURA, TEXTO_CREME,
+                  TABUA_ESCURA,
+                  TEXTO_CREME,
                   'outline-offset-2 transition-transform hover:scale-105 active:translate-y-0.5 focus-visible:outline-2 focus-visible:outline-white',
                 ].join(' ')}
               >
@@ -278,7 +336,6 @@ export default function Conquista() {
             <Corda className="-bottom-[16px] left-[6%]" />
             <Corda className="-bottom-[16px] right-[6%]" />
           </div>
-
           <Caveira />
         </div>
       </div>

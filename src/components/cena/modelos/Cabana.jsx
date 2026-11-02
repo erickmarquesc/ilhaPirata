@@ -14,19 +14,26 @@ import Peca from '../Peca.jsx';
 
 const TABUAS = ['#8b6a45', '#7a5a3a', '#9a7650', '#6e5236', '#a07a52'];
 const TELHAS = ['#8a6a48', '#9c7a52', '#7a5a3a', '#a5845c'];
-const ESCURO = '#2a1d14', CLARO = '#e0d6bf', VIDRO = '#3a4a52';
+const ESCURO = '#2a1d14',
+  CLARO = '#e0d6bf',
+  VIDRO = '#3a4a52';
 
 // Medidas (origem no centro do deck)
-const PISO = 6.25;                     // topo do deck
+const PISO = 6.25; // topo do deck
 const CASA = { x: 22, zFundo: -21, zFrente: 9 };
-const PAREDE = 28, TOPO = PISO + PAREDE; // topo das paredes
-const BEIRAL = 26, CUMEEIRA = 18;      // meio vão do telhado e altura até a cumeeira
+const PAREDE = 28,
+  TOPO = PISO + PAREDE; // topo das paredes
+const BEIRAL = 26,
+  CUMEEIRA = 18; // meio vão do telhado e altura até a cumeeira
 const INCLINACAO = Math.atan2(CUMEEIRA, BEIRAL);
 const ABA = Math.hypot(BEIRAL, CUMEEIRA);
-const ALTURA_FRONTAO = CUMEEIRA * CASA.x / BEIRAL;
+const ALTURA_FRONTAO = (CUMEEIRA * CASA.x) / BEIRAL;
 
 // número "aleatório" fixo, para as tábuas tortas serem sempre iguais
-const r = n => { const s = Math.sin(n * 12.9898) * 43758.5453; return s - Math.floor(s); };
+const r = n => {
+  const s = Math.sin(n * 12.9898) * 43758.5453;
+  return s - Math.floor(s);
+};
 
 // Frontão (triângulo de tábuas) da frente e do fundo
 const geoFrontao = new THREE.ExtrudeGeometry(
@@ -38,11 +45,20 @@ const geoFrontao = new THREE.ExtrudeGeometry(
 function Deck({ tabuas, pedra }) {
   return (
     <group>
-      {[[-29, -23], [29, -23], [-29, 23], [29, 23], [0, 23], [0, -23]].map(([x, z], i) => (
-        pedra
-          ? <Peca key={i} geo="rocha" cor={i % 2 ? '#9aa0a6' : '#b3b9be'} p={[x, 2.2, z]} s={[3.4, 2.6, 3.4]} r={[0, i, 0]} />
-          : <Peca key={i} geo="cilindro" cor="#5a3a1c" p={[x, 2, z]} s={[1.6, 4, 1.6]} />
-      ))}
+      {[
+        [-29, -23],
+        [29, -23],
+        [-29, 23],
+        [29, 23],
+        [0, 23],
+        [0, -23],
+      ].map(([x, z], i) =>
+        pedra ? (
+          <Peca key={i} geo="rocha" cor={i % 2 ? '#9aa0a6' : '#b3b9be'} p={[x, 2.2, z]} s={[3.4, 2.6, 3.4]} r={[0, i, 0]} />
+        ) : (
+          <Peca key={i} geo="cilindro" cor="#5a3a1c" p={[x, 2, z]} s={[1.6, 4, 1.6]} />
+        ),
+      )}
       {Array.from({ length: tabuas }, (_, i) => (
         <Peca key={i} cor={i % 2 ? '#9c7a52' : '#8a6a44'} p={[0, 5, -25 + (i + 0.5) * (50 / 6)]} s={[62, 2.5, 50 / 6 - 0.6]} />
       ))}
@@ -80,9 +96,7 @@ function Paredes({ visiveis, precaria }) {
         return <Peca key={n} cor={cor} p={[x, PISO + h / 2, z]} s={[1.4, h, 4.1]} r={[torta, 0, 0]} />;
       })}
       {/* quinas */}
-      {visiveis > 0 && [-CASA.x, CASA.x].map(x => (
-        <Peca key={x} cor="#5a3a1c" p={[x, PISO + PAREDE / 2, CASA.zFrente]} s={[2.2, PAREDE, 2.2]} />
-      ))}
+      {visiveis > 0 && [-CASA.x, CASA.x].map(x => <Peca key={x} cor="#5a3a1c" p={[x, PISO + PAREDE / 2, CASA.zFrente]} s={[2.2, PAREDE, 2.2]} />)}
     </group>
   );
 }
@@ -90,9 +104,10 @@ function Paredes({ visiveis, precaria }) {
 // Uma água do telhado: fileiras de telhas de madeira sobrepostas, meio tortas
 function Agua({ lado, fileiras, precaria }) {
   const dir = lado === 'esq' ? 1 : -1; // sobe em direção ao centro
-  const prof = 35, zMeio = (CASA.zFundo + CASA.zFrente) / 2 - 0.5;
+  const prof = 35,
+    zMeio = (CASA.zFundo + CASA.zFrente) / 2 - 0.5;
   return Array.from({ length: fileiras }, (_, i) => {
-    const s = ABA * (i + 0.5) / 4;
+    const s = (ABA * (i + 0.5)) / 4;
     const x = -dir * BEIRAL + dir * Math.cos(INCLINACAO) * s;
     const y = TOPO + Math.sin(INCLINACAO) * s + 0.8 + (3 - i) * 0.25;
     const n = i + (lado === 'esq' ? 0 : 10);
@@ -216,7 +231,13 @@ function Fumaca() {
     });
   });
   return [0, 1, 2].map(i => (
-    <mesh key={i} ref={el => { bolas.current[i] = el; }} geometry={geoFumaca}>
+    <mesh
+      key={i}
+      ref={el => {
+        bolas.current[i] = el;
+      }}
+      geometry={geoFumaca}
+    >
       <meshStandardMaterial color="#d8d8d8" transparent depthWrite={false} flatShading />
     </mesh>
   ));
@@ -235,7 +256,9 @@ function Varanda() {
       <Peca cor="#7a5a3a" p={[5, 1, 31]} s={[14, 2, 4]} />
       <group position={[-22, PISO, 18]}>
         <Peca geo="cilindro" cor="#8a5a30" p={[0, 4.5, 0]} s={[4.2, 9, 4.2]} />
-        {[2, 7].map(y => <Peca key={y} geo="cilindro" cor="#3a2a1a" p={[0, y, 0]} s={[4.45, 0.8, 4.45]} sombra={false} />)}
+        {[2, 7].map(y => (
+          <Peca key={y} geo="cilindro" cor="#3a2a1a" p={[0, y, 0]} s={[4.45, 0.8, 4.45]} sombra={false} />
+        ))}
       </group>
     </group>
   );
@@ -289,7 +312,9 @@ function MastroDeVigia() {
       {/* cesto de gávea */}
       <group position={[0, alto - 8, 0]}>
         <Peca geo="cilindro" cor="#8a5a30" p={[0, 0, 0]} s={[6, 6, 6]} />
-        {[-1.5, 1.5].map(y => <Peca key={y} geo="cilindro" cor="#3a2a1a" p={[0, y, 0]} s={[6.2, 0.6, 6.2]} sombra={false} />)}
+        {[-1.5, 1.5].map(y => (
+          <Peca key={y} geo="cilindro" cor="#3a2a1a" p={[0, y, 0]} s={[6.2, 0.6, 6.2]} sombra={false} />
+        ))}
         <Peca geo="cilindro" cor="#c9a24a" p={[5, 4, 2]} s={[0.7, 6, 0.7]} r={[0, 0, -1.1]} />
       </group>
       <Pano p={[6.6, alto + 2, 0]} />
@@ -303,8 +328,14 @@ function Bau() {
     <group position={[-12, PISO, 19]} rotation={[0, 0.35, 0]}>
       <Peca cor="#7a4a24" p={[0, 2.5, 0]} s={[9, 5, 6]} />
       <Peca cor="#8b5a2b" p={[0, 6, -0.6]} s={[9.2, 2, 6.2]} r={[-0.5, 0, 0]} />
-      {[-3, 3].map(x => <Peca key={x} cor="#e6b84a" p={[x, 3, 0]} s={[0.8, 5.2, 6.2]} sombra={false} />)}
-      {[[-1.5, 0], [1, 0.8], [0, -0.6]].map(([x, z], i) => (
+      {[-3, 3].map(x => (
+        <Peca key={x} cor="#e6b84a" p={[x, 3, 0]} s={[0.8, 5.2, 6.2]} sombra={false} />
+      ))}
+      {[
+        [-1.5, 0],
+        [1, 0.8],
+        [0, -0.6],
+      ].map(([x, z], i) => (
         <mesh key={i} geometry={geoLuz} material={ouro} position={[x, 5.6, z]} scale={1.1} />
       ))}
     </group>

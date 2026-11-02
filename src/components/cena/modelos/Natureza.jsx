@@ -20,7 +20,9 @@ export const Pinheiro = forwardRef(function Pinheiro(_, copasRef) {
       {camadas.map((c, i) => (
         <mesh
           key={i}
-          ref={el => { if (copasRef) copasRef.current[i] = el; }}
+          ref={el => {
+            if (copasRef) copasRef.current[i] = el;
+          }}
           geometry={GEO.cone}
           material={material(c.cor)}
           position={[0, c.y, 0]}
@@ -54,7 +56,9 @@ export const ArvoreDaChuva = forwardRef(function ArvoreDaChuva(_, copasRef) {
       {bolas.map((b, i) => (
         <mesh
           key={i}
-          ref={el => { if (copasRef) copasRef.current[i] = el; }}
+          ref={el => {
+            if (copasRef) copasRef.current[i] = el;
+          }}
           geometry={GEO.bolaLisa}
           material={material(b.cor)}
           position={b.p}

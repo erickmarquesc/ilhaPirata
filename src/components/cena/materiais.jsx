@@ -8,8 +8,13 @@ export function material(cor, fantasma = false, duplo = false) {
   let m = cache.get(chave);
   if (!m) {
     m = new THREE.MeshStandardMaterial({
-      color: cor, flatShading: true, roughness: 0.9, metalness: 0,
-      transparent: fantasma, opacity: fantasma ? 0.45 : 1, depthWrite: !fantasma,
+      color: cor,
+      flatShading: true,
+      roughness: 0.9,
+      metalness: 0,
+      transparent: fantasma,
+      opacity: fantasma ? 0.45 : 1,
+      depthWrite: !fantasma,
       side: duplo ? THREE.DoubleSide : THREE.FrontSide,
     });
     cache.set(chave, m);
@@ -33,8 +38,17 @@ export function useMaterial() {
 // Material que brilha (fogo, lanterna, ouro). Na prévia de construção fica translúcido.
 export function useBrilho(cor, intensidade) {
   const fantasma = useFantasma();
-  return useMemo(() => new THREE.MeshStandardMaterial({
-    color: cor, emissive: cor, emissiveIntensity: intensidade, flatShading: true,
-    transparent: fantasma, opacity: fantasma ? 0.45 : 1, depthWrite: !fantasma,
-  }), [cor, intensidade, fantasma]);
+  return useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: cor,
+        emissive: cor,
+        emissiveIntensity: intensidade,
+        flatShading: true,
+        transparent: fantasma,
+        opacity: fantasma ? 0.45 : 1,
+        depthWrite: !fantasma,
+      }),
+    [cor, intensidade, fantasma],
+  );
 }

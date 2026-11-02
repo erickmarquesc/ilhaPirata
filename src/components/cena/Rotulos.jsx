@@ -19,7 +19,9 @@ function rotulo(ctx, x, y, msg, cor = '#fff') {
   ctx.textAlign = 'center';
   const w = ctx.measureText(msg).width + 10;
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.beginPath(); ctx.roundRect(x - w / 2, y - 12, w, 16, 4); ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(x - w / 2, y - 12, w, 16, 4);
+  ctx.fill();
   ctx.fillStyle = cor;
   ctx.fillText(msg, x, y);
 }
@@ -28,14 +30,18 @@ function balao(ctx, x, y, icone, msg) {
   const sobe = Math.sin(performance.now() / 250) * 2;
   y += sobe;
   ctx.font = 'bold 11px system-ui, sans-serif';
-  const w = Math.max(ctx.measureText(msg).width + 14, 40), h = 40;
+  const w = Math.max(ctx.measureText(msg).width + 14, 40),
+    h = 40;
   ctx.fillStyle = 'rgba(255,250,235,0.95)';
   ctx.strokeStyle = '#5a3a1c';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.roundRect(x - w / 2, y - h, w, h, 8);
-  ctx.moveTo(x - 5, y); ctx.lineTo(x, y + 7); ctx.lineTo(x + 5, y);
-  ctx.fill(); ctx.stroke();
+  ctx.moveTo(x - 5, y);
+  ctx.lineTo(x, y + 7);
+  ctx.lineTo(x + 5, y);
+  ctx.fill();
+  ctx.stroke();
   ctx.textAlign = 'center';
   ctx.fillStyle = '#5a2e0c';
   ctx.fillText(msg, x, y - 5);
@@ -118,10 +124,13 @@ function desenhar(ctx, proj) {
     if (t.tipo === 'esperarNaCabana' || t.tipo === 'cuidarNaCabana') continue; // sem barra: o tempo aparece no rótulo da esposa
     if (t.tipo === 'pedirComida') {
       // chegou na fogueira: mostra o que quer comer
-      const p = proj(a.x, 30, a.y), prato = PRATOS[t.prato], servido = mundo.comida.servido;
+      const p = proj(a.x, 30, a.y),
+        prato = PRATOS[t.prato],
+        servido = mundo.comida.servido;
       if (!p) continue;
       balao(ctx, p.x, p.y - 4, prato.icone, `Quero ${prato.nome.toLowerCase()}!`);
-      if (servido && servido.prato !== t.prato) rotulo(ctx, p.x, p.y + 22, `esperando o ${PRATOS[servido.prato].nome.toLowerCase()} acabar`, '#e8e8e8');
+      if (servido && servido.prato !== t.prato)
+        rotulo(ctx, p.x, p.y + 22, `esperando o ${PRATOS[servido.prato].nome.toLowerCase()} acabar`, '#e8e8e8');
       continue;
     }
     if (t.tipo === 'ajudar') {
@@ -133,10 +142,19 @@ function desenhar(ctx, proj) {
       const p = proj(t.x, alturaDaBarra(t), t.y);
       const n = filhosParaNivel(t.construcao, nivelAlvoDaObra(t));
       const adultos = !!CONSTRUCOES[t.construcao].soAdultos;
-      const quem = adultos ? (n > 1 ? `${n} filhos adultos` : 'um filho adulto') : (n > 1 ? `${n} filhos adolescentes ou adultos` : 'um filho adolescente ou adulto');
-      const msg = filhosQuePodemAjudar(t.construcao) >= n
-        ? (n > 1 ? `Esperando os ${n} filhos chegarem para ajudar...` : 'Esperando o filho chegar para ajudar...')
-        : `Precisa de ${quem}`;
+      const quem = adultos
+        ? n > 1
+          ? `${n} filhos adultos`
+          : 'um filho adulto'
+        : n > 1
+          ? `${n} filhos adolescentes ou adultos`
+          : 'um filho adolescente ou adulto';
+      const msg =
+        filhosQuePodemAjudar(t.construcao) >= n
+          ? n > 1
+            ? `Esperando os ${n} filhos chegarem para ajudar...`
+            : 'Esperando o filho chegar para ajudar...'
+          : `Precisa de ${quem}`;
       if (p) rotulo(ctx, p.x, p.y, msg, '#ffe9b0');
       continue;
     }
@@ -178,8 +196,12 @@ export default function Rotulos({ canvasRef }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const dpr = viewport.dpr;
-    const w = Math.round(size.width * dpr), h = Math.round(size.height * dpr);
-    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    const w = Math.round(size.width * dpr),
+      h = Math.round(size.height * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
     const ctx = canvas.getContext('2d');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, w, h);
@@ -187,7 +209,7 @@ export default function Rotulos({ canvasRef }) {
     const proj = (x, altura, y) => {
       v.set(x - ILHA.x, altura, y - ILHA.y).project(camera);
       if (v.z > 1) return null; // atrás da câmera
-      return { x: (v.x + 1) / 2 * size.width, y: (1 - v.y) / 2 * size.height };
+      return { x: ((v.x + 1) / 2) * size.width, y: ((1 - v.y) / 2) * size.height };
     };
     desenhar(ctx, proj);
   });

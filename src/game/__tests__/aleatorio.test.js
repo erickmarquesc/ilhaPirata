@@ -18,12 +18,18 @@ describe('aleatorio', () => {
 
   it('sortear() fica em [0, 1)', () => {
     definirSemente(1);
-    for (const v of amostra(sortear)) { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThan(1); }
+    for (const v of amostra(sortear)) {
+      expect(v).toBeGreaterThanOrEqual(0);
+      expect(v).toBeLessThan(1);
+    }
   });
 
   it('entre(min, max) fica em [min, max)', () => {
     definirSemente(2);
-    for (const v of amostra(() => entre(-3, 5))) { expect(v).toBeGreaterThanOrEqual(-3); expect(v).toBeLessThan(5); }
+    for (const v of amostra(() => entre(-3, 5))) {
+      expect(v).toBeGreaterThanOrEqual(-3);
+      expect(v).toBeLessThan(5);
+    }
   });
 
   it('escolher(lista) só devolve itens da lista e alcança todos', () => {

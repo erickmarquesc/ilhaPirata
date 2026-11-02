@@ -8,7 +8,9 @@ import { clima } from './Chuva.jsx';
 import { gestos } from './gestos.js';
 
 const INCLINACAO = THREE.MathUtils.degToRad(52); // ângulo da câmera em relação ao chão
-const ZOOM_MIN = 160, ZOOM_MAX = 1500, ZOOM_INICIAL = 620;
+const ZOOM_MIN = 160,
+  ZOOM_MAX = 1500,
+  ZOOM_INICIAL = 620;
 
 // Câmera que acompanha o jogador, com zoom na roda do mouse ou pinça.
 // Setas / WASD soltam a câmera e a movem pelo mapa (mundo.visao), sem mexer no personagem;
@@ -18,7 +20,9 @@ export default function Camera() {
   const { camera, gl } = useThree();
   const distancia = useRef(ZOOM_INICIAL);
   const alvo = useRef(null);
-  const sol = useRef(), alvoDoSol = useRef(), ceu = useRef();
+  const sol = useRef(),
+    alvoDoSol = useRef(),
+    ceu = useRef();
 
   // ----- Zoom: roda do mouse e pinça com dois dedos -----
   useEffect(() => {
@@ -26,13 +30,22 @@ export default function Camera() {
     const zoom = fator => {
       distancia.current = THREE.MathUtils.clamp(distancia.current * fator, ZOOM_MIN, ZOOM_MAX);
     };
-    const aoRolar = e => { e.preventDefault(); zoom(Math.exp(e.deltaY * 0.001)); };
+    const aoRolar = e => {
+      e.preventDefault();
+      zoom(Math.exp(e.deltaY * 0.001));
+    };
     const toques = new Map();
     let distAnterior = 0;
-    const separacao = () => { const [a, b] = [...toques.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+    const separacao = () => {
+      const [a, b] = [...toques.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
     const aoTocar = e => {
       toques.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (toques.size === 2) { gestos.pincando = true; distAnterior = separacao(); }
+      if (toques.size === 2) {
+        gestos.pincando = true;
+        distAnterior = separacao();
+      }
     };
     const aoMover = e => {
       if (!toques.has(e.pointerId)) return;
@@ -61,7 +74,9 @@ export default function Camera() {
     };
   }, [gl]);
 
-  useEffect(() => { sol.current.target = alvoDoSol.current; }, []);
+  useEffect(() => {
+    sol.current.target = alvoDoSol.current;
+  }, []);
 
   useFrame((_, dt) => {
     const { jogador } = mundo;
@@ -69,7 +84,7 @@ export default function Camera() {
     if (dx || dy) {
       // solta a câmera de onde ela está olhando agora
       if (!mundo.visao) mundo.visao = alvo.current ? { x: alvo.current.x + ILHA.x, y: alvo.current.z + ILHA.y } : { x: jogador.x, y: jogador.y };
-      const passo = distancia.current * 1.1 * dt / Math.hypot(dx, dy);
+      const passo = (distancia.current * 1.1 * dt) / Math.hypot(dx, dy);
       // sem sair do mapa
       mundo.visao.x = THREE.MathUtils.clamp(mundo.visao.x + dx * passo, 0, MUNDO.w);
       mundo.visao.y = THREE.MathUtils.clamp(mundo.visao.y + dy * passo, 0, MUNDO.h);
@@ -78,7 +93,8 @@ export default function Camera() {
     const destino = new THREE.Vector3(foco.x - ILHA.x, 0, foco.y - ILHA.y);
     if (!alvo.current) alvo.current = destino.clone();
     alvo.current.lerp(destino, 1 - Math.exp(-dt * (dx || dy ? 10 : 4))); // segue suavemente
-    const d = distancia.current, a = alvo.current;
+    const d = distancia.current,
+      a = alvo.current;
     camera.position.set(a.x, a.y + d * Math.sin(INCLINACAO), a.z + d * Math.cos(INCLINACAO));
     camera.lookAt(a);
 
@@ -89,9 +105,13 @@ export default function Camera() {
     // sol e área de sombra acompanham a câmera
     sol.current.position.set(a.x + 260, 480, a.z + 160);
     alvoDoSol.current.position.copy(a);
-    const cam = sol.current.shadow.camera, alcance = Math.max(250, d * 0.9);
+    const cam = sol.current.shadow.camera,
+      alcance = Math.max(250, d * 0.9);
     if (cam.right !== alcance) {
-      cam.left = -alcance; cam.right = alcance; cam.top = alcance; cam.bottom = -alcance;
+      cam.left = -alcance;
+      cam.right = alcance;
+      cam.top = alcance;
+      cam.bottom = -alcance;
       cam.updateProjectionMatrix();
     }
   });

@@ -7,9 +7,15 @@ import { mundo } from './mundo.js';
 // Quem anda colide só pelo "pé"; árvores e construções bloqueiam só o miolo.
 // Como árvores ficam a ~45 uma da outra e construções têm folga mínima (ver config.js),
 // sempre sobra passagem entre elas.
-function pe(raio) { return Math.min(raio, 10) * FATOR_PE; }
-function colisaoArvore(t, raio) { return t.raio * 0.35 + pe(raio); }
-export function mioloDe(s) { return CONSTRUCOES[s.tipo]?.miolo ?? s.raio * FATOR_MIOLO; }
+function pe(raio) {
+  return Math.min(raio, 10) * FATOR_PE;
+}
+function colisaoArvore(t, raio) {
+  return t.raio * 0.35 + pe(raio);
+}
+export function mioloDe(s) {
+  return CONSTRUCOES[s.tipo]?.miolo ?? s.raio * FATOR_MIOLO;
+}
 
 export function podeFicar(x, y, raio) {
   if (!dentroDaIlha(x, y, raio)) return false;
@@ -21,13 +27,16 @@ export function podeFicar(x, y, raio) {
 // Borda macia: quanto e para onde sair das bordas das construções (entre o miolo e o raio cheio).
 // Devolve a soma das saídas (cada uma do tamanho de quanto entrou) ou null fora de todas.
 export function saidaDaBorda(x, y, raio) {
-  let dx = 0, dy = 0;
+  let dx = 0,
+    dy = 0;
   for (const s of mundo.estruturas) {
     if (s.area) continue;
-    const d = Math.hypot(x - s.x, y - s.y), fim = s.raio + pe(raio);
+    const d = Math.hypot(x - s.x, y - s.y),
+      fim = s.raio + pe(raio);
     if (d >= fim || d < 1e-6) continue;
     const entrou = Math.min(fim - d, fim - mioloDe(s) - pe(raio)); // no máximo a largura da borda
-    dx += (x - s.x) / d * entrou; dy += (y - s.y) / d * entrou;
+    dx += ((x - s.x) / d) * entrou;
+    dy += ((y - s.y) / d) * entrou;
   }
   return dx || dy ? { dx, dy } : null;
 }
@@ -43,7 +52,9 @@ export function motivoNaoPlantar(p) {
   if (mundo.montes.some(m => folgaEntre(muda, formaDoMonte(m)) < DISTANCIA_MIN_PLANTIO)) return 'Muito perto do monte';
   return null;
 }
-export function podePlantarEm(p) { return !motivoNaoPlantar(p); }
+export function podePlantarEm(p) {
+  return !motivoNaoPlantar(p);
+}
 
 // ===================== Construir =====================
 // Formas no chão: áreas cercadas são quadrados (h = meio lado), o resto é círculo (r).
@@ -51,18 +62,24 @@ function formaDaConstrucao(id, x, y) {
   const c = CONSTRUCOES[id];
   return c.area ? { x, y, h: c.raio } : { x, y, r: c.raio };
 }
-function formaDaEstrutura(s) { return s.area ? { x: s.x, y: s.y, h: s.raio } : { x: s.x, y: s.y, r: s.raio }; }
-function formaDoMonte(m) { return { x: m.x, y: m.y, r: m.raio }; }
+function formaDaEstrutura(s) {
+  return s.area ? { x: s.x, y: s.y, h: s.raio } : { x: s.x, y: s.y, r: s.raio };
+}
+function formaDoMonte(m) {
+  return { x: m.x, y: m.y, r: m.raio };
+}
 
 // Distância entre as bordas de duas formas (negativa quando se sobrepõem)
 export function folgaEntre(a, b) {
   if (a.h === undefined && b.h === undefined) return Math.hypot(a.x - b.x, a.y - b.y) - a.r - b.r;
   if (a.h !== undefined && b.h !== undefined) {
-    const dx = Math.abs(a.x - b.x) - a.h - b.h, dy = Math.abs(a.y - b.y) - a.h - b.h;
+    const dx = Math.abs(a.x - b.x) - a.h - b.h,
+      dy = Math.abs(a.y - b.y) - a.h - b.h;
     return dx > 0 || dy > 0 ? Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) : Math.max(dx, dy);
   }
   const [c, q] = a.h === undefined ? [a, b] : [b, a]; // círculo e quadrado
-  const dx = Math.abs(c.x - q.x) - q.h, dy = Math.abs(c.y - q.y) - q.h;
+  const dx = Math.abs(c.x - q.x) - q.h,
+    dy = Math.abs(c.y - q.y) - q.h;
   const fora = Math.hypot(Math.max(dx, 0), Math.max(dy, 0));
   return (fora > 0 ? fora : Math.max(dx, dy)) - c.r;
 }
@@ -73,7 +90,10 @@ function formaEmTerra(f) {
   if (f.h !== undefined) {
     for (const sx of [-1, 0, 1]) for (const sy of [-1, 0, 1]) pontos.push([sx * f.h, sy * f.h]);
   } else {
-    for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; pontos.push([Math.cos(a) * f.r, Math.sin(a) * f.r]); }
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      pontos.push([Math.cos(a) * f.r, Math.sin(a) * f.r]);
+    }
   }
   return pontos.every(([dx, dy]) => dentroDaIlha(f.x + dx, f.y + dy, 2));
 }
@@ -84,21 +104,26 @@ export function podeConstruirEm(id, p) {
   const c = CONSTRUCOES[id];
   const forma = formaDaConstrucao(id, p.x, p.y);
   const lugarOk = c.local ? c.local(p) : formaEmTerra(forma);
-  return lugarOk &&
+  return (
+    lugarOk &&
     mundo.estruturas.every(s => folgaEntre(forma, formaDaEstrutura(s)) >= DISTANCIA_MIN_CONSTRUCAO) &&
-    mundo.montes.every(m => folgaEntre(forma, formaDoMonte(m)) >= DISTANCIA_MIN_CONSTRUCAO);
+    mundo.montes.every(m => folgaEntre(forma, formaDoMonte(m)) >= DISTANCIA_MIN_CONSTRUCAO)
+  );
 }
 // Árvores que ficam embaixo da construção
 export function arvoresAfetadas(id, p) {
   const c = CONSTRUCOES[id];
-  return mundo.arvores.filter(t => c.area
-    ? Math.abs(t.x - p.x) < c.raio + t.raio * 0.6 && Math.abs(t.y - p.y) < c.raio + t.raio * 0.6
-    : Math.hypot(t.x - p.x, t.y - p.y) < c.raio + t.raio * 0.8);
+  return mundo.arvores.filter(t =>
+    c.area
+      ? Math.abs(t.x - p.x) < c.raio + t.raio * 0.6 && Math.abs(t.y - p.y) < c.raio + t.raio * 0.6
+      : Math.hypot(t.x - p.x, t.y - p.y) < c.raio + t.raio * 0.8,
+  );
 }
 export function lugarLivrePerto(x, y, dist) {
   for (let i = 0; i < 24; i++) {
-    const ang = i / 24 * Math.PI * 2;
-    const px = x + Math.cos(ang) * dist, py = y + Math.sin(ang) * dist;
+    const ang = (i / 24) * Math.PI * 2;
+    const px = x + Math.cos(ang) * dist,
+      py = y + Math.sin(ang) * dist;
     if (podeFicar(px, py, 10)) return { x: px, y: py };
   }
   return { x, y: y + dist };
