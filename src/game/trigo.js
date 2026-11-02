@@ -1,4 +1,5 @@
 import { TEMPO_TRIGO_CRESCER } from './config.js';
+import { entre } from './aleatorio.js';
 import { cancelar } from './agentes.js';
 import { ritmoDasPlantas } from './chuva.js';
 import { textoFlutuante } from './efeitos.js';
@@ -65,6 +66,6 @@ export function cuidarDoCampo(a, campo) {
   const vazio = !a.semTrabalho && sementesTrigoLivres(a) > 0 ? perto(campo.canteiros.filter(k => k.estado === 'vazio' && livre(k))) : null;
   if (vazio) { iniciarTarefa(a, { tipo: 'plantarTrigo', canteiro: vazio, x: vazio.x, y: vazio.y, raio: 2 }); return; }
   const m = campo.raio - 12;
-  a.destino = { x: campo.x + (Math.random() * 2 - 1) * m, y: campo.y + (Math.random() * 2 - 1) * m };
-  a.espera = 2 + Math.random() * 2;
+  a.destino = { x: campo.x + entre(-m, m), y: campo.y + entre(-m, m) };
+  a.espera = entre(2, 4);
 }

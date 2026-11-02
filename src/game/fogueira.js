@@ -1,4 +1,5 @@
 import { PEDACOS_POR_PRATO, TEMPO_ENTRE_PEDIDOS, TEMPO_PRIMEIRO_PEDIDO, TEMPO_TORRAR } from './config.js';
+import { entre, escolher, sortear } from './aleatorio.js';
 import { CONSTRUCOES } from './construcoes.js';
 import { cancelar } from './agentes.js';
 import { chovendo } from './chuva.js';
@@ -51,11 +52,6 @@ export function cozinhar(prato) {
   iniciarTarefa(jogador, { tipo: 'cozinhar', construcao: 'fogueira', prato, estrutura: s, x: s.x, y: s.y, raio: s.raio });
 }
 
-function sortearEspera() {
-  const [min, max] = TEMPO_ENTRE_PEDIDOS;
-  return min + Math.random() * (max - min);
-}
-
 // Conclusão da tarefa "cozinhar" (chamada por tarefas.js): o prato vai para o espeto
 export function concluirCozinhar(t) {
   const p = PRATOS[t.prato], custo = custoDoPrato(t.prato);
@@ -84,18 +80,18 @@ function podePedir(a) {
 
 function lugarDoPedido(s) {
   // em volta da frente da fogueira (lado da câmera)
-  const ang = Math.PI * (0.15 + Math.random() * 0.7);
-  const d = s.raio + 12 + Math.random() * 8;
+  const ang = Math.PI * entre(0.15, 0.85);
+  const d = s.raio + entre(12, 20);
   return { x: s.x + Math.cos(ang) * d, y: s.y + Math.sin(ang) * d };
 }
 
 function novoPedido(s) {
   const candidatos = mundo.agentes.filter(podePedir);
   if (!candidatos.length) return;
-  const quem = candidatos[Math.floor(Math.random() * candidatos.length)];
+  const quem = escolher(candidatos);
   // só pede peixada se der para conseguir peixe (tem peixe ou já tem a jangada)
   const temPeixe = mundo.inventario.peixe > 0 || !!estruturaDoTipo('jangada');
-  const prato = temPeixe && Math.random() < 0.5 ? 'peixada' : 'churrasco';
+  const prato = temPeixe && sortear() < 0.5 ? 'peixada' : 'churrasco';
   const p = lugarDoPedido(s);
   cancelar(quem);
   iniciarTarefa(quem, { tipo: 'pedirComida', prato, x: p.x, y: p.y, raio: 4 });
@@ -160,6 +156,6 @@ export function atualizarPedidosDeComida(dt) {
     const antes = comida.pedidos.length;
     novoPedido(s);
     // ninguém disponível agora: tenta de novo daqui a pouco
-    comida.espera = comida.pedidos.length > antes ? sortearEspera() : 5;
+    comida.espera = comida.pedidos.length > antes ? entre(...TEMPO_ENTRE_PEDIDOS) : 5;
   }
 }

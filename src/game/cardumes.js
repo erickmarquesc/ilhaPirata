@@ -2,6 +2,7 @@ import {
   CARDUMES_MAX, CARDUMES_PROFUNDOS_MAX, FIM_DO_MAR, FIM_DO_RASO, FOLGA_CARDUME_RASO, ILHA, MUNDO,
   PESCA_NO_MAR, PESCA_NO_PROFUNDO, TEMPO_NOVO_CARDUME,
 } from './config.js';
+import { entre, sortear } from './aleatorio.js';
 import { dentroDaIlha, raioIlha } from './ilha.js';
 import { mundo } from './mundo.js';
 
@@ -29,16 +30,16 @@ export function cabeNaFaixa(x, y, raio, profundo) {
 export function cardumeNoLugar(c) { return cabeNaFaixa(c.x, c.y, c.raio, c.profundo); }
 
 function lugarNoMar(raio) {
-  const ang = Math.random() * Math.PI * 2;
+  const ang = sortear() * Math.PI * 2;
   const folga = FOLGA_CARDUME_RASO + raio * 1.05;
   const min = raioIlha(ang) + FIM_DO_RASO + folga, max = raioIlha(ang) + FIM_DO_MAR - folga;
-  const d = min + Math.random() * (max - min);
+  const d = entre(min, max);
   return { x: ILHA.x + Math.cos(ang) * d, y: ILHA.y + Math.sin(ang) * d };
 }
 // O mar profundo vai até a borda do mapa: sorteia qualquer ponto e confere
 function lugarNoProfundo(raio) {
   const r = raio * 1.05;
-  return { x: r + Math.random() * (MUNDO.w - 2 * r), y: r + Math.random() * (MUNDO.h - 2 * r) };
+  return { x: entre(r, MUNDO.w - r), y: entre(r, MUNDO.h - r) };
 }
 
 export function novoCardume(profundo = false) {
@@ -48,7 +49,7 @@ export function novoCardume(profundo = false) {
     const { x, y } = profundo ? lugarNoProfundo(pesca.raio) : lugarNoMar(pesca.raio);
     if (!cabeNaFaixa(x, y, pesca.raio, profundo)) continue;
     if (cardumes.some(c => Math.hypot(c.x - x, c.y - y) < c.raio + pesca.raio + 50)) continue;
-    cardumes.push({ x, y, profundo, raio: pesca.raio, peixes: pesca.pescas, dir: Math.random() * Math.PI * 2, fase: Math.random() * 10 });
+    cardumes.push({ x, y, profundo, raio: pesca.raio, peixes: pesca.pescas, dir: sortear() * Math.PI * 2, fase: sortear() * 10 });
     return;
   }
 }
@@ -72,7 +73,7 @@ export function atualizarCardumes(dt) {
   for (const c of mundo.cardumes) {
     c.fase += dt;
     if (c.parado > 0) { c.parado -= dt; continue; }
-    if (Math.random() < dt * 0.3) c.dir += (Math.random() - 0.5) * 1.5;
+    if (sortear() < dt * 0.3) c.dir += entre(-0.75, 0.75);
     const nx = c.x + Math.cos(c.dir) * 4 * dt, ny = c.y + Math.sin(c.dir) * 4 * dt;
     if (cabeNaFaixa(nx, ny, c.raio, c.profundo)) { c.x = nx; c.y = ny; } else c.dir += Math.PI; // bateu na borda: meia-volta
   }

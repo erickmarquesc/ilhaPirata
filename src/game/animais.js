@@ -1,4 +1,5 @@
 import { ESPECIES, TEMPO_CRESCER_ANIMAL, TEMPO_CRIA_ANIMAL } from './config.js';
+import { entre, escolher, sortear } from './aleatorio.js';
 import { cancelar, liberarAlvo } from './agentes.js';
 import { luzDivina, textoFlutuante } from './efeitos.js';
 import { lugarLivrePerto, podeFicar } from './espaco.js';
@@ -18,7 +19,7 @@ export function novoAnimal(especie, sexo, x, y, reprodutor) {
     especie, sexo, x, y, reprodutor,
     raio: E.raio, velocidade: E.velocidade,
     idade: reprodutor ? TEMPO_CRESCER_ANIMAL : 0,
-    destino: null, espera: 1 + Math.random() * 2, cria: 0, dir: 1,
+    destino: null, espera: entre(1, 3), cria: 0, dir: 1,
   };
 }
 export function nomeAnimal(an) { return ESPECIES[an.especie].nome[an.sexo]; }
@@ -41,10 +42,10 @@ export function pedirAnimal(id) {
   const opcoes = especiesIncompletas();
   if (!totem || !opcoes.length || !temRecursos(p.custo)) return;
   gastarRecursos(p.custo);
-  const especie = opcoes[Math.floor(Math.random() * opcoes.length)];
+  const especie = escolher(opcoes);
   const c = casal(especie);
   // Nunca duas fêmeas ou dois machos: vem o sexo que falta
-  const sexo = c.f ? 'm' : c.m ? 'f' : (Math.random() < 0.5 ? 'f' : 'm');
+  const sexo = c.f ? 'm' : c.m ? 'f' : escolher(['f', 'm']);
   const pos = lugarLivrePerto(totem.x, totem.y, 42);
   const an = novoAnimal(especie, sexo, pos.x, pos.y, true);
   mundo.animais.push(an);
@@ -102,7 +103,7 @@ export function atualizarAnimais(dt) {
     if (c.f.cria >= TEMPO_CRIA_ANIMAL) {
       c.f.cria = 0;
       const pos = lugarLivrePerto(c.f.x, c.f.y, ESPECIES[e].raio + 8);
-      const filhote = novoAnimal(e, Math.random() < 0.5 ? 'f' : 'm', pos.x, pos.y, false);
+      const filhote = novoAnimal(e, escolher(['f', 'm']), pos.x, pos.y, false);
       filhote.mae = c.f;
       animais.push(filhote);
       textoFlutuante(c.f.x, c.f.y - 25, 'Nasceu um filhote!', '#ffe9b0');
@@ -124,15 +125,15 @@ export function atualizarAnimais(dt) {
         if (abrigo) {
           // com abrigo: passeia só dentro da cerca
           const m = abrigo.raio - an.raio - 4;
-          p = { x: abrigo.x + (Math.random() * 2 - 1) * m, y: abrigo.y + (Math.random() * 2 - 1) * m };
+          p = { x: abrigo.x + entre(-m, m), y: abrigo.y + entre(-m, m) };
         } else {
           // filhote fica perto da mãe
           const base = (!animalAdulto(an) && an.mae && animais.includes(an.mae)) ? an.mae : an;
-          const ang = Math.random() * Math.PI * 2, d = 20 + Math.random() * 50;
+          const ang = sortear() * Math.PI * 2, d = entre(20, 70);
           p = { x: base.x + Math.cos(ang) * d, y: base.y + Math.sin(ang) * d };
         }
         if (podeFicar(p.x, p.y, an.raio)) an.destino = p;
-        an.espera = 2 + Math.random() * 3;
+        an.espera = entre(2, 5);
       }
       continue;
     }

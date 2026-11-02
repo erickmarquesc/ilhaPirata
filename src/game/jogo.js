@@ -1,4 +1,5 @@
 import { CARDUMES_MAX, CARDUMES_PROFUNDOS_MAX, ILHA, NOME_PAI } from './config.js';
+import { definirSemente, novaSemente } from './aleatorio.js';
 import { construirEm } from './acoes.js';
 import { agenteEm, cancelar, liberarAlvo, novoAgente } from './agentes.js';
 import { animalEm, atualizarAnimais } from './animais.js';
@@ -23,8 +24,12 @@ import {
 } from './ui.js';
 
 // ===================== Início =====================
-export function criarMundo() {
+// A mesma semente gera o mesmo mapa (e, com dt fixo, a mesma partida)
+export function criarMundo(semente = novaSemente()) {
+  definirSemente(semente);
   limparMundo();
+  mundo.semente = semente;
+  relogioUI = 0;
   mundo.jogador = novoAgente('jogador', ILHA.x, ILHA.y, { nome: NOME_PAI });
   mundo.agentes.push(mundo.jogador);
   gerarArvores(12);

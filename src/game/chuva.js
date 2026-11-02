@@ -1,4 +1,5 @@
 import { ARVORES_POR_CHUVA, CRESCIMENTO_NA_CHUVA, ILHA, TEMPO_CHUVA } from './config.js';
+import { sortear } from './aleatorio.js';
 import { novaArvore } from './arvores.js';
 import { luzDivina, textoFlutuante } from './efeitos.js';
 import { podePlantarEm } from './espaco.js';
@@ -33,7 +34,7 @@ export function pedirChuva(id) {
 function brotarArvoresDaChuva() {
   let brotaram = 0;
   for (let i = 0; i < 400 && brotaram < ARVORES_POR_CHUVA; i++) {
-    const ang = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * raioIlha(ang);
+    const ang = sortear() * Math.PI * 2, d = Math.sqrt(sortear()) * raioIlha(ang);
     const p = { x: ILHA.x + Math.cos(ang) * d, y: ILHA.y + Math.sin(ang) * d };
     if (!podePlantarEm(p)) continue;
     mundo.arvores.push(novaArvore(p.x, p.y, false, 'chuva'));
